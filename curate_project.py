@@ -1,3 +1,10 @@
+#!/usr/bin/env python
+# -*- coding: utf-8
+# Function to parse UK Biobank data
+#
+# Author: Alexandru Foias
+
+
 import os
 import argparse
 import shutil
