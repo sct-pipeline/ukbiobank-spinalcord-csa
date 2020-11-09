@@ -1,0 +1,12 @@
+Metadata-Version: 1.2
+Name: ukbiobank-pipeline
+Version: 1.0
+Summary: Collection of cli to precess data from Cord CSA project
+Home-page: https://github.com/sandrinebedard/Projet3
+License: UNKNOWN
+Description: UNKNOWN
+Platform: UNKNOWN
+Classifier: Development Status :: 3 - Alpha
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3.7
+Requires-Python: >=3.7

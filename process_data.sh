@@ -60,12 +60,7 @@ label_if_does_not_exist(){
 segment_if_does_not_exist(){
   local file="$1"
   local contrast="$2"
-  # Find contrast
-  if [[ $contrast == "dwi" ]]; then
-    folder_contrast="dwi"
-  else
-    folder_contrast="anat"
-  fi
+  folder_contrast="anat"
   # Update global variable with segmentation file name
   FILESEG="${file}_seg"
   FILESEGMANUAL="${PATH_DATA}/derivatives/labels/${SUBJECT}/${folder_contrast}/${FILESEG}-manual.nii.gz"
@@ -85,7 +80,7 @@ segment_if_does_not_exist(){
 # SCRIPT STARTS HERE
 # ==============================================================================
 # Display useful info for the log, such as SCT version, RAM and CPU cores available
-#sct_check_dependencies -short Short no available for me
+sct_check_dependencies -short
 
 # Go to folder where data will be copied and processed
 cd ${PATH_DATA_PROCESSED}
@@ -102,6 +97,10 @@ rsync -avzh $PATH_DATA/$SUBJECT .
 # Go to anat folder where all structural data are located
 cd ${SUBJECT}/anat/
 
+#Get subjects info
+#put an argument to data.csv
+
+
 # T1w
 # ------------------------------------------------------------------------------
 file_t1="${SUBJECT}_T1w"
@@ -114,8 +113,8 @@ file_t1="${file_t1}_RPI_r"
 #file_t1="${file_t1}_gardcorr"
 
 # Segment spinal cord (only if it does not exist)
-segment_if_does_not_exist $file_t1 "t1"
-file_t1_seg=$FILESEG
+#segment_if_does_not_exist $file_t1 "t1"
+#file_t1_seg=$FILESEG
 
 # Create mid-vertebral levels in the cord (only if it does not exist)
 #label_if_does_not_exist ${file_t1} ${file_t1_seg} PROBLÈME ICI
@@ -141,13 +140,44 @@ file_t2="${SUBJECT}_T2w"
 sct_image -i ${file_t2}.nii.gz -setorient RPI -o ${file_t2}_RPI.nii.gz
 sct_resample -i ${file_t2}_RPI.nii.gz -mm 0.8x0.8x0.8 -o ${file_t2}_RPI_r.nii.gz
 file_t2="${file_t2}_RPI_r"
+
+#ADD gradient correction here
+#file_t1="${file_t1}_gardcorr"
+
 # Segment spinal cord (only if it does not exist)
-segment_if_does_not_exist $file_t2 "t2"
-file_t2_seg=$FILESEG
+#segment_if_does_not_exist $file_t2 "t2"
+#file_t2_seg=$FILESEG
 # Flatten scan along R-L direction (to make nice figures)
-sct_flatten_sagittal -i ${file_t2}.nii.gz -s ${file_t2_seg}.nii.gz
+#sct_flatten_sagittal -i ${file_t2}.nii.gz -s ${file_t2_seg}.nii.gz
 
 # Bring vertebral level into T2 space PLus tard puisque impossible pour T1
 #sct_register_multimodal -i label_T1w/template/PAM50_levels.nii.gz -d ${file_t2_seg}.nii.gz -o PAM50_levels2${file_t2}.nii.gz -identity 1 -x nn
 # Compute average cord CSA between C2 and C3
 #sct_process_segmentation -i ${file_t2_seg}.nii.gz -vert 2:3 -vertfile PAM50_levels2${file_t2}.nii.gz -o ${PATH_RESULTS}/csa-SC_T2w.csv -append 1
+
+# Verify presence of output files and write log file if error
+# ------------------------------------------------------------------------------
+#FILES_TO_CHECK=(
+#  "anat/${SUBJECT}_T1w_RPI_r_seg.nii.gz"
+#  "anat/${SUBJECT}_T2w_RPI_r_seg.nii.gz"
+#  "anat/label_axT1w/template/PAM50_levels.nii.gz"
+#  "anat/t1map.nii.gz"
+#  "anat/${SUBJECT}_T2star_rms_gmseg.nii.gz"
+#)
+#for file in ${FILES_TO_CHECK[@]}; do
+#  if [[ ! -e $file ]]; then
+#    echo "${SUBJECT}/${file} does not exist" >> $PATH_LOG/_error_check_output_files.log
+#  fi
+#done
+
+uk_get_subject_info -subject ${SUBJECT} -datafile data.csv -path-data-output $PATH_DATA_PROCESSED #modifier pour qu'il ait prendre les données de CSA
+
+# Display useful info for the log
+end=`date +%s`
+runtime=$((end-start))
+echo
+echo "~~~"
+echo "SCT version: `sct_version`"
+echo "Ran on:      `uname -nsr`"
+echo "Duration:    $(($runtime / 3600))hrs $((($runtime / 60) % 60))min $(($runtime % 60))sec"
+echo "~~~"
