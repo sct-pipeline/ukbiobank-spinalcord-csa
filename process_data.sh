@@ -1,4 +1,3 @@
-
 #!/bin/bash
 #
 # Process data.
@@ -10,13 +9,7 @@
 # PATH_DATA/derivatives/labels/SUBJECT/<CONTRAST>/
 #
 # Authors: Sandrine Bédard, Julien Cohen-Adad
-
-#TO COMMENT when using sct_run_batch
-PATH_DATA="/mnt/c/Users/sb199/data_BIDS1" #delete wehn usinge sct_run_batch
-PATH_DATA_PROCESSED=~/ukbiobank_results
-PATH_RESULTS=/$PATH_DATA_PROCESSED/results
-PATH_LOG=/$PATH_DATA_PROCESSED/log
-PATH_QC=/$PATH_DATA_PROCESSED/qc
+echo "Hello world"
 
 set -x
 # Immediately exit if error
@@ -27,7 +20,6 @@ trap "echo Caught Keyboard Interrupt within script. Exiting now.; exit" INT
 
 # Retrieve input params
 SUBJECT=$1
-
 # get starting time:
 start=`date +%s`
 
@@ -88,7 +80,7 @@ cd ${PATH_DATA_PROCESSED}
 if [[ ! -f "participants.tsv" ]]; then
   rsync -avzh $PATH_DATA/participants.tsv .
 fi
-# Copy list of participants in restuls folder (used by spine-generic scripts)
+# Copy list of participants in resutls folder --> à voir si pertinent??
 if [[ ! -f $PATH_RESULTS/"participants.tsv" ]]; then
   rsync -avzh $PATH_DATA/participants.tsv $PATH_RESULTS/"participants.tsv"
 fi
@@ -96,9 +88,6 @@ fi
 rsync -avzh $PATH_DATA/$SUBJECT .
 # Go to anat folder where all structural data are located
 cd ${SUBJECT}/anat/
-
-#Get subjects info
-#put an argument to data.csv
 
 
 # T1w
@@ -113,11 +102,13 @@ file_t1="${file_t1}_RPI_r"
 #file_t1="${file_t1}_gardcorr"
 
 # Segment spinal cord (only if it does not exist)
-#segment_if_does_not_exist $file_t1 "t1"
-#file_t1_seg=$FILESEG
+segment_if_does_not_exist $file_t1 "t1"
+file_t1_seg=$FILESEG
 
-# Create mid-vertebral levels in the cord (only if it does not exist)
-#label_if_does_not_exist ${file_t1} ${file_t1_seg} PROBLÈME ICI
+# Create mid-vertebral levels in the cord (only if it does not exist) 
+
+#label_if_does_not_exist ${file_t1} ${file_t1_seg} #PROBLÈME ICI
+
 #file_label=$FILELABEL
 # Register to PAM50 template
 #sct_register_to_template -i ${file_t1}.nii.gz -s ${file_t1_seg}.nii.gz -l ${file_label}.nii.gz -c t1 -param step=1,type=seg,algo=centermassrot:step=2,type=seg,algo=syn,slicewise=1,smooth=0,iter=5:step=3,type=im,algo=syn,slicewise=1,smooth=0,iter=3 -qc ${PATH_QC} -qc-subject ${SUBJECT}
@@ -142,11 +133,11 @@ sct_resample -i ${file_t2}_RPI.nii.gz -mm 0.8x0.8x0.8 -o ${file_t2}_RPI_r.nii.gz
 file_t2="${file_t2}_RPI_r"
 
 #ADD gradient correction here
-#file_t1="${file_t1}_gardcorr"
+#file_t2="${file_t2}_gardcorr"
 
 # Segment spinal cord (only if it does not exist)
-#segment_if_does_not_exist $file_t2 "t2"
-#file_t2_seg=$FILESEG
+segment_if_does_not_exist $file_t2 "t2"
+file_t2_seg=$FILESEG
 # Flatten scan along R-L direction (to make nice figures)
 #sct_flatten_sagittal -i ${file_t2}.nii.gz -s ${file_t2_seg}.nii.gz
 
@@ -170,7 +161,7 @@ file_t2="${file_t2}_RPI_r"
 #  fi
 #done
 
-uk_get_subject_info -subject ${SUBJECT} -datafile data.csv -path-data-output $PATH_DATA_PROCESSED #modifier pour qu'il ait prendre les données de CSA
+#uk_get_subject_info -subject ${SUBJECT} -datafile data.csv -path-data-output $PATH_DATA_PROCESSED #modifier pour qu'il ait prendre les données de CSA aussi
 
 # Display useful info for the log
 end=`date +%s`
