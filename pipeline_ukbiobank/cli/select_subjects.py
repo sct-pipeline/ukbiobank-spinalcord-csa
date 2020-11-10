@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8
-# Script to get the selected subject list ??
+# Script to get the selected subject list .yml
 #
 # For usage, type: select_subjects -h
 
