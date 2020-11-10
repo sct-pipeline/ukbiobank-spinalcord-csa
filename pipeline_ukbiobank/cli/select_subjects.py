@@ -42,9 +42,7 @@ def main ():
     #Create a structure
     df = pd.DataFrame.from_dict(dict_results, orient='index')
     print(df[0:10])
-#1. create a yml list with all subjects
-#2. Goes through the data file and returns a list of eid that have a data not available
-#3. Removes the subjects eid from the list at 2
+
 
 if __name__ == '__main__':
     main()
