@@ -9,7 +9,6 @@
 # PATH_DATA/derivatives/labels/SUBJECT/<CONTRAST>/
 #
 # Authors: Sandrine Bédard, Julien Cohen-Adad
-echo "Hello world"
 
 set -x
 # Immediately exit if error
@@ -107,7 +106,7 @@ file_t1_seg=$FILESEG
 
 # Create mid-vertebral levels in the cord (only if it does not exist) 
 
-#label_if_does_not_exist ${file_t1} ${file_t1_seg} #PROBLÈME ICI
+label_if_does_not_exist ${file_t1} ${file_t1_seg} #PROBLÈME ICI
 
 #file_label=$FILELABEL
 # Register to PAM50 template
@@ -139,10 +138,10 @@ file_t2="${file_t2}_RPI_r"
 segment_if_does_not_exist $file_t2 "t2"
 file_t2_seg=$FILESEG
 # Flatten scan along R-L direction (to make nice figures)
-#sct_flatten_sagittal -i ${file_t2}.nii.gz -s ${file_t2_seg}.nii.gz
+sct_flatten_sagittal -i ${file_t2}.nii.gz -s ${file_t2_seg}.nii.gz
 
 # Bring vertebral level into T2 space PLus tard puisque impossible pour T1
-#sct_register_multimodal -i label_T1w/template/PAM50_levels.nii.gz -d ${file_t2_seg}.nii.gz -o PAM50_levels2${file_t2}.nii.gz -identity 1 -x nn
+sct_register_multimodal -i label_T1w/template/PAM50_levels.nii.gz -d ${file_t2_seg}.nii.gz -o PAM50_levels2${file_t2}.nii.gz -identity 1 -x nn
 # Compute average cord CSA between C2 and C3
 #sct_process_segmentation -i ${file_t2_seg}.nii.gz -vert 2:3 -vertfile PAM50_levels2${file_t2}.nii.gz -o ${PATH_RESULTS}/csa-SC_T2w.csv -append 1
 
