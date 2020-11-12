@@ -19,6 +19,7 @@ trap "echo Caught Keyboard Interrupt within script. Exiting now.; exit" INT
 
 # Retrieve input params
 SUBJECT=$1
+
 # get starting time:
 start=`date +%s`
 
@@ -46,8 +47,7 @@ label_if_does_not_exist(){
   fi
 }
 
-# Check if manual segmentation already exists. If it does, copy it locally. If
-# it does not, perform seg.
+# Check if manual segmentation already exists. If it does, copy it locally. If it does not, perform segmentation.
 segment_if_does_not_exist(){
   local file="$1"
   local contrast="$2"
@@ -79,7 +79,7 @@ cd ${PATH_DATA_PROCESSED}
 if [[ ! -f "participants.tsv" ]]; then
   rsync -avzh $PATH_DATA/participants.tsv .
 fi
-# Copy list of participants in resutls folder --> à voir si pertinent??
+# Copy list of participants in resutls folder
 if [[ ! -f $PATH_RESULTS/"participants.tsv" ]]; then
   rsync -avzh $PATH_DATA/participants.tsv $PATH_RESULTS/"participants.tsv"
 fi
@@ -106,22 +106,22 @@ file_t1_seg=$FILESEG
 
 # Create mid-vertebral levels in the cord (only if it does not exist) 
 
-label_if_does_not_exist ${file_t1} ${file_t1_seg} #PROBLÈME ICI
+label_if_does_not_exist ${file_t1} ${file_t1_seg}
 
-#file_label=$FILELABEL
+file_label=$FILELABEL
 # Register to PAM50 template
-#sct_register_to_template -i ${file_t1}.nii.gz -s ${file_t1_seg}.nii.gz -l ${file_label}.nii.gz -c t1 -param step=1,type=seg,algo=centermassrot:step=2,type=seg,algo=syn,slicewise=1,smooth=0,iter=5:step=3,type=im,algo=syn,slicewise=1,smooth=0,iter=3 -qc ${PATH_QC} -qc-subject ${SUBJECT}
+sct_register_to_template -i ${file_t1}.nii.gz -s ${file_t1_seg}.nii.gz -l ${file_label}.nii.gz -c t1 -param step=1,type=seg,algo=centermassrot:step=2,type=seg,algo=syn,slicewise=1,smooth=0,iter=5:step=3,type=im,algo=syn,slicewise=1,smooth=0,iter=3 -qc ${PATH_QC} -qc-subject ${SUBJECT}
 # Rename warping fields for clarity
-#mv warp_template2anat.nii.gz warp_template2T1w.nii.gz
-#mv warp_anat2template.nii.gz warp_T1w2template.nii.gz
+mv warp_template2anat.nii.gz warp_template2T1w.nii.gz
+mv warp_anat2template.nii.gz warp_T1w2template.nii.gz
 #Warp template without the white matter atlas (we don't need it at this point)
-#sct_warp_template -d ${file_t1}.nii.gz -w warp_template2T1w.nii.gz -a 0 -ofolder label_T1w
+sct_warp_template -d ${file_t1}.nii.gz -w warp_template2T1w.nii.gz -a 0 -ofolder label_T1w
 #Generate QC report to assess vertebral labeling
-#sct_qc -i ${file_t1}.nii.gz -s label_T1w/template/PAM50_levels.nii.gz -p sct_label_vertebrae -qc ${PATH_QC} -qc-subject ${SUBJECT}
+sct_qc -i ${file_t1}.nii.gz -s label_T1w/template/PAM50_levels.nii.gz -p sct_label_vertebrae -qc ${PATH_QC} -qc-subject ${SUBJECT}
 # Flatten scan along R-L direction (to make nice figures)
-#sct_flatten_sagittal -i ${file_t1}.nii.gz -s ${file_t1_seg}.nii.gz
+sct_flatten_sagittal -i ${file_t1}.nii.gz -s ${file_t1_seg}.nii.gz
 # Compute average cord CSA between C2 and C3
-#sct_process_segmentation -i ${file_t1_seg}.nii.gz -vert 2:3 -vertfile label_T1w/template/PAM50_levels.nii.gz -o ${PATH_RESULTS}/csa-SC_T1w.csv -append 1
+sct_process_segmentation -i ${file_t1_seg}.nii.gz -vert 2:3 -vertfile label_T1w/template/PAM50_levels.nii.gz -o ${PATH_RESULTS}/csa-SC_T1w.csv -append 1
 
 # T2
 # ------------------------------------------------------------------------------
