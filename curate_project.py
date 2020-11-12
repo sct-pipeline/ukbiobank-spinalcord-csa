@@ -21,13 +21,13 @@ def get_parser():
 
 def unzip_helper (path_in,path_out, subject):
     # Contrast dictionary of contrasts and desired files
-    contrast_dictionary = {'T1': ['_20252_2_0.zip','T1/T1.nii.gz','T1/T1.json'],
-                           'T2': ['_20253_2_0.zip','T2_FLAIR/T2_FLAIR.nii.gz','T2_FLAIR/T2_FLAIR.json']
+    contrast_dictionary = {'T1': ['_20252_2_0.zip','T1/T1_orig_defaced.nii.gz','T1/T1.json'],
+                           'T2': ['_20253_2_0.zip','T2_FLAIR/T2_FLAIR_orig_defaced.nii.gz','T2_FLAIR/T2_FLAIR.json']
                            }
 
-    bids_filename_dictionary = {'T1.nii.gz': 'T1w.nii.gz',
+    bids_filename_dictionary = {'T1_orig_defaced.nii.gz': 'T1w.nii.gz',
                                 'T1.json': 'T1w.json',
-                                'T2_FLAIR.nii.gz': 'T2w.nii.gz',
+                                'T2_FLAIR_orig_defaced.nii.gz': 'T2w.nii.gz',
                                 'T2_FLAIR.json': 'T2w.json'
                                 }
     path_output_folder_subject = os.path.join(path_out, 'sub-' + subject)

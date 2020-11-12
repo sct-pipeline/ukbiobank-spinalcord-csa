@@ -33,6 +33,7 @@ def load_participant_data_file(filename):
 def main ():
     parser = get_parser()
     args = parser.parse_args()
+
     #Load the .txt file containing the feild ID of each chosen parameter
     with open(args.parameters, 'r') as f:
         parameters = f.read().splitlines()
