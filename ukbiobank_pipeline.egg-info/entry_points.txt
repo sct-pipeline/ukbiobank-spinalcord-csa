@@ -1,4 +1,0 @@
-[console_scripts]
-uk_get_subject_info = pipeline_ukbiobank.cli.get_subject_info:main
-uk_select_subjects = pipeline_ukbiobank.cli.select_subjects:main
-
