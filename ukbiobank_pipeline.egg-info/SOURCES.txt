@@ -1,7 +1,0 @@
-README.md
-setup.py
-ukbiobank_pipeline.egg-info/PKG-INFO
-ukbiobank_pipeline.egg-info/SOURCES.txt
-ukbiobank_pipeline.egg-info/dependency_links.txt
-ukbiobank_pipeline.egg-info/entry_points.txt
-ukbiobank_pipeline.egg-info/top_level.txt
