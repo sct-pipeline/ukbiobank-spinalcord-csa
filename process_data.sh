@@ -98,7 +98,7 @@ sct_resample -i ${file_t1}_RPI.nii.gz -mm 1x1x1 -o ${file_t1}_RPI_r.nii.gz
 file_t1="${file_t1}_RPI_r"
 
 #ADD gradient correction here
-#file_t1="${file_t1}_gardcorr"
+#file_t1="${file_t1}_gardcorr.nii.gz"
 
 # Segment spinal cord (only if it does not exist)
 segment_if_does_not_exist $file_t1 "t1"
@@ -132,35 +132,38 @@ sct_resample -i ${file_t2}_RPI.nii.gz -mm 0.8x0.8x0.8 -o ${file_t2}_RPI_r.nii.gz
 file_t2="${file_t2}_RPI_r"
 
 #ADD gradient correction here
-#file_t2="${file_t2}_gardcorr"
+#file_t2="${file_t2}_gardcorr.nii.gz"
 
 # Segment spinal cord (only if it does not exist)
 segment_if_does_not_exist $file_t2 "t2"
 file_t2_seg=$FILESEG
-# Flatten scan along R-L direction (to make nice figures)
+# Flatten scan along R-L direction (to make nice figures) #Est-ce nécéssaire?
 sct_flatten_sagittal -i ${file_t2}.nii.gz -s ${file_t2_seg}.nii.gz
 
-# Bring vertebral level into T2 space PLus tard puisque impossible pour T1
+# Bring vertebral level into T2 space 
 sct_register_multimodal -i label_T1w/template/PAM50_levels.nii.gz -d ${file_t2_seg}.nii.gz -o PAM50_levels2${file_t2}.nii.gz -identity 1 -x nn
 # Compute average cord CSA between C2 and C3
 sct_process_segmentation -i ${file_t2_seg}.nii.gz -vert 2:3 -vertfile PAM50_levels2${file_t2}.nii.gz -o ${PATH_RESULTS}/csa-SC_T2w.csv -append 1
 
 # Verify presence of output files and write log file if error
 # ------------------------------------------------------------------------------
-#FILES_TO_CHECK=(
-#  "anat/${SUBJECT}_T1w_RPI_r_seg.nii.gz"
-#  "anat/${SUBJECT}_T2w_RPI_r_seg.nii.gz"
-#  "anat/label_axT1w/template/PAM50_levels.nii.gz"
-#  "anat/t1map.nii.gz"
-#  "anat/${SUBJECT}_T2star_rms_gmseg.nii.gz"
-#)
-#for file in ${FILES_TO_CHECK[@]}; do
-#  if [[ ! -e $file ]]; then
-#    echo "${SUBJECT}/${file} does not exist" >> $PATH_LOG/_error_check_output_files.log
-#  fi
-#done
+FILES_TO_CHECK=(
+#  "anat/${SUBJECT}_T1w_RPI_r_gradcorr.nii.gz"
+#  "anat/${SUBJECT}_T2w_RPI_r_gradcorr.nii.gz"
+  "anat/${SUBJECT}_T1w_RPI_r_seg.nii.gz" #Modifier nom grad corr
+  "anat/${SUBJECT}_T2w_RPI_r_seg.nii.gz" #Modifier nom pour grad corr
+  "anat/${SUBJECT}_T1w_RPI_r_seg_labeled.nii.gz"
+  "anat/label_T1w/template/PAM50_levels.nii.gz"
+  "anat/PAM50_levels2${SUBJECT}_T2w_RPI_r.nii.gz"
+  
+)
+for file in ${FILES_TO_CHECK[@]}; do
+  if [[ ! -e $file ]]; then
+    echo "${SUBJECT}/${file} does not exist" >> $PATH_LOG/_error_check_output_files.log
+  fi
+done
 
-#uk_get_subject_info -subject ${SUBJECT} -datafile data.csv -path-data-output $PATH_DATA_PROCESSED #modifier pour qu'il ait prendre les données de CSA aussi
+#uk_get_subject_info -subject ${SUBJECT} -datafile data.csv -path-data-output $PATH_DATA_PROCESSED #retirer de là
 
 # Display useful info for the log
 end=`date +%s`
