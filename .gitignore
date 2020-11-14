@@ -1,3 +1,2 @@
 ukbiobank_pipeline.egg-info/
-pipeline_ukbiobank/__pycache__/get_subject_info.cpython-37.pyc
-pipeline_ukbiobank/__pycache__/slect_subjects.cpython-37.pyc
+pipeline_ukbiobank/cli/__pycache__/
