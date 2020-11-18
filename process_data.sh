@@ -89,6 +89,7 @@ rsync -avzh $PATH_DATA/$SUBJECT .
 cd ${SUBJECT}/anat/
 
 
+
 # T1w
 # ------------------------------------------------------------------------------
 file_t1="${SUBJECT}_T1w"
@@ -148,22 +149,21 @@ sct_process_segmentation -i ${file_t2_seg}.nii.gz -vert 2:3 -vertfile PAM50_leve
 # Verify presence of output files and write log file if error
 # ------------------------------------------------------------------------------
 FILES_TO_CHECK=(
-#  "anat/${SUBJECT}_T1w_RPI_r_gradcorr.nii.gz"
-#  "anat/${SUBJECT}_T2w_RPI_r_gradcorr.nii.gz"
-  "anat/${SUBJECT}_T1w_RPI_r_seg.nii.gz" #Modifier nom grad corr
-  "anat/${SUBJECT}_T2w_RPI_r_seg.nii.gz" #Modifier nom pour grad corr
-  "anat/${SUBJECT}_T1w_RPI_r_seg_labeled.nii.gz"
-  "anat/label_T1w/template/PAM50_levels.nii.gz"
-  "anat/PAM50_levels2${SUBJECT}_T2w_RPI_r.nii.gz"
+#  "${SUBJECT}_T1w_RPI_r_gradcorr.nii.gz"
+#  "${SUBJECT}_T2w_RPI_r_gradcorr.nii.gz"
+  "${SUBJECT}_T1w_RPI_r_seg.nii.gz" #Modifier nom grad corr
+  "${SUBJECT}_T2w_RPI_r_seg.nii.gz" #Modifier nom pour grad corr
+  "${SUBJECT}_T1w_RPI_r_seg_labeled.nii.gz"
+  "label_T1w/template/PAM50_levels.nii.gz"
+  "PAM50_levels2${SUBJECT}_T2w_RPI_r.nii.gz"
   
 )
+pwd
 for file in ${FILES_TO_CHECK[@]}; do
   if [[ ! -e $file ]]; then
-    echo "${SUBJECT}/${file} does not exist" >> $PATH_LOG/_error_check_output_files.log
+    echo "${SUBJECT}/anat/${file} does not exist" >> $PATH_LOG/_error_check_output_files.log
   fi
 done
-
-#uk_get_subject_info -subject ${SUBJECT} -datafile data.csv -path-data-output $PATH_DATA_PROCESSED #retirer de là
 
 # Display useful info for the log
 end=`date +%s`
