@@ -15,6 +15,8 @@ import sys
 import matplotlib.pyplot as plt
 import statsmodels.api as sm
 from statsmodels.formula.api import ols
+from sklearn.feature_selection import RFECV
+from sklearn.svm import SVR
 #import seaborn as sns
 
 import pipeline_ukbiobank.cli.select_subjects as ss
@@ -63,6 +65,7 @@ FILENAME = 'data_ukbiobank.csv'
     #output coeff.txt  
 #4 Test tuckey diff T1w et T2w
 #5 Pertinence modèle
+    #collinéarité (scatterplot avec age et height)
     #Résidus
     #R^2
     #Analyse variance
@@ -181,14 +184,18 @@ def compute_regression(df):
     #results = model.fit()
     #print(results.params)
     x = df.drop(columns = ['T1w_CSA', 'T2w_CSA'])
-    x = sm.add_constant(x)
+    #x = sm.add_constant(x)
     y_T1w = df['T1w_CSA']
-    model = sm.OLS(y_T1w, x)
-    results = model.fit()
-    print(results.pvalues)
+    #model = sm.OLS(y_T1w, x)
+    #results = model.fit()
+    estimator = SVR(kernel="linear")
+    selector = RFECV(estimator, step=1, cv=5)
+    selector = selector.fit(x, y_T1w)
+    print(selector.ranking_)
+    #print(results.summary())
 #def get_scatterplot(x):
     #sns.pairplot(x)
-def compute_stepwise(X,y, threshold_in, threshold_out):
+def compute_stepwise(X,y, threshold_in, threshold_out): # TODO: add AIC cretaria
     """
     Performs backword and forward feature selection based on p-values 
     
@@ -213,7 +220,7 @@ def compute_stepwise(X,y, threshold_in, threshold_out):
             model = sm.OLS(y, sm.add_constant(pd.DataFrame(X[included+[new_column]]))).fit()
             new_pval[new_column] = model.pvalues[new_column]
         best_pval = new_pval.min()
-        print('best:', new_pval)
+        
         #print(best_pval)
         if best_pval < threshold_in:
             best_feature = excluded[new_pval.argmin()] # problème d'ordre ici --> OK!!
@@ -264,8 +271,8 @@ def main():
     x = df.drop(columns = ['T1w_CSA', 'T2w_CSA'])
     y_T1w = df['T1w_CSA']
     y_T2w = df['T2w_CSA']
-    p_in = 0.06
-    p_out = 0.8
+    p_in = 0.15
+    p_out = 0.15
    
    # print(x.shape, y_T1w.shape)
     included= compute_stepwise(x, y_T1w, p_in, p_out)
