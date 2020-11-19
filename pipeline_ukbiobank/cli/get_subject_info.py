@@ -14,7 +14,7 @@ import numpy as np
 from datetime import date
 import pipeline_ukbiobank.cli.select_subjects as select_subjects
 
-#Dictionnary of the parameters and feild number correspondance
+# Dictionary of the parameters and field number correspondance
 param_dict = {
         'eid':'Subject',
         '31-0.0':'Sex',
