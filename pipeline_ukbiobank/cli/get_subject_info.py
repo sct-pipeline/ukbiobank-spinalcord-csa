@@ -24,7 +24,6 @@ param_dict = {
         '21002-2.0':'Weight',
         '25010-2.0':'Intracranial volume',
         '53-2.0': 'Date'
-         
     }
 
 csa_dict = {
