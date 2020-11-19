@@ -13,9 +13,11 @@ import numpy as np
 import logging
 import sys
 import matplotlib.pyplot as plt
+import statsmodels.api as sm
+from statsmodels.formula.api import ols
+#import seaborn as sns
 
 import pipeline_ukbiobank.cli.select_subjects as ss
-from statsmodels.formula.api import ols
 from sklearn.linear_model import LinearRegression
 from statsmodels.stats.multicomp import pairwise_tukeyhsd
 
@@ -135,8 +137,8 @@ def compute_predictors_statistic(df):
                                                                             stats['Intracranial volume']['max'],
                                                                             stats['Intracranial volume']['med'],
                                                                             stats['Intracranial volume']['mean']))
-
     return stats
+
 def config_table(corr_table, filename):
     plt.figure(linewidth=2,
            tight_layout={'pad':1},
@@ -174,6 +176,67 @@ def get_correlation_table(df) :
     corr_table = df.corr()
     return corr_table
 
+def compute_regression(df):
+    #model = ols("T1w_CSA ~ Sex + Age + Weight + Height ", data=df)
+    #results = model.fit()
+    #print(results.params)
+    x = df.drop(columns = ['T1w_CSA', 'T2w_CSA'])
+    x = sm.add_constant(x)
+    y_T1w = df['T1w_CSA']
+    model = sm.OLS(y_T1w, x)
+    results = model.fit()
+    print(results.pvalues)
+#def get_scatterplot(x):
+    #sns.pairplot(x)
+def compute_stepwise(X,y, threshold_in, threshold_out):
+    """
+    Performs backword and forward feature selection based on p-values 
+    
+    Args:
+        X: panda.DataFrame with the candidate predictors
+        y: panda.DataFrame with the candidate predictors with target
+        threshold_in: include a feature if its p-value < threshold_in
+        threshold_out: exclude a feature if its p-value > threshold_out
+
+    Retruns:
+        selected_features: list of selected features
+    
+    """
+    included = []
+    while True:
+        changed = False
+        #Forward step
+        excluded = list(set(X.columns)-set(included))
+        new_pval = pd.Series(index=excluded, dtype = np.float64)
+        #print('Excluded', excluded)
+        for new_column in excluded:
+            model = sm.OLS(y, sm.add_constant(pd.DataFrame(X[included+[new_column]]))).fit()
+            new_pval[new_column] = model.pvalues[new_column]
+        best_pval = new_pval.min()
+        print('best:', new_pval)
+        #print(best_pval)
+        if best_pval < threshold_in:
+            best_feature = excluded[new_pval.argmin()] # problème d'ordre ici --> OK!!
+            included.append(best_feature)
+            changed=True
+            print('Add  {:30} with p-value {:.6}'.format(best_feature, best_pval))
+
+        # backward step
+        model = sm.OLS(y, sm.add_constant(pd.DataFrame(X[included]))).fit()
+        # use all coefs except intercept
+        pvalues = model.pvalues.iloc[1:]
+        worst_pval = pvalues.max() # null if pvalues is empty
+        if worst_pval > threshold_out:
+            changed=True
+            worst_feature = pvalues.argmax()
+            #print('worst', worst_feature)
+            included.remove(worst_feature)
+            if verbose:
+                print('Drop {:30} with p-value {:.6}'.format(worst_feature, worst_pval))
+        if not changed:
+            break
+    return included
+
 def main():
     parser = get_parser()
     args = parser.parse_args()
@@ -197,6 +260,17 @@ def main():
         os.mkdir(args.path_results + '/figures')
     config_table(corr_table, path_figures+ '/corr_table.png')
 #3 Stepwise linear regression
+    compute_regression(df)
+    x = df.drop(columns = ['T1w_CSA', 'T2w_CSA'])
+    y_T1w = df['T1w_CSA']
+    y_T2w = df['T2w_CSA']
+    p_in = 0.06
+    p_out = 0.8
+   
+   # print(x.shape, y_T1w.shape)
+    included= compute_stepwise(x, y_T1w, p_in, p_out)
+    print('Included',included)
+
 
 if __name__ == '__main__':
     main()
