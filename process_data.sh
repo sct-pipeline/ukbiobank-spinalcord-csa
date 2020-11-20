@@ -93,9 +93,9 @@ cd ${SUBJECT}/anat/
 # T1w
 # ------------------------------------------------------------------------------
 file_t1="${SUBJECT}_T1w"
-# Reorient to RPI and resample to 1mm iso (supposed to be the effective resolution)
+# Reorient to RPI and resample to 2.4 mm iso (supposed to be the effective resolution)
 sct_image -i ${file_t1}.nii.gz -setorient RPI -o ${file_t1}_RPI.nii.gz
-sct_resample -i ${file_t1}_RPI.nii.gz -mm 1x1x1 -o ${file_t1}_RPI_r.nii.gz
+sct_resample -i ${file_t1}_RPI.nii.gz -mm 1x1x1 -o ${file_t1}_RPI_r.nii.gz # supposed to be 2.4x2.4x2.4 ??
 file_t1="${file_t1}_RPI_r"
 
 #ADD gradient correction here
@@ -127,7 +127,7 @@ sct_process_segmentation -i ${file_t1_seg}.nii.gz -vert 2:3 -vertfile label_T1w/
 # T2
 # ------------------------------------------------------------------------------
 file_t2="${SUBJECT}_T2w"
-# Reorient to RPI and resample to 0.8mm iso (supposed to be the effective resolution)
+# Reorient to RPI and resample to 1mm iso (supposed to be the effective resolution) --> TODO change the resolution, not to 1mm...
 sct_image -i ${file_t2}.nii.gz -setorient RPI -o ${file_t2}_RPI.nii.gz
 sct_resample -i ${file_t2}_RPI.nii.gz -mm 0.8x0.8x0.8 -o ${file_t2}_RPI_r.nii.gz
 file_t2="${file_t2}_RPI_r"
@@ -138,7 +138,7 @@ file_t2="${file_t2}_RPI_r"
 # Segment spinal cord (only if it does not exist)
 segment_if_does_not_exist $file_t2 "t2"
 file_t2_seg=$FILESEG
-# Flatten scan along R-L direction (to make nice figures) #Est-ce nécéssaire?
+# Flatten scan along R-L direction (to make nice figures) 
 sct_flatten_sagittal -i ${file_t2}.nii.gz -s ${file_t2_seg}.nii.gz
 
 # Bring vertebral level into T2 space 
