@@ -72,7 +72,8 @@ segment_if_does_not_exist(){
 # ==============================================================================
 # Display useful info for the log, such as SCT version, RAM and CPU cores available
 sct_check_dependencies -short
-#Inialize path of coeff.grad path --> TODO modifie to get the right file for each subject assesment center
+
+#Initialize path of coeff.grad --> TODO modify to get the right file for each subject' assessment centre
 PATH_GRADCORR_FILE="${PWD}/coeff.grad/ICM"
 
 # Go to folder where data will be copied and processed
