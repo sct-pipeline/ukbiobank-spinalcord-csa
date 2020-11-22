@@ -39,10 +39,11 @@ setup(
     },
     #install_requires=install_reqs,
 
-    entry_points={  # Optional
+    entry_points={  
         'console_scripts': [
             'uk_get_subject_info = pipeline_ukbiobank.cli.get_subject_info:main',
-            'uk_select_subjects = pipeline_ukbiobank.cli.select_subjects:main'
+            'uk_select_subjects = pipeline_ukbiobank.cli.select_subjects:main',
+            'uk_compute_stats = pipeline_ukbiobank.cli.compute_stats:main'
         ],
     },
 
