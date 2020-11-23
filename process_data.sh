@@ -52,6 +52,7 @@ segment_if_does_not_exist(){
   local file="$1"
   local contrast="$2"
   folder_contrast="anat"
+
   # Update global variable with segmentation file name
   FILESEG="${file}_seg"
   FILESEGMANUAL="${PATH_DATA}/derivatives/labels/${SUBJECT}/${folder_contrast}/${FILESEG}-manual.nii.gz"
@@ -73,7 +74,7 @@ segment_if_does_not_exist(){
 # Display useful info for the log, such as SCT version, RAM and CPU cores available
 sct_check_dependencies -short
 
-#Initialize path of coeff.grad --> TODO modify to get the right file for each subject' assessment centre
+#Initialize path of coeff.grad --> TODO: modify to get the right file for each subjects' assessment centre
 PATH_GRADCORR_FILE="${PWD}/coeff.grad/ICM"
 
 # Go to folder where data will be copied and processed
@@ -90,8 +91,6 @@ fi
 rsync -avzh $PATH_DATA/$SUBJECT .
 # Go to anat folder where all structural data are located
 cd ${SUBJECT}/anat/
-
-
 
 # T1w
 # ------------------------------------------------------------------------------
@@ -110,7 +109,6 @@ segment_if_does_not_exist $file_t1 "t1"
 file_t1_seg=$FILESEG
 
 # Create mid-vertebral levels in the cord (only if it does not exist) 
-
 label_if_does_not_exist ${file_t1} ${file_t1_seg}
 
 file_label=$FILELABEL
@@ -161,7 +159,7 @@ FILES_TO_CHECK=(
   "${SUBJECT}_T2w_RPI_r_gradcorr.nii.gz"
   "${SUBJECT}_T1w_RPI_r_gradcorr_seg.nii.gz" 
   "${SUBJECT}_T2w_RPI_r_gradcorr_seg.nii.gz"
-  "${SUBJECT}_T1w_RPI_r_seg_gradcorr_labeled.nii.gz"
+  "${SUBJECT}_T1w_RPI_r_gradcorr_seg_labeled_discs.nii.gz"
   "label_T1w/template/PAM50_levels.nii.gz"
   "PAM50_levels2${SUBJECT}_T2w_RPI_r_gradcorr.nii.gz"
   
