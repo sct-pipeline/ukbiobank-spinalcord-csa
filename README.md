@@ -41,7 +41,7 @@ The images from UK Biobank Brain MRI used for this project are :
  T1_orig_defaced.nii.gz in the BIDS standard sub-XXXXXXX_T1w.nii.gz
  T2_FLAIR_orig_defaced.nii.gz in the BIDS standard sub-XXXXXXX_T2w.nii.gz
 #### T1-weighted structural imaging
-    Resolution: 2.4x2.4x2.4 mm
+    Resolution: 1x1x1 mm
     Field-of-view: 208x256x256 matrix
 #### T2-weighted FLAIR structural imaging
     Resolution: 1.05x1x1 mm
