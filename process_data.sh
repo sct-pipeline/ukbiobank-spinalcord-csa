@@ -73,9 +73,6 @@ segment_if_does_not_exist(){
 # Display useful info for the log, such as SCT version, RAM and CPU cores available
 sct_check_dependencies -short
 
-#Initialize path of coeff.grad --> TODO modify to get the right file for each subject' assessment centre
-PATH_GRADCORR_FILE="${PWD}/coeff.grad/ICM"
-
 # Go to folder where data will be copied and processed
 cd ${PATH_DATA_PROCESSED}
 # Copy list of participants in processed data folder
@@ -101,9 +98,8 @@ sct_image -i ${file_t1}.nii.gz -setorient RPI -o ${file_t1}_RPI.nii.gz
 sct_resample -i ${file_t1}_RPI.nii.gz -mm 1x1x1 -o ${file_t1}_RPI_r.nii.gz # supposed to be 2.4x2.4x2.4 ??
 file_t1="${file_t1}_RPI_r"
 
-#Gradient distorsion correction
-gradient_unwarp.py ${file_t1}.nii.gz ${file_t1}_gradcorr.nii.gz siemens -g ${PATH_GRADCORR_FILE}/coeff.grad -n
-file_t1="${file_t1}_gradcorr"
+# Add gradient distorsion correction
+#file_t1="${file_t1}_gradcorr"
 
 # Segment spinal cord (only if it does not exist)
 segment_if_does_not_exist $file_t1 "t1"
@@ -136,9 +132,8 @@ sct_image -i ${file_t2}.nii.gz -setorient RPI -o ${file_t2}_RPI.nii.gz
 sct_resample -i ${file_t2}_RPI.nii.gz -mm 0.8x0.8x0.8 -o ${file_t2}_RPI_r.nii.gz
 file_t2="${file_t2}_RPI_r"
 
-#Gradient distorsion correction
-gradient_unwarp.py ${file_t2}.nii.gz ${file_t2}_gradcorr.nii.gz siemens -g ${PATH_GRADCORR_FILE}/coeff.grad -n
-file_t1="${file_t2}_gradcorr"
+#Add gradient distorsion correction
+#file_t1="${file_t2}_gradcorr"
 
 # Segment spinal cord (only if it does not exist)
 segment_if_does_not_exist $file_t2 "t2"
@@ -157,13 +152,15 @@ sct_process_segmentation -i ${file_t2_seg}.nii.gz -vert 2:3 -vertfile PAM50_leve
 # Verify presence of output files and write log file if error
 # ------------------------------------------------------------------------------
 FILES_TO_CHECK=(
-  "${SUBJECT}_T1w_RPI_r_gradcorr.nii.gz"
-  "${SUBJECT}_T2w_RPI_r_gradcorr.nii.gz"
-  "${SUBJECT}_T1w_RPI_r_gradcorr_seg.nii.gz" 
-  "${SUBJECT}_T2w_RPI_r_gradcorr_seg.nii.gz"
-  "${SUBJECT}_T1w_RPI_r_seg_gradcorr_labeled.nii.gz"
+#  "${SUBJECT}_T1w_RPI_r_gradcorr.nii.gz"
+#  "${SUBJECT}_T2w_RPI_r_gradcorr.nii.gz"
+
+# Modify names with grad corr name
+  "${SUBJECT}_T1w_RPI_r_seg.nii.gz" 
+  "${SUBJECT}_T2w_RPI_r_seg.nii.gz"
+  "${SUBJECT}_T1w_RPI_r_seg_labeled.nii.gz"
   "label_T1w/template/PAM50_levels.nii.gz"
-  "PAM50_levels2${SUBJECT}_T2w_RPI_r_gradcorr.nii.gz"
+  "PAM50_levels2${SUBJECT}_T2w_RPI_r_.nii.gz"
   
 )
 pwd
