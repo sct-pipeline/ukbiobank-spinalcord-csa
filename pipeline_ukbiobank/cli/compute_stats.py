@@ -79,8 +79,7 @@ PATH_RESULTS = '~/ukbiobank_results/results'
     # % H vs F --> OK
     # Plage de données pour taille, volume, poids, age --> OK
     #OUTPUT tableau + CSV (AJOUTER) ajouter unités
-#2. Coff corrélation --> OK
-    # TODO : collinéarité (scatterplot avec age et height) 
+#2. Coff corrélation --> OK 
     #OUTPUT tableau + CSV 
 #3 Multivariate regression (stepwise)
     #normalise data before ???
