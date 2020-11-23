@@ -42,17 +42,10 @@ The images from UK Biobank Brain MRI used for this project are :
  T2_FLAIR_orig_defaced.nii.gz in the BIDS standard sub-XXXXXXX_T2w.nii.gz
 #### T1-weighted structural imaging
     Resolution: 2.4x2.4x2.4 mm
-    Field-of-view: 88x88x64 matrix
-    Duration: 6 minutes (490 timepoints)
-    TR: 0.735 s
-    TE: 39ms
-    GE-EPI with x8 multislice acceleration, no iPAT, flip angle 52◦, fat saturation
+    Field-of-view: 208x256x256 matrix
 #### T2-weighted FLAIR structural imaging
     Resolution: 1.05x1x1 mm
     Field-of-view: 192x256x256 matrix
-    Duration: 6 minutes
-    3D SPACE, sagittal, in-plane acceleration iPAT=2, partial Fourier = 7/8, fat saturation, elliptical k-space scanning, prescannormalise
-
 ## Description
 
 ## Dependencies
