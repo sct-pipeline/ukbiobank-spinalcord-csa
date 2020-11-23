@@ -1,0 +1,58 @@
+#*[ Script ****************************************************************\
+#
+# Name        : AS098_3T.grad (Design per 11/11/08)
+#
+# Author      : R.Kimmlingen
+#
+# Language    : 
+#
+# Description : Defines Legendre coefficients in spherical harmonics for
+#               Gradient Coil daVinci 3T Espresso (r0=0.25m) 
+#               
+#****************************************************************************/
+
+#*] END: */
+ flagship 098, Gradientsystem daVinci_3T_Espresso , Gx,y,z = 45 mT/m
+ win_low = 0, win_high = 0, win_algo = 0, win_dummy = 2;
+ 0.250 m = R0, lnorm = 4? A(1,0) = B(1,1) = A(1,1) = 0;
+ 0 = CoSyMode;
+ Expansion in   Spherical   Harmonics
+ ================================
+
+ NO.    TYPE                  SPECTRUM                                AXIS
+
+  1 A( 3, 0)                 -0.09660                                z
+  2 A( 5, 0)                 -0.10181                                z
+  3 A( 7, 0)                  0.04762                                z
+  4 A( 9, 0)                 -0.01112                                z
+101 A( 3, 1)                 -0.10642                                x
+102 A( 3, 3)                 -0.00742                                x
+103 A( 5, 1)                 -0.04824                                x
+104 A( 5, 3)                 -0.00187                                x
+105 A( 7, 1)                  0.01882                                x
+106 A( 7, 3)                  0.00469                                x
+107 A( 7, 5)                 -0.00272                                x
+108 A( 9, 1)                 -0.00406                                x
+109 A( 9, 3)                 -0.00201                                x
+110 A( 9, 5)                  0.00157                                x
+111 A(11, 1)                  0.00098                                x
+201 B( 3, 1)                 -0.10340                                y
+202 B( 3, 3)                  0.01229                                y
+203 B( 5, 1)                 -0.05173                                y
+204 B( 5, 3)                  0.00602                                y
+205 B( 5, 5)                  0.00191                                y
+206 B( 7, 1)                  0.01983                                y
+207 B( 7, 3)                 -0.00727                                y
+208 B( 7, 5)                 -0.00365                                y
+209 B( 9, 1)                 -0.00426                                y
+210 B( 9, 3)                  0.00285                                y
+211 B( 9, 5)                  0.00159                                y
+212 B(11, 1)                  0.00105                                y
+
+                                    
+
+
+
+
+
+
