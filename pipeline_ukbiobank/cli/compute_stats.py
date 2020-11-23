@@ -13,19 +13,28 @@ import numpy as np
 import logging
 import sys
 import yaml
-import matplotlib.pyplot as plt
+import scipy
+import matplotlib.pyplot as plt # pas utilisé à date
 import statsmodels.api as sm
-from statsmodels.formula.api import ols
+from statsmodels.formula.api import ols # à retirer
 
 from sklearn.feature_selection import RFECV
 from sklearn.svm import SVR
-#import seaborn as sns
+import seaborn as sns
 
 #import pipeline_ukbiobank.cli.select_subjects as ss
 from sklearn.linear_model import LinearRegression
 from statsmodels.stats.multicomp import pairwise_tukeyhsd
 
 FNAME_LOG = 'log_stats.txt'
+
+plt.style.use('seaborn') # pretty matplotlib plots
+
+#plt.rc('font', size=14)
+#plt.rc('figure', titlesize=18)
+#plt.rc('axes', labelsize=15)
+#plt.rc('axes', titlesize=18)
+
 
 # Initialize logging
 logger = logging.getLogger(__name__)
@@ -57,7 +66,7 @@ def get_parser():
 
     return parser
 
-FILENAME = 'data_ukbiobank_test.csv'
+PATH_RESULTS = '~/ukbiobank_results/results'
 
 #0. remove subjects --> OK
 #1. Caractérisation des données
@@ -71,6 +80,7 @@ FILENAME = 'data_ukbiobank_test.csv'
     # Plage de données pour taille, volume, poids, age --> OK
     #OUTPUT tableau + CSV (AJOUTER) ajouter unités
 #2. Coff corrélation --> OK
+    # TODO : collinéarité (scatterplot avec age et height) 
     #OUTPUT tableau + CSV 
 #3 Multivariate regression (stepwise)
     #normalise data before ???
@@ -78,8 +88,7 @@ FILENAME = 'data_ukbiobank_test.csv'
     #output coeff.txt   --> ok for stepwise
 #4 Test tuckey diff T1w et T2w
 #5 Pertinence modèle
-    # collinéarité (scatterplot avec age et height)
-    # Résidus
+    # Résidus --> OKKKKKK
     # R^2 --> ok, faire un texte
     # Analyse variance
     # Intervalle de prédiction
@@ -92,7 +101,7 @@ def compute_statistics(df):
     :param df Pandas structure
     """
     contrasts = ['T1w_CSA', 'T2w_CSA']
-    metrics = ['number of sub','mean','std','med','95ci', 'COV', 'max', 'min']
+    metrics = ['number of sub','mean','std','med','95ci', 'COV', 'max', 'min', 'normality_test_p']
     stats = {}
 
     for contrast in contrasts:
@@ -109,6 +118,8 @@ def compute_statistics(df):
         stats[contrast]['COV'] = np.std(df[contrast]) / np.mean(df[contrast])
         stats[contrast]['max'] = np.max(df[contrast])
         stats[contrast]['min'] = np.min(df[contrast])
+        # Validate normality of data with Shapiro-wilik test
+        stats[contrast]['normality_test_p'] = scipy.stats.shapiro(df[contrast])[1]
     return stats
 
 def compute_predictors_statistic(df):
@@ -213,8 +224,6 @@ def generate_linear_model(x, y, selected_features):
     results = model.fit()
     return results
 
-#def get_scatterplot(x):
-    #sns.pairplot(x)
 def compute_stepwise(X,y, threshold_in, threshold_out): # TODO: add AIC cretaria
     """
     Performs backword and forward feature selection based on p-values 
@@ -264,29 +273,58 @@ def compute_stepwise(X,y, threshold_in, threshold_out): # TODO: add AIC cretaria
             break
     return included
 
-def compute_regression_CSA(x,y, p_in, p_out, contrast):
+def save_model(model, model_name, path_model_contrast):
+    logger.info('Saving {} ...'.format(model_name))
+    def save_summary(model, model_name):
+        summary_path = path_model_contrast +'/summary'
+        if not os.path.exists(summary_path):
+            os.mkdir(summary_path)
+        summary_filename = summary_path + '/summary_'+ model_name +'.txt'
+        with open(summary_filename, 'w') as fh: # Modifier le lieu, faire un dossier
+            fh.write(model.summary(title = model_name ).as_text())
+        logger.info('Created: ' + summary_filename)
+    def save_coeff(model_name):
+        coeff_path = path_model_contrast +'/coeff'
+        if not os.path.exists(coeff_path):
+            os.mkdir(coeff_path)
+        
+        coeff_filename = coeff_path + '/coeff_'+ model_name +'.csv'
+        (model.params).to_csv(coeff_filename, header = None)
+        logger.info('Created: ' + coeff_filename)
+    save_coeff(model_name)
+    save_summary(model, model_name)
+
+def compute_regression_CSA(x,y, p_in, p_out, contrast, path_model):
+    path_model_contrast = path_model +'/'+ contrast
+    if not os.path.exists(path_model_contrast):
+        os.mkdir(path_model_contrast)
     
     logger.info("Stepwise linear regression {}:".format(contrast))
     selected_features = compute_stepwise(x, y, p_in, p_out)
-    
-    # Generates model for T1w et T2w with p-value stepwise linear regression
+    logger.info('For'+ contrast+ 'selected feature are : {}'.format(selected_features))
+
+    # Generates model with p-value stepwise linear regression
     model = generate_linear_model(x,y, selected_features)
-    
-    # TODO : faire un fonction qui formate tout et écrit tous les fichier
-    with open('summary_stepwise'+ contrast + '.txt', 'w') as fh: # Modifier le lieu, faire un dossier
-        fh.write(model.summary(title = 'Stepwise linear regression of ' + contrast).as_text())
-    (model.params).to_csv('coeff_stepwise'+ contrast + '.csv', header = None)
+    title_m1 = 'Stepwise linear regression of ' + contrast
+    m1_name = 'stepwise_'+ contrast
+    # Save summary of the model and the coefficients of the regression
+    save_model(model, m1_name, path_model_contrast)
 
-
-    #Generates liner regression with all predictors
+    # Generates liner regression with all predictors
     model_full = generate_linear_model(x,y, PREDICTORS)
-
-    with open('summary_full_'+ contrast + '.txt', 'w') as fh: # Modifier le lieu, faire un dossier
-        fh.write(model_full.summary(title = 'Full linear regression of ' + contrast).as_text())
-    (model.params).to_csv('coeff_stepwise'+ contrast + '.csv', header = None)
+    title_m2 = 'Full linear regression of ' + contrast
+    m2_name = 'fullLin_'+ contrast
+    # Save summary of the model and the coefficients of the regression
+    save_model(model_full, m2_name, path_model_contrast)
+    
     #Compares full and reduced models
-    compared_models = compare_models(model, model_full, 'Stepwise_model', 'Full model')
-
+    
+    compared_models = compare_models(model, model_full, m1_name, m2_name)
+    logger.info('Comparing models: {}'.format(compared_models))
+    config_table(compared_models,path_model_contrast+'/compared_models.png' )
+    # Residual analysis
+    analyse_residuals(model, m1_name, data = pd.concat([x, y], axis=1), path = path_model_contrast +'/residuals' )
+    return model, model_full
 
 def compare_models(model_1, model_2,model_1_name, model_2_name  ):
     columns = ['Model', 'R^2', 'R^2_adj', 'F_p-value','F_value', 'AIC', 'df_res'] # pas sur si nécessaire
@@ -298,8 +336,49 @@ def compare_models(model_1, model_2,model_1_name, model_2_name  ):
     table['F_value'] = [model_1.fvalue, model_2.fvalue]
     table['AIC'] = [model_1.aic, model_2.aic]
     table['df_res'] = [model_1.df_resid, model_2.df_resid]
-    
+    table = table.set_index('Model')
     return table
+
+def analyse_residuals(model, model_name, data, path):
+    # Residual analysis
+    residual = model.resid
+    # Generate graph of QQ plot | Vaidate normality hypothesis of residual
+    
+    fig, axis = plt.subplots(1,2, figsize = (12,4))
+    plt.autoscale(1)
+    axis[0].title.set_text('Quantile-quantile plot of residuals')
+    axis[1].title.set_text('Residuals vs Fitted')
+
+    axis[0] = sm.qqplot(residual, line = '45', ax= axis[0] )
+
+    model_fitted_y = model.fittedvalues
+    model_residuals = model.resid
+    axis[1]= sns.residplot(x=model_fitted_y, y=data.columns[-1], data = data,
+                            lowess=True, 
+                            scatter_kws={'alpha': 0.5}, 
+                            line_kws={'color': 'red', 'lw': 1, 'alpha': 0.8})
+    
+    axis[1].set_xlabel('Fitted values')
+    axis[1].set_ylabel('Residuals')
+
+    # annotations
+    model_abs_resid = np.abs(model_residuals)
+    abs_resid = model_abs_resid.sort_values(ascending=False)
+    abs_resid_top_3 = abs_resid[:3]
+
+    for i in abs_resid_top_3.index:
+        axis[1].annotate(i, 
+                                xy=(model_fitted_y[i], 
+                                    model_residuals[i]))
+    #Return fig, save in other function
+    fig.suptitle(' Residual analysis of '+ model_name, fontsize=16)
+    plt.tight_layout()
+    if not os.path.exists(path):
+        os.mkdir(path)
+    fname_fig = os.path.join(path +'/res_plots_' + model_name + '.png')
+    plt.savefig(fname_fig) # put general variable 
+    print(path)
+    logger.info('Created: ' + fname_fig)
 
 def remove_subjects(df, dict_exclude_subj):
     """
@@ -316,6 +395,8 @@ def remove_subjects(df, dict_exclude_subj):
     subjects_removed = np.append(subjects_removed,dict_exclude_subj)
     logger.info("Subjects removed: {}".format(subjects_removed))
     return df_updated
+#def compare_contrat():
+
 
 def main():
     parser = get_parser()
@@ -349,10 +430,13 @@ def main():
 #0. Removes all subjects that are missing a parameter or CSA value and subjects from exclude list.
     df = remove_subjects(df, dict_exclude_subj) 
 
-# Initialize path of results figues
-    path_figures = args.path_results + '/figures'
-    if not os.path.isdir(path_figures):
-        os.mkdir(args.path_results + '/figures')
+# Initialize path of statistical results 
+    path_statistics = args.path_results+'/stats_results'
+    path_metrics = path_statistics + '/metrics'
+    os.makedirs(path_metrics, exist_ok=True ) 
+    path_model = path_statistics+'/models'
+    if not os.path.exists(path_model):
+        os.mkdir(path_model)
 # _____________________________________________________________________________________________________
 #1. Compute stats
 
@@ -360,7 +444,7 @@ def main():
     stats_csa = compute_statistics(df)
     stats_csa_df = pd.DataFrame.from_dict(stats_csa)
     # Format and save stats of csa as a table
-    config_table(stats_csa_df, path_figures + '/stats_CSA.png' ) # add units to table
+    config_table(stats_csa_df, path_metrics + '/stats_CSA.png' ) # add units to table
 
     #add save as csv file
 
@@ -369,23 +453,27 @@ def main():
     stats_predictors_df = pd.DataFrame.from_dict(stats_predictors)
 
     # Format and save stats of csa as a table
-    config_table(stats_predictors_df, path_figures + '/stats_param.png' )
+    config_table(stats_predictors_df, path_metrics + '/stats_param.png' )
     #add save as csv file and .png figure
 #_______________________________________________________________________________________________________ 
 #2. Correlation matrix
     corr_table = get_correlation_table(df)
+
+    # Verify collinearity of height and age --> TODO scatterplot
     logger.info("Correlation matrix: {}".format(corr_table))
     # Saves an .png of the correlation matrix in the results folder
-    config_table(corr_table, path_figures+ '/corr_table.png')
+    config_table(corr_table, path_metrics+ '/corr_table.png')
 #________________________________________________________________________________________________________    
 #3 Stepwise linear regression | Faire un fonction avec tout ça
     x = df.drop(columns = ['T1w_CSA', 'T2w_CSA'])
     y_T1w = df['T1w_CSA']
     y_T2w = df['T2w_CSA']
+    
     p_in = 0.25 # to check
     p_out = 0.25 # To check
-    compute_regression_CSA(x, y_T1w, p_in, p_out, "T1w_CSA")
-    compute_regression_CSA(x, y_T2w, p_in, p_out, 'T2w_CSA')
+    # Computes linear regression with all predictors and stepwise, compare and analyse results
+    reduced_model_T1w, full_model_T1w = compute_regression_CSA(x, y_T1w, p_in, p_out, "T1w_CSA", path_model)
+    reduced_model_T2w, full_model_T2w = compute_regression_CSA(x, y_T2w, p_in, p_out, 'T2w_CSA', path_model)
 
 if __name__ == '__main__':
     main()
