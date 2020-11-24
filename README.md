@@ -7,6 +7,7 @@ Here is an example of the data structure:
 uk_biobank
 │
 ├── participants.tsv
+├── subjects_gbm3100.csv
 ├── sub-1000032
 ├── sub-1000083
 ├── sub-1000252
@@ -33,6 +34,7 @@ uk_biobank
                 └── sub-1000710_T2w_RPI_r_seg-manual.json
  
 ~~~
+
 ### Aquisition parameters
 The images from UK Biobank Brain MRI used for this project are :
  - T1_orig_defaced.nii.gz
@@ -47,14 +49,14 @@ The images from UK Biobank Brain MRI used for this project are :
     Resolution: 1.05x1x1 mm
     Field-of-view: 192x256x256 matrix
 ## Description
-
-## Dependencies
+## Analysis pipeline
+### Dependencies
 
 SCT 5.0.0\
 Python 3.7\
 FSLeyes 
 
-## Installation
+### Installation
 Download this repository:
 ~~~
 git clone https://github.com/sandrinebedard/Projet3.git
@@ -64,7 +66,8 @@ Install:
 cd Projet3
 pip install -e ./
 ~~~
-## Usage
+
+### Usage
 Create a folder where the results will be generated
 ~~~
 mkdir ~/ukbiobank_results
@@ -73,3 +76,26 @@ Launch processing:
 ~~~
 sct_run_batch -jobs -1 -path-data <PATH_DATA> -path-output ~/ukbiobank_results/ -script process_data.sh
 ~~~
+
+#### Statistical analysis
+##### Generate datafile:
+To generate a data file with the results:
+
+~~~
+uk_get_subject_info -path-data <PATH_DATA> -path-output ~/ukbiobank_results/
+~~~
+
+If in datafile, the file subjects_gbm3100.csv with fields of the participants has another name, run this line instead:
+
+~~~
+uk_get_subject_info -path-data <PATH_DATA> -path-output ~/ukbiobank_results/ - datafile <FILENAME>
+~~~
+##### Compute statistical analysis
+To compute the statistical analysis of the data of the pipeline analysis with the output file of `uk_get_subject_info` using `compute-stats.py`.  If the datafile ouput of uk_get_subject_info is not `data_ukbiobank_test.csv`, add the flag `-dataFile <FILENAME>`. Run this script in `/results` folder or specify this folder using  `-path-results` flag. The flag -exclude points to a yml file containing the subjects to be excluded from the statistics:
+~~~
+uk_compute_stats -path-results ~/ukbiobank_results/results -dataFile <DATAFILE> -exclude <EXCLUDE.yml>
+~~~
+
+The output of `uk_compute_stats`has this data_structure:
+
+TODO: to complete
