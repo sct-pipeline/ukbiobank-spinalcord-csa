@@ -50,7 +50,7 @@ def get_parser():
         prog=os.path.basename(__file__).strip('.py')
         )
     parser.add_argument('-path-results',
-                        required=True,
+                        required=False,
                         metavar='<dir_path>',
                         help="Folder that includes the output csv file from get_subjects_info")
     parser.add_argument('-dataFile',
@@ -66,7 +66,7 @@ def get_parser():
 
     return parser
 
-PATH_RESULTS = '~/ukbiobank_results/results'
+PATH_RESULTS = '~/ukbiobank_results/results' # To delete
 
 #0. remove subjects --> OK
 #1. Caractérisation des données
@@ -400,7 +400,7 @@ def remove_subjects(df, dict_exclude_subj):
 def main():
     parser = get_parser()
     args = parser.parse_args()
-
+    # TODO : if arg path-results included, go to that directory
     # Creates a panda dataFrame from data file .csv 
     df = (pd.read_csv(args.path_results +'/' + args.dataFile)).set_index('Subject')
     
