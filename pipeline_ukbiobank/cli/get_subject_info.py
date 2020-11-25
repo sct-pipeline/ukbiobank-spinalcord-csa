@@ -27,7 +27,7 @@ param_dict = {
 
 def get_parser():
     parser = argparse.ArgumentParser(
-        description="Gets the subjects parameters and writes them in data_ukbiobank.csv file in <path-output>/results",
+        description="Gets the subjects parameters ans CSA results from process_data.sh and writes them in data_ukbiobank.csv file in <path-output>/results",
         prog=os.path.basename(__file__).strip('.py')
         )
     parser.add_argument('-path-data',
@@ -53,7 +53,7 @@ def csv2dataFrame(filename):
     Loads a .csv file and builds a pandas dataFrame of the data
     Args:
         filename (str): filename of the .csv file
-    Returns
+    Returns:
         data (pd.dataFrame): pandas dataframe of the .csv file's data
     """
     data = pd.read_csv(filename)
@@ -63,7 +63,7 @@ def get_csa(csa_filename):
     """
     From .csv output file of process_data.sh (sct_process_segmentation),
     returns a panda dataFrame with the subjects' eid and CSA values
-    Args
+    Args:
         csa_filename (str): filename of the .csv file that contains de CSA values
     Returns:
         csa (pd.dataFrame): dataframe of CSA values
@@ -76,9 +76,9 @@ def get_csa(csa_filename):
 def compute_age(df):
     """
     With the birth month and year of each subjects, computes age of the subjects at 2nd assessment
-    Args
+    Args:
         df (pd.dataFrame): dataframe of parameters for ukbiobank project
-    Returns
+    Returns:
         df (pd.dataFrame): modified dataFrame with age
     """
     # Sperates year, month and day of 2nd assessment date
@@ -120,7 +120,7 @@ def main():
     #Sets the index of the dataFrame to 'Subject'
     df = df.set_index('Subject')
 
-    # Writes a .csv file in /results folder
+    # Writes a .csv file in <path_results/results> folder
     filename = 'data_ukbiobank.csv'
     df.to_csv(path_results+filename)
 
