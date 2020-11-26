@@ -81,13 +81,13 @@ Create a folder where the results will be generated
 ~~~
 mkdir ~/ukbiobank_results
 ~~~
-Initialize shell variable with the path of the `coeff.grad`:
+Initialize shell variable with the path of the folder with the `coeff.grad` file:
 ~~~
 PATH_GRADCORR_FILE=<path-gradcorr>
 ~~~
 Launch processing:
 ~~~
-sct_run_batch -jobs -1 -path-data <PATH_DATA> -path-output ~/ukbiobank_results/ -script process_data.sh -script-args "-path-gradcorr PATH_GRADCORR_FILE"
+sct_run_batch -jobs -1 -path-data <PATH_DATA> -path-output ~/ukbiobank_results/ -script process_data.sh -script-args $PATH_GRADCORR_FILE
 ~~~
 - - -
 ### Statistical analysis
