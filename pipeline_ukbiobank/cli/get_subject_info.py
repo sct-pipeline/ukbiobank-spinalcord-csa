@@ -34,7 +34,7 @@ def get_parser():
                         required=True, 
                         type=str,
                         metavar='<dir_path>',
-                        help="Name of the input file of process_data.sh of the data of the project.")
+                        help="Path to the folder that contains the data to be analyzed.")
     parser.add_argument('-path-output', 
                         required=True,
                         type=str,
