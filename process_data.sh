@@ -98,7 +98,7 @@ sct_image -i ${file_t1}.nii.gz -setorient RPI -o ${file_t1}_RPI.nii.gz
 sct_resample -i ${file_t1}_RPI.nii.gz -mm 1x1x1 -o ${file_t1}_RPI_r.nii.gz # supposed to be 2.4x2.4x2.4 ??
 file_t1="${file_t1}_RPI_r"
 
-#Gradient distorsion correction
+# Gradient distorsion correction
 gradient_unwarp.py ${file_t1}.nii.gz ${file_t1}_gradcorr.nii.gz siemens -g ${PATH_GRADCORR_FILE}/coeff.grad -n
 file_t1="${file_t1}_gradcorr"
 
@@ -115,9 +115,9 @@ sct_register_to_template -i ${file_t1}.nii.gz -s ${file_t1_seg}.nii.gz -ldisc ${
 # Rename warping fields for clarity
 mv warp_template2anat.nii.gz warp_template2T1w.nii.gz
 mv warp_anat2template.nii.gz warp_T1w2template.nii.gz
-#Warp template without the white matter atlas (we don't need it at this point)
+# Warp template without the white matter atlas (we don't need it at this point)
 sct_warp_template -d ${file_t1}.nii.gz -w warp_template2T1w.nii.gz -a 0 -ofolder label_T1w
-#Generate QC report to assess vertebral labeling
+# Generate QC report to assess vertebral labeling
 sct_qc -i ${file_t1}.nii.gz -s label_T1w/template/PAM50_levels.nii.gz -p sct_label_vertebrae -qc ${PATH_QC} -qc-subject ${SUBJECT}
 # Flatten scan along R-L direction (to make nice figures)
 sct_flatten_sagittal -i ${file_t1}.nii.gz -s ${file_t1_seg}.nii.gz
@@ -145,7 +145,7 @@ sct_flatten_sagittal -i ${file_t2}.nii.gz -s ${file_t2_seg}.nii.gz
 # Bring vertebral level into T2 space 
 sct_register_multimodal -i label_T1w/template/PAM50_levels.nii.gz -d ${file_t2_seg}.nii.gz -o PAM50_levels2${file_t2}.nii.gz -identity 1 -x nn
 
-#Generate QC report to assess vertebral labeling of T2w
+# Generate QC report to assess vertebral labeling of T2w
 sct_qc -i ${file_t2}.nii.gz -s PAM50_levels2${file_t2}.nii.gz -p sct_label_vertebrae -qc ${PATH_QC} -qc-subject ${SUBJECT}
 # Compute average cord CSA between C2 and C3
 sct_process_segmentation -i ${file_t2_seg}.nii.gz -vert 2:3 -vertfile PAM50_levels2${file_t2}.nii.gz -o ${PATH_RESULTS}/csa-SC_T2w.csv -append 1
