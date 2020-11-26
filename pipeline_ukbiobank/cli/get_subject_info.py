@@ -70,7 +70,7 @@ def get_csa(csa_filename):
 
     """
     sc_data = csv2dataFrame(csa_filename)
-    csa= sc_data['MEAN(area)']
+    csa = sc_data['MEAN(area)']
     return csa
 
 def compute_age(df):
