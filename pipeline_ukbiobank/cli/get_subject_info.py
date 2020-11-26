@@ -27,7 +27,7 @@ param_dict = {
 
 def get_parser():
     parser = argparse.ArgumentParser(
-        description="Gets the subjects parameters ans CSA results from process_data.sh and writes them in data_ukbiobank.csv file in <path-output>/results",
+        description="Gets the subjects parameters and CSA results from process_data.sh and writes them in data_ukbiobank.csv file in <path-output>/results",
         prog=os.path.basename(__file__).strip('.py')
         )
     parser.add_argument('-path-data',
