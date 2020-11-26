@@ -39,7 +39,7 @@ def get_parser():
                         required=True,
                         type=str,
                         metavar='<dir_path>',
-                        help="Name of the output file of the results of process_data.sh.")
+                        help="Path to the folder that will contain output files (processed data, results, log, QC).")
     parser.add_argument('-datafile',
                         required=False,
                         type=str,
