@@ -104,7 +104,7 @@ If in datafile, the file subjects_gbm3100.csv with fields of the participants ha
 uk_get_subject_info -path-data <PATH_DATA> -path-output ~/ukbiobank_results/ - datafile <FILENAME>
 ~~~
 #### Compute statistical analysis
-To compute the statistical analysis of the data of the pipeline analysis with the output file of `uk_get_subject_info` using `compute-stats.py`.  If the datafile ouput of uk_get_subject_info is not `data_ukbiobank_test.csv`, add the flag `-dataFile <FILENAME>`. Run this script in `/results` folder or specify this folder using  `-path-results` flag. The flag -exclude points to a yml file containing the subjects to be excluded from the statistics:
+To compute the statistical analysis of the data of the pipeline analysis with the output file of `uk_get_subject_info` using `compute-stats.py`.  If the datafile ouput of uk_get_subject_info is not `data_ukbiobank.csv`, add the flag `-dataFile <FILENAME>`. Run this script in `/results` folder or specify this folder using  `-path-results` flag. The flag -exclude points to a yml file containing the subjects to be excluded from the statistics:
 ~~~
 uk_compute_stats -path-results ~/ukbiobank_results/results -dataFile <DATAFILE> -exclude <EXCLUDE.yml>
 ~~~
