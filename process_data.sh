@@ -3,7 +3,7 @@
 # Process data.
 #
 # Usage:
-#   ./process_data.sh <SUBJECT>
+#   ./process_data.sh <SUBJECT> <PATH_GRADCORR_FILE>
 #
 # Manual segmentations or labels should be located under:
 # PATH_DATA/derivatives/labels/SUBJECT/anat/
@@ -19,6 +19,7 @@ trap "echo Caught Keyboard Interrupt within script. Exiting now.; exit" INT
 
 # Retrieve input params
 SUBJECT=$1
+PATH_GRADCORR_FILE=$2 
 
 # get starting time:
 start=`date +%s`
@@ -73,9 +74,6 @@ segment_if_does_not_exist(){
 # ==============================================================================
 # Display useful info for the log, such as SCT version, RAM and CPU cores available
 sct_check_dependencies -short
-
-#Initialize path of coeff.grad --> TODO: modify to get the right file for each subjects' assessment centre
-PATH_GRADCORR_FILE="${PWD}/coeff.grad/ICM"
 
 # Go to folder where data will be copied and processed
 cd ${PATH_DATA_PROCESSED}
@@ -136,10 +134,10 @@ file_t2="${file_t2}_RPI_r"
 
 #Gradient distorsion correction
 gradient_unwarp.py ${file_t2}.nii.gz ${file_t2}_gradcorr.nii.gz siemens -g ${PATH_GRADCORR_FILE}/coeff.grad -n
-file_t1="${file_t2}_gradcorr"
+file_t2="${file_t2}_gradcorr"
 
 # Segment spinal cord (only if it does not exist)
-segment_if_does_not_exist $file_t2 "t2"
+segment_if_does_not_exist $file_t2 "t1"
 file_t2_seg=$FILESEG
 # Flatten scan along R-L direction (to make nice figures) 
 sct_flatten_sagittal -i ${file_t2}.nii.gz -s ${file_t2_seg}.nii.gz
