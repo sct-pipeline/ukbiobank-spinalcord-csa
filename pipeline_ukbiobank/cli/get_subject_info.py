@@ -98,7 +98,7 @@ def main():
     args = parser.parse_args()
 
     # Open <datafile>.csv --> gets data for subjects and selected predictors, creates a dataframe.
-    path_data  = args.path_data + '/' +args.datafile
+    path_data  = os.path.join(args.path_data, args.datafile)
     raw_data = csv2dataFrame(path_data)
     # Initialize an empty dataframe with the predictors as columns
     df = pd.DataFrame(columns = param_dict.values())
@@ -109,9 +109,9 @@ def main():
     #Computes age and adds an 'Age' column to df
     df = compute_age(df)
     # Initializes names of csv files of CSA in results file --> maybe there is an other way 
-    path_results = args.path_output+'/results/'
-    t1_csaPath = path_results+'csa-SC_T1w.csv'
-    t2_csaPath = path_results+'csa-SC_T2w.csv'
+    path_results = os.path.join(args.path_output,'results')
+    t1_csaPath = os.path.join(path_results,'csa-SC_T1w.csv')
+    t2_csaPath = os.path.join(path_results,'csa-SC_T2w.csv')
     
     #Gets data frame of CSA for T1w and T2w
     df['T1w_CSA'] = get_csa(t1_csaPath)
@@ -122,7 +122,7 @@ def main():
 
     # Writes a .csv file in <path_results/results> folder
     filename = 'data_ukbiobank.csv'
-    df.to_csv(path_results+filename)
+    df.to_csv(os.path.join(path_results,filename))
 
 if __name__ == '__main__':
     main()
