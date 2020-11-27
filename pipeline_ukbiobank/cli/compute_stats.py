@@ -16,25 +16,18 @@ import yaml
 import scipy
 import matplotlib.pyplot as plt # pas utilisé à date
 import statsmodels.api as sm
-from statsmodels.formula.api import ols # à retirer
-
-from sklearn.feature_selection import RFECV
-from sklearn.svm import SVR
 import seaborn as sns
 
-#import pipeline_ukbiobank.cli.select_subjects as ss
-from sklearn.linear_model import LinearRegression
-from statsmodels.stats.multicomp import pairwise_tukeyhsd
+from statsmodels.formula.api import ols # à retirer
+from textwrap import dedent
+from sklearn.feature_selection import RFECV
+from sklearn.svm import SVR
+from sklearn.linear_model import LinearRegression # verify is used
+from statsmodels.stats.multicomp import pairwise_tukeyhsd # verify if used
 
 FNAME_LOG = 'log_stats.txt'
 
 plt.style.use('seaborn') # pretty matplotlib plots
-
-#plt.rc('font', size=14)
-#plt.rc('figure', titlesize=18)
-#plt.rc('axes', labelsize=15)
-#plt.rc('axes', titlesize=18)
-
 
 # Initialize logging
 logger = logging.getLogger(__name__)
@@ -44,43 +37,45 @@ logging.root.addHandler(hdlr)
 
 PREDICTORS = ['Sex', 'Height', 'Weight', 'Intracranial volume', 'Age'] # Add units of each
 
+class SmartFormatter(argparse.HelpFormatter):
+
+    def _split_lines(self, text, width):
+        if text.startswith('R|'):
+            return text[2:].splitlines()  
+        # this is the RawTextHelpFormatter._split_lines
+        return argparse.HelpFormatter._split_lines(self, text, width)
+
 def get_parser():
     parser = argparse.ArgumentParser(
-        description="Computes the statistical analysis for the ukbiobank project",#add list of metrics that will be computed
-        prog=os.path.basename(__file__).strip('.py')
+        description="Computes the statistical analysis with the results of the ukbiobank project",
+        prog=os.path.basename(__file__).strip('.py'),
+        formatter_class=SmartFormatter
         )
-    parser.add_argument('-path-results',
+    parser.add_argument('-path-output',
                         required=False,
+                        type=str,
                         metavar='<dir_path>',
-                        help="Folder that includes the output csv file from get_subjects_info")
+                        help="Path to folder that contains output files (processed_data, log, qc, results)")
     parser.add_argument('-dataFile',
                         required=False,
                         default='data_ukbiobank.csv',
                         metavar='<file>',
-                        help="Filename of the data, output file of uk_get_subject_info, default: data_ukbiobank.csv  ")
+                        help="Filename of the output file of uk_get_subject_info Default: data_ukbiobank.csv  ")
     parser.add_argument('-exclude',
                         metavar='<file>',
                         required=False,
-                        help=".yml list of subjects to exclude from statistical analysis."
-                        ) #add format of the list
-
+                        help=
+                        "R|Config yaml file listing subjects to exclude from statistical analysis.\n"
+                        "Yaml file can be validated at this website: http://www.yamllint.com/.\n"
+                        "Below is an example yaml file:\n"
+                        + dedent(
+                        """
+                        - sub-1000032
+                        - sub-1000498
+                        """)
+                        )
     return parser
 
-PATH_RESULTS = '~/ukbiobank_results/results' # To delete
-
-#0. remove subjects --> OK
-#1. Caractérisation des données
-    #Nombre de sujet --> OK
-    #Moyenne --> OK
-    #mediane --> OK
-    #Variance --> OK
-    #COV --> OK
-    #Int confiance (après je crois) --> OK
-    # % H vs F --> OK
-    # Plage de données pour taille, volume, poids, age --> OK
-    #OUTPUT tableau + CSV (AJOUTER) ajouter unités
-#2. Coff corrélation --> OK 
-    #OUTPUT tableau + CSV 
 #3 Multivariate regression (stepwise)
     #normalise data before ???
     #full and stepwise model --> ok, ajouter AIC
@@ -96,8 +91,11 @@ PATH_RESULTS = '~/ukbiobank_results/results' # To delete
 
 def compute_statistics(df):
     """
-    Compute statistics such as mean, std, COV, etc. per contrast type
-    :param df Pandas structure
+    Computes statistics such as mean, std, COV, etc. of CSA values per contrast type
+    Args:
+        df (panda.DataFrame): dataframe of all parameters and CSA values
+    Returns:
+        stats_df (panda.DataFrame): dataframe of statistics of CSA per contrat type
     """
     contrasts = ['T1w_CSA', 'T2w_CSA']
     metrics = ['number of sub','mean','std','med','95ci', 'COV', 'max', 'min', 'normality_test_p']
@@ -113,18 +111,24 @@ def compute_statistics(df):
         stats[contrast]['mean'] = np.mean(df[contrast])
         stats[contrast]['std'] = np.std(df[contrast])
         stats[contrast]['med']= np.median(df[contrast])
-        stats[contrast]['95ci'] = 1.96*np.std(df[contrast])/np.sqrt(len(df[contrast]))
+        stats[contrast]['95ci']= 1.96*np.std(df[contrast])/np.sqrt(len(df[contrast]))
         stats[contrast]['COV'] = np.std(df[contrast]) / np.mean(df[contrast])
         stats[contrast]['max'] = np.max(df[contrast])
         stats[contrast]['min'] = np.min(df[contrast])
         # Validate normality of data with Shapiro-wilik test
         stats[contrast]['normality_test_p'] = scipy.stats.shapiro(df[contrast])[1]
-    return stats
+    # Convert dict to dataFrame
+    stats_df = pd.DataFrame.from_dict(stats)
+    return stats_df
 
 def compute_predictors_statistic(df):
     """
     Compute statistics such as mean, min, max for each predictor
-    :param df Pandas structure
+    Args:
+        df (panda.dataFrame): dataframe of all parameters and CSA values
+    Returns:
+        stats_df (panda.dataFrame): dataFrame with statistics of parameters 
+
     """
     stats={}
     metrics = ['min', 'max', 'med', 'mean']
@@ -140,9 +144,12 @@ def compute_predictors_statistic(df):
     stats['Sex'] = {}
     stats['Sex']['%_M'] = 100*(np.count_nonzero(df['Sex']) / len(df['Sex']))
     stats['Sex']['%_F'] = 100 - stats['Sex']['%_M']
-    # Writes 
+    # Writes statistics of parameters into a texte
     output_text_stats(stats)
-    return stats
+    stats_df =pd.DataFrame.from_dict(stats)
+
+    return stats_df
+
 def output_text_stats(stats):
     """
     Embed statistical results into sentences so they can easily be copy/pasted into a manuscript.
@@ -177,7 +184,7 @@ def config_table(corr_table, filename): # add units to table
           )
     rcolors = plt.cm.BuPu(np.full(len(corr_table.index), 0.1))
     ccolors = plt.cm.BuPu(np.full(len(corr_table.columns), 0.1))
-    table = plt.table(np.round(corr_table.values, 4), 
+    table = plt.table(np.round((corr_table.values).astype(np.double), 4), 
             rowLabels = corr_table.index,
             colLabels = corr_table.columns,
             rowLoc='center',
@@ -203,6 +210,13 @@ def config_table(corr_table, filename): # add units to table
             )
     logger.info('Created: ' + filename)
 
+def df_to_CSV(df, filename):
+    df.to_csv(filename)
+    logger.info('Created: ' + filename)
+
+def save_table(df_table, filename):
+    config_table(df_table, filename+'.png')
+    df_to_CSV(df_table, filename+'.csv')
 
 def get_correlation_table(df) :
     corr_table = df.corr()
@@ -274,24 +288,25 @@ def compute_stepwise(X,y, threshold_in, threshold_out): # TODO: add AIC cretaria
 
 def save_model(model, model_name, path_model_contrast):
     logger.info('Saving {} ...'.format(model_name))
-    def save_summary(model, model_name):
-        summary_path = path_model_contrast +'/summary'
+    def save_summary():
+        summary_path = os.path.join(path_model_contrast,'summary')
         if not os.path.exists(summary_path):
             os.mkdir(summary_path)
-        summary_filename = summary_path + '/summary_'+ model_name +'.txt'
-        with open(summary_filename, 'w') as fh: # Modifier le lieu, faire un dossier
+        summary_filename = os.path.join(summary_path, 'summary_'+ model_name +'.txt')
+        with open(summary_filename, 'w') as fh:
             fh.write(model.summary(title = model_name ).as_text())
         logger.info('Created: ' + summary_filename)
-    def save_coeff(model_name):
-        coeff_path = path_model_contrast +'/coeff'
+    
+    def save_coeff():
+        coeff_path = os.path.join(path_model_contrast, 'coeff')
         if not os.path.exists(coeff_path):
             os.mkdir(coeff_path)
-        
-        coeff_filename = coeff_path + '/coeff_'+ model_name +'.csv'
+        coeff_filename = os.path.join(coeff_path ,'coeff_'+ model_name +'.csv')
         (model.params).to_csv(coeff_filename, header = None)
         logger.info('Created: ' + coeff_filename)
-    save_coeff(model_name)
-    save_summary(model, model_name)
+
+    save_coeff()
+    save_summary()
 
 def compute_regression_CSA(x,y, p_in, p_out, contrast, path_model):
     path_model_contrast = path_model +'/'+ contrast
@@ -316,17 +331,17 @@ def compute_regression_CSA(x,y, p_in, p_out, contrast, path_model):
     # Save summary of the model and the coefficients of the regression
     save_model(model_full, m2_name, path_model_contrast)
     
-    #Compares full and reduced models
-    
+    # Compares full and reduced models
     compared_models = compare_models(model, model_full, m1_name, m2_name)
     logger.info('Comparing models: {}'.format(compared_models))
-    config_table(compared_models,path_model_contrast+'/compared_models.png' )
+    compared_models_filename = os.path.join(path_model_contrast,'compared_models.png')
+    save_table(compared_models,compared_models_filename ) # Saves to .png ans .csv
+    
     # Residual analysis
-    analyse_residuals(model, m1_name, data = pd.concat([x, y], axis=1), path = path_model_contrast +'/residuals' )
-    return model, model_full
+    analyse_residuals(model, m1_name, data = pd.concat([x, y], axis=1), path = os.path.join(path_model_contrast,'residuals'))
 
 def compare_models(model_1, model_2,model_1_name, model_2_name  ):
-    columns = ['Model', 'R^2', 'R^2_adj', 'F_p-value','F_value', 'AIC', 'df_res'] # pas sur si nécessaire
+    columns = ['Model', 'R^2', 'R^2_adj', 'F_p-value','F_value', 'AIC', 'df_res']
     table = pd.DataFrame(columns= columns)
     table['Model'] = [model_1_name, model_2_name]
     table['R^2'] = [model_1.rsquared, model_2.rsquared]
@@ -376,37 +391,56 @@ def analyse_residuals(model, model_name, data, path):
         os.mkdir(path)
     fname_fig = os.path.join(path +'/res_plots_' + model_name + '.png')
     plt.savefig(fname_fig) # put general variable 
-    print(path)
     logger.info('Created: ' + fname_fig)
 
 def remove_subjects(df, dict_exclude_subj):
     """
     Removes subjects from exclude list if given and all subjects that are missing any parameter.
-    Writes in log list of removed subjects.
+    Writes in log the list of removed subjects.
     Args:
-        df (panda.DataFrame): Dataframe with all subjects.
+        df (panda.DataFrame): Dataframe with all subjects parameters and CSA values.
     Returns
-        df_updated (panda.DataFrame): Dataframe with subjects removed.
+        df_updated (panda.DataFrame): Dataframe without exluded subjects.
     """
+    # Initalize list of subjects to exclude with all subjects missing a parameter value
     subjects_removed = df.loc[pd.isnull(df).any(1), :].index.values
-    df = df.drop(index = dict_exclude_subj)
+    # Remove all subjects passed form the exclude list
+    # TODO : retirer le sub-
+    
+    for sub in dict_exclude_subj:
+        sub_id = int(sub[4:])
+        df = df.drop(index = sub_id)
+        subjects_removed = np.append(subjects_removed, sub_id)
     df_updated = df.dropna(0,how = 'any').reset_index(drop=True)
-    subjects_removed = np.append(subjects_removed,dict_exclude_subj)
     logger.info("Subjects removed: {}".format(subjects_removed))
     return df_updated
-#def compare_contrat():
 
+def init_path_results():
+    path_statistics = 'stats_results'
+    if not os.path.exists(path_statistics):
+        os.mkdir(path_statistics)
+    path_metrics = os.path.join(path_statistics,'metrics')
+    if not os.path.exists(path_metrics):
+        os.mkdir(path_metrics)
+    path_model =  os.path.join(path_statistics,'models')
+    if not os.path.exists(path_model):
+        os.mkdir(path_model)
+    return (path_metrics, path_model)
 
 def main():
     parser = get_parser()
     args = parser.parse_args()
-    # TODO : if arg path-results included, go to that directory
-    # Creates a panda dataFrame from data file .csv 
-    df = (pd.read_csv(args.path_results +'/' + args.dataFile)).set_index('Subject')
+    # If argument path-ouput included, go to the results folder
+    if args.path_output is not None:
+        path_results = os.path.join(args.path_output, 'results')
+        os.chdir(path_results)
+        
+    # Creates a panda dataFrame from datafile input arg .csv 
+    df = (pd.read_csv(args.dataFile)).set_index('Subject')
     
-    #create dict with subjects to exclude if input yml config file is passed
+    # Creates a dict with subjects to exclude if input yml config file is passed
     if args.exclude is not None:
-        #check if input yml file exists
+        # Check if input yml file exists
         if os.path.isfile(args.exclude):
             fname_yml = args.exclude
         else:
@@ -417,7 +451,7 @@ def main():
             except yaml.YAMLError as exc:
                 logger.error(exc)
     else:
-        # initialize empty dict if no config yml file is passed
+        # Initialize empty dict if no config yml file is passed
         dict_exclude_subj = dict()
 
     # Dump log file there
@@ -426,53 +460,43 @@ def main():
     fh = logging.FileHandler(os.path.join(os.path.abspath(os.curdir), FNAME_LOG))
     logging.root.addHandler(fh)
 #_______________________________________________________________________________________________________ 
-#0. Removes all subjects that are missing a parameter or CSA value and subjects from exclude list.
+# Removes all subjects that are missing a parameter or CSA value and subjects from exclude list.
     df = remove_subjects(df, dict_exclude_subj) 
 
-# Initialize path of statistical results 
-    path_statistics = args.path_results+'/stats_results'
-    path_metrics = path_statistics + '/metrics'
-    os.makedirs(path_metrics, exist_ok=True ) 
-    path_model = path_statistics+'/models'
-    if not os.path.exists(path_model):
-        os.mkdir(path_model)
+# Initializes path of statistical results 
+    path_metrics, path_model = init_path_results()
 # _____________________________________________________________________________________________________
-#1. Compute stats
+# Compute stats
 
     #1.1 Compute stats of T1w CSA and T2w CSA
     stats_csa = compute_statistics(df)
-    stats_csa_df = pd.DataFrame.from_dict(stats_csa)
-    # Format and save stats of csa as a table
-    config_table(stats_csa_df, path_metrics + '/stats_CSA.png' ) # add units to table
-
-    #add save as csv file
-
+    # Format and save CSA stats as a .png and .csv file
+    metric_csa_filename = os.path.join(path_metrics, 'stats_csa.png') # retirer .png
+    save_table(stats_csa, metric_csa_filename)
+        
     #1.2. Compute stats of the predictors
     stats_predictors = compute_predictors_statistic(df)
-    stats_predictors_df = pd.DataFrame.from_dict(stats_predictors)
-
-    # Format and save stats of csa as a table
-    config_table(stats_predictors_df, path_metrics + '/stats_param.png' )
-    #add save as csv file and .png figure
+    # Format and save stats of csa as a table png and .csv
+    stats_predictors_filename = os.path.join(path_metrics, 'stats_param.png') # retirer.png
+    save_table(stats_predictors, stats_predictors_filename)   
 #_______________________________________________________________________________________________________ 
-#2. Correlation matrix
+# Correlation matrix
     corr_table = get_correlation_table(df)
-
-    # Verify collinearity of height and age --> TODO scatterplot
     logger.info("Correlation matrix: {}".format(corr_table))
-    # Saves an .png of the correlation matrix in the results folder
-    config_table(corr_table, path_metrics+ '/corr_table.png')
+    corr_filename = os.path.join(path_metrics,'corr_table.png')
+    # Saves an .png and .csv file of the correlation matrix in the results folder
+    save_table(corr_table, corr_filename)
 #________________________________________________________________________________________________________    
-#3 Stepwise linear regression | Faire un fonction avec tout ça
+# Stepwise linear regression
     x = df.drop(columns = ['T1w_CSA', 'T2w_CSA'])
     y_T1w = df['T1w_CSA']
     y_T2w = df['T2w_CSA']
-    
-    p_in = 0.25 # to check
+    # P_values for forward and backward stepwise
+    p_in = 0.25 # To check
     p_out = 0.25 # To check
-    # Computes linear regression with all predictors and stepwise, compare and analyse results
-    reduced_model_T1w, full_model_T1w = compute_regression_CSA(x, y_T1w, p_in, p_out, "T1w_CSA", path_model)
-    reduced_model_T2w, full_model_T2w = compute_regression_CSA(x, y_T2w, p_in, p_out, 'T2w_CSA', path_model)
+    # Computes linear regression with all predictors and stepwise, compares, analyses and saves results
+    compute_regression_CSA(x, y_T1w, p_in, p_out, "T1w_CSA", path_model)
+    compute_regression_CSA(x, y_T2w, p_in, p_out, 'T2w_CSA', path_model)
 
 if __name__ == '__main__':
     main()
