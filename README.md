@@ -55,13 +55,13 @@ The images from UK Biobank Brain MRI used for this project are :
 ### Dependencies
 MANDATORY:
 
-* [SCT 5.0.0](https://github.com/neuropoly/spinalcordtoolbox/releases/tag/5.0.1) for processing\
-* [gradunwrap v1.2.0](https://github.com/Washington-University/gradunwarp/tree/v1.2.0) for gradient correction\
+* [SCT 5.0.1](https://github.com/neuropoly/spinalcordtoolbox/releases/tag/5.0.1) for processing
+* [gradunwrap v1.2.0](https://github.com/Washington-University/gradunwarp/tree/v1.2.0) for gradient correction
 * Python 3.7  for statistical analysis
 
 OPTIONAL:
 
-* [FSLeyes](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FSLeyes) for correcting segmentations\
+* [FSLeyes](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FSLeyes) for correcting segmentations
 
 ### Installation
 Download this repository:
