@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 from setuptools import setup, find_packages
-import pathlib
+#import pathlib
 from os import path
 #import ukbiobank_pipeline
-here = pathlib.Path(__file__).parent.resolve()
+#here = pathlib.Path(__file__).parent.resolve()
 
 # Get the directory where this current file is saved
-here = path.abspath(path.dirname(__file__))
+#here = path.abspath(path.dirname(__file__))
 
 #with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 #    long_description = f.read()
