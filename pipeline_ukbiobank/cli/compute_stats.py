@@ -76,18 +76,7 @@ def get_parser():
                         )
     return parser
 
-#3 Multivariate regression (stepwise)
-    #normalise data before ???
-    #full and stepwise model --> ok, ajouter AIC
-    #output coeff.txt   --> ok for stepwise
-#4 Test tuckey diff T1w et T2w
-#5 Pertinence modèle
-    # Résidus --> OKKKKKK
-    # R^2 --> ok, faire un texte
-    # Analyse variance
-    # Intervalle de prédiction
 #6 Logfile --> OK, mais en ajouter partout
-# TODO: gérer l'écriture des fichiers
 
 def compute_statistics(df):
     """
@@ -215,8 +204,8 @@ def df_to_CSV(df, filename):
     logger.info('Created: ' + filename)
 
 def save_table(df_table, filename):
-    config_table(df_table, filename+'.png')
-    df_to_CSV(df_table, filename+'.csv')
+    config_table(df_table, filename +'.png')
+    df_to_CSV(df_table, filename +'.csv')
 
 def get_correlation_table(df) :
     corr_table = df.corr()
@@ -309,7 +298,7 @@ def save_model(model, model_name, path_model_contrast):
     save_summary()
 
 def compute_regression_CSA(x,y, p_in, p_out, contrast, path_model):
-    path_model_contrast = path_model +'/'+ contrast
+    path_model_contrast = os.path.join(path_model, contrast)
     if not os.path.exists(path_model_contrast):
         os.mkdir(path_model_contrast)
     
@@ -334,7 +323,7 @@ def compute_regression_CSA(x,y, p_in, p_out, contrast, path_model):
     # Compares full and reduced models
     compared_models = compare_models(model, model_full, m1_name, m2_name)
     logger.info('Comparing models: {}'.format(compared_models))
-    compared_models_filename = os.path.join(path_model_contrast,'compared_models.png')
+    compared_models_filename = os.path.join(path_model_contrast,'compared_models')
     save_table(compared_models,compared_models_filename ) # Saves to .png ans .csv
     
     # Residual analysis
@@ -353,7 +342,7 @@ def compare_models(model_1, model_2,model_1_name, model_2_name  ):
     table = table.set_index('Model')
     return table
 
-def analyse_residuals(model, model_name, data, path):
+def analyse_residuals(model, model_name, data, path): # Add residuals as function of each parameter
     # Residual analysis
     residual = model.resid
     # Generate graph of QQ plot | Vaidate normality hypothesis of residual
@@ -471,19 +460,19 @@ def main():
     #1.1 Compute stats of T1w CSA and T2w CSA
     stats_csa = compute_statistics(df)
     # Format and save CSA stats as a .png and .csv file
-    metric_csa_filename = os.path.join(path_metrics, 'stats_csa.png') # retirer .png
+    metric_csa_filename = os.path.join(path_metrics, 'stats_csa') # retirer .png
     save_table(stats_csa, metric_csa_filename)
         
     #1.2. Compute stats of the predictors
     stats_predictors = compute_predictors_statistic(df)
     # Format and save stats of csa as a table png and .csv
-    stats_predictors_filename = os.path.join(path_metrics, 'stats_param.png') # retirer.png
+    stats_predictors_filename = os.path.join(path_metrics, 'stats_param') # retirer.png
     save_table(stats_predictors, stats_predictors_filename)   
 #_______________________________________________________________________________________________________ 
 # Correlation matrix
     corr_table = get_correlation_table(df)
     logger.info("Correlation matrix: {}".format(corr_table))
-    corr_filename = os.path.join(path_metrics,'corr_table.png')
+    corr_filename = os.path.join(path_metrics,'corr_table')
     # Saves an .png and .csv file of the correlation matrix in the results folder
     save_table(corr_table, corr_filename)
 #________________________________________________________________________________________________________    
