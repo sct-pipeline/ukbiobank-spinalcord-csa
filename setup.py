@@ -21,7 +21,7 @@ setup(
     name='ukbiobank_pipeline', 
     version='1.0',  # Required
     python_requires='>=2.7', # Change to python 3.7, validate
-    description='Collection of cli to precess data from Cord CSA project', 
+    description='Collection of cli to process data from Cord CSA project', 
     url='https://github.com/sandrinebedard/Projet3', 
     #author='',  # Optional
     #author_email='author@example.com',  # Optional
