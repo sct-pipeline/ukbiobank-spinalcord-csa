@@ -1,8 +1,25 @@
 # Projet3
-Mesure de l’aire de section médullaire sur la base de données UK Biobank
+Measure of the averaged cross-sectional area (CSA) between C2 and C3 of the spinal cord with UK Biobank Brain MRI dataset.
+## Description
 - - -
 ## Data collection and organization
+### Uk Biobank database
+The brain MRI data of UK biobank follows the DICOM convention. The spinal cord of the processed brain MRI images is cut off. Because the purpose of this project is to measure the CSA between C2 and C3 of the spinal cord, the raw MRI images for T1w structural images and for T2w FLAIR are used as an input of the pipeline:
+ * T1_orig_defaced.nii.gz
+ * T2_FLAIR_orig_defaced.nii.gz
+The raw images have gradient distorsion... TODO
+The DICOM dataset is in: `duke:mri/uk_biobank`
 ### Data conversion: DICOM to BIDS
+For this project,  a BIDS standard dataset is uses. A conversion of DICOM to BIDS is necessary for the UK Biobank dataset. 
+The data from the DICOM standard in the BIDS conversion for this project have the following correspondance for each subjects:
+ * `T1_orig_defaced.nii.gz` in the BIDS standard is `sub-XXXXXXX_T1w.nii.gz`
+ * `T2_FLAIR_orig_defaced.nii.gz` in the BIDS standard is`sub-XXXXXXX_T2w.nii.gz`
+To convert the DICOM dataset in a BIDS structure for this project, run the following line:
+~~~
+curate_project.py -path-in <path_DICOM_dataset> -path-output <path_BIDS_dataset>
+~~~
+The BIDS datset is (for now) in `duke: temp/uk_biobank_BIDS`
+
 Here is an example of the data structure:
 ~~~
 uk_biobank
@@ -37,12 +54,6 @@ uk_biobank
 ~~~
 
 ### Aquisition parameters
-The images from UK Biobank Brain MRI used for this project are :
- * T1_orig_defaced.nii.gz
- * T2_FLAIR_orig_defaced.nii.gz
- 
- T1_orig_defaced.nii.gz in the BIDS standard sub-XXXXXXX_T1w.nii.gz
- T2_FLAIR_orig_defaced.nii.gz in the BIDS standard sub-XXXXXXX_T2w.nii.gz
 #### T1-weighted structural imaging
     Resolution: 1x1x1 mm
     Field-of-view: 208x256x256 matrix
@@ -50,8 +61,8 @@ The images from UK Biobank Brain MRI used for this project are :
     Resolution: 1.05x1x1 mm
     Field-of-view: 192x256x256 matrix
 - - -
-## Description
 ## Analysis pipeline
+This repository includes a collection of scripts to analyse a BIDS-structured MRI dataset
 ### Dependencies
 MANDATORY:
 
