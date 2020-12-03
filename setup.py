@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 from setuptools import setup, find_packages
-import pathlib
+#import pathlib
 from os import path
 #import ukbiobank_pipeline
-here = pathlib.Path(__file__).parent.resolve()
+#here = pathlib.Path(__file__).parent.resolve()
 
 # Get the directory where this current file is saved
-here = path.abspath(path.dirname(__file__))
+#here = path.abspath(path.dirname(__file__))
 
 #with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 #    long_description = f.read()
@@ -20,12 +20,12 @@ setup(
 
     name='ukbiobank_pipeline', 
     version='1.0',  # Required
-    python_requires='>=3.7',
-    description='Collection of cli to precess data from Cord CSA project', 
-    url='https://github.com/sandrinebedard/Projet3',  # Optional
+    python_requires='>=2.7', # Change to python 3.7, validate
+    description='Collection of cli to process data from Cord CSA project', 
+    url='https://github.com/sandrinebedard/Projet3', 
     #author='',  # Optional
     #author_email='author@example.com',  # Optional
-    classifiers=[  # Optional
+    classifiers=[  
         'Development Status :: 3 - Alpha',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 3.7',
@@ -39,7 +39,7 @@ setup(
     },
     #install_requires=install_reqs,
 
-    entry_points={  
+    entry_points={
         'console_scripts': [
             'uk_get_subject_info = pipeline_ukbiobank.cli.get_subject_info:main',
             'uk_select_subjects = pipeline_ukbiobank.cli.select_subjects:main',
