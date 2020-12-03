@@ -5,7 +5,7 @@
 # For usage, type: python manual_correction.py -h
 #
 # Authors: Jan Valosek, Julien Cohen-Adad
-
+# Adapted by Sandrine Bédard for cord CSA project UK Biobank
 
 import argparse
 import coloredlogs
@@ -17,10 +17,8 @@ from textwrap import dedent
 import time
 import yaml
 
-import spinegeneric as sg
-import spinegeneric.utils
-import spinegeneric.bids
-
+import ukbiobank_pipeline as uk
+import ukbiobank_pipeline.utils
 
 # Folder where to output manual labels, at the root of a BIDS dataset.
 # TODO: make it an input argument (with default value)
@@ -34,7 +32,7 @@ def get_parser():
     parser = argparse.ArgumentParser(
         description='Manual correction of spinal cord segmentation and vertebral labeling. '
                     'Manually corrected files are saved under derivatives/ folder (BIDS standard).',
-        #formatter_class=sg.utils.SmartFormatter,
+        formatter_class=uk.utils.SmartFormatter,
         prog=os.path.basename(__file__).strip('.py')
     )
     parser.add_argument(
@@ -84,61 +82,6 @@ def get_parser():
     )
 
     return parser
-# Add a utils.py script enventually
-class SmartFormatter(argparse.HelpFormatter):
-    """
-    Custom formatter that inherits from HelpFormatter, which adjusts the default width to the current Terminal size,
-    and that gives the possibility to bypass argparse's default formatting by adding "R|" at the beginning of the text.
-    Inspired from: https://pythonhosted.org/skaff/_modules/skaff/cli.html
-    """
-    def __init__(self, *args, **kw):
-        self._add_defaults = None
-        super(SmartFormatter, self).__init__(*args, **kw)
-        # Update _width to match Terminal width
-        try:
-            self._width = shutil.get_terminal_size()[0]
-        except (KeyError, ValueError):
-            logging.warning('Not able to fetch Terminal width. Using default: %s'.format(self._width))
-
-    # this is the RawTextHelpFormatter._fill_text
-    def _fill_text(self, text, width, indent):
-        # print("splot",text)
-        if text.startswith('R|'):
-            paragraphs = text[2:].splitlines()
-            rebroken = [textwrap.wrap(tpar, width) for tpar in paragraphs]
-            rebrokenstr = []
-            for tlinearr in rebroken:
-                if (len(tlinearr) == 0):
-                    rebrokenstr.append("")
-                else:
-                    for tlinepiece in tlinearr:
-                        rebrokenstr.append(tlinepiece)
-            return '\n'.join(rebrokenstr)  # (argparse._textwrap.wrap(text[2:], width))
-        return argparse.RawDescriptionHelpFormatter._fill_text(self, text, width, indent)
-
-    # this is the RawTextHelpFormatter._split_lines
-    def _split_lines(self, text, width):
-        if text.startswith('R|'):
-            lines = text[2:].splitlines()
-            while lines[0] == '':  # Discard empty start lines
-                lines = lines[1:]
-            offsets = [re.match("^[ \t]*", l).group(0) for l in lines]
-            wrapped = []
-            for i in range(len(lines)):
-                li = lines[i]
-                if len(li) > 0:
-                    o = offsets[i]
-                    ol = len(o)
-                    init_wrap = textwrap.fill(li, width).splitlines()
-                    first = init_wrap[0]
-                    rest = "\n".join(init_wrap[1:])
-                    rest_wrap = textwrap.fill(rest, width - ol).splitlines()
-                    offset_lines = [o + wl for wl in rest_wrap]
-                    wrapped = wrapped + [first] + offset_lines
-                else:
-                    wrapped = wrapped + [li]
-            return wrapped
-        return argparse.HelpFormatter._split_lines(self, text, width)
 
 def get_function(task):
     if task == 'FILES_SEG':
@@ -211,7 +154,7 @@ def main():
 
     # Check if required software is installed (skip that if -qc-only is true)
     if not args.qc_only:
-        if not sg.utils.check_software_installed():
+        if not uk.utils.check_software_installed():
             sys.exit("Some required software are not installed. Exit program.")
 
     # check if input yml file exists
@@ -228,10 +171,10 @@ def main():
             print(exc)
 
     # check for missing files before starting the whole process
-    sg.utils.check_files_exist(dict_yml, args.path_in)
+    uk.utils.check_files_exist(dict_yml, args.path_in)
 
     # check that output folder exists and has write permission
-    path_out_deriv = sg.utils.check_output_folder(args.path_out, FOLDER_DERIVATIVES)
+    path_out_deriv = uk.utils.check_output_folder(args.path_out, FOLDER_DERIVATIVES)
 
     # Get name of expert rater (skip if -qc-only is true)
     if not args.qc_only:
@@ -247,11 +190,11 @@ def main():
         if files is not None:
             for file in files:
                 # build file names
-                subject = sg.bids.get_subject(file)
-                contrast = sg.bids.get_contrast(file)
+                subject = file.split('_')[0]
+                contrast = 'anat'
                 fname = os.path.join(args.path_in, subject, contrast, file)
                 fname_label = os.path.join(
-                    path_out_deriv, subject, contrast, sg.utils.add_suffix(file, get_suffix(task, '-manual')))
+                    path_out_deriv, subject, contrast, uk.utils.add_suffix(file, get_suffix(task, '-manual')))
                 os.makedirs(os.path.join(path_out_deriv, subject, contrast), exist_ok=True)
                 if not args.qc_only:
                     if os.path.isfile(fname_label):
@@ -271,7 +214,7 @@ def main():
                     # Perform labeling for the specific task
                     if do_labeling:
                         if task in ['FILES_SEG', 'FILES_GMSEG']:
-                            fname_seg = sg.utils.add_suffix(fname, get_suffix(task))
+                            fname_seg = uk.utils.add_suffix(fname, get_suffix(task))
                             shutil.copy(fname_seg, fname_label)
                             correct_segmentation(fname, fname_label)
                         elif task == 'FILES_LABEL':
