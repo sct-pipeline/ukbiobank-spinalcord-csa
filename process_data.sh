@@ -43,7 +43,7 @@ label_if_does_not_exist(){
     echo "Not found. Proceeding with automatic labeling."
     # Generate labeled segmentation
     sct_label_vertebrae -i ${file}.nii.gz -s ${file_seg}.nii.gz -c t1
-    # Create labels in the cord at C3 and C5 mid-vertebral levels
+    # Create labels at the C2-C3 intervertebral disc
     sct_label_utils -i ${file_seg}_labeled_discs.nii.gz -keep 3 -o ${FILELABEL}.nii.gz
   fi
 }
@@ -106,7 +106,7 @@ file_t1="${file_t1}_gradcorr"
 segment_if_does_not_exist $file_t1 "t1"
 file_t1_seg=$FILESEG
 
-# Create mid-vertebral levels in the cord (only if it does not exist) 
+# Create labels at the C2-C3 intervertebral disc (only if it does not exist) 
 label_if_does_not_exist ${file_t1} ${file_t1_seg}
 
 file_label=$FILELABEL
