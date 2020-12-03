@@ -32,19 +32,19 @@ def get_parser():
     parser function
     """
     parser = argparse.ArgumentParser(
-        description='Manual correction of spinal cord and gray matter segmentation and vertebral labeling. '
+        description='Manual correction of spinal cord segmentation and vertebral labeling. '
                     'Manually corrected files are saved under derivatives/ folder (BIDS standard).',
-        formatter_class=sg.utils.SmartFormatter,
+        #formatter_class=sg.utils.SmartFormatter,
         prog=os.path.basename(__file__).strip('.py')
     )
     parser.add_argument(
         '-config',
-        metavar=sg.utils.Metavar.file,
+        metavar="<file>",
         required=True,
         help=
         "R|Config yaml file listing images that require manual corrections for segmentation and vertebral "
-        "labeling. 'FILES_SEG' lists images associated with spinal cord segmentation, 'FILES_GMSEG' lists images "
-        "associated with gray matter segmentation and 'FILES_LABEL' lists images associated with vertebral labeling. "
+        "labeling. 'FILES_SEG' lists images associated with spinal cord segmentation"
+        "and 'FILES_LABEL' lists images associated with vertebral labeling. "
         "You can validate your yaml file at this website: http://www.yamllint.com/. Below is an example yaml file:\n"
         + dedent(
             """
@@ -52,8 +52,6 @@ def get_parser():
             - sub-amu01_T1w_RPI_r.nii.gz
             - sub-amu01_T2w_RPI_r.nii.gz
             - sub-cardiff02_dwi_moco_dwi_mean.nii.gz
-            FILES_GMSEG:
-            - sub-amu01_T2star_rms.nii.gz
             FILES_LABEL:
             - sub-amu01_T1w_RPI_r.nii.gz
             - sub-amu02_T1w_RPI_r.nii.gz\n
@@ -61,16 +59,16 @@ def get_parser():
     )
     parser.add_argument(
         '-path-in',
-        metavar=sg.utils.Metavar.folder,
-        help='Path to the processed data. Example: ~/spine-generic/results/data',
+        metavar="<folder>",
+        help='Path to the processed data. Example: ~/ukbiobanl_results/processed_data',
         default='./'
     )
     parser.add_argument(
         '-path-out',
-        metavar=sg.utils.Metavar.folder,
+        metavar="<folder>",
         help="Path to the BIDS dataset where the corrected labels will be generated. Note: if the derivatives/ folder "
              "does not already exist, it will be created."
-             "Example: ~/data-spine-generic",
+             "Example: ~/data-ukbiobank",
         default='./'
     )
     parser.add_argument(
@@ -86,13 +84,65 @@ def get_parser():
     )
 
     return parser
+# Add a utils.py script enventually
+class SmartFormatter(argparse.HelpFormatter):
+    """
+    Custom formatter that inherits from HelpFormatter, which adjusts the default width to the current Terminal size,
+    and that gives the possibility to bypass argparse's default formatting by adding "R|" at the beginning of the text.
+    Inspired from: https://pythonhosted.org/skaff/_modules/skaff/cli.html
+    """
+    def __init__(self, *args, **kw):
+        self._add_defaults = None
+        super(SmartFormatter, self).__init__(*args, **kw)
+        # Update _width to match Terminal width
+        try:
+            self._width = shutil.get_terminal_size()[0]
+        except (KeyError, ValueError):
+            logging.warning('Not able to fetch Terminal width. Using default: %s'.format(self._width))
 
+    # this is the RawTextHelpFormatter._fill_text
+    def _fill_text(self, text, width, indent):
+        # print("splot",text)
+        if text.startswith('R|'):
+            paragraphs = text[2:].splitlines()
+            rebroken = [textwrap.wrap(tpar, width) for tpar in paragraphs]
+            rebrokenstr = []
+            for tlinearr in rebroken:
+                if (len(tlinearr) == 0):
+                    rebrokenstr.append("")
+                else:
+                    for tlinepiece in tlinearr:
+                        rebrokenstr.append(tlinepiece)
+            return '\n'.join(rebrokenstr)  # (argparse._textwrap.wrap(text[2:], width))
+        return argparse.RawDescriptionHelpFormatter._fill_text(self, text, width, indent)
+
+    # this is the RawTextHelpFormatter._split_lines
+    def _split_lines(self, text, width):
+        if text.startswith('R|'):
+            lines = text[2:].splitlines()
+            while lines[0] == '':  # Discard empty start lines
+                lines = lines[1:]
+            offsets = [re.match("^[ \t]*", l).group(0) for l in lines]
+            wrapped = []
+            for i in range(len(lines)):
+                li = lines[i]
+                if len(li) > 0:
+                    o = offsets[i]
+                    ol = len(o)
+                    init_wrap = textwrap.fill(li, width).splitlines()
+                    first = init_wrap[0]
+                    rest = "\n".join(init_wrap[1:])
+                    rest_wrap = textwrap.fill(rest, width - ol).splitlines()
+                    offset_lines = [o + wl for wl in rest_wrap]
+                    wrapped = wrapped + [first] + offset_lines
+                else:
+                    wrapped = wrapped + [li]
+            return wrapped
+        return argparse.HelpFormatter._split_lines(self, text, width)
 
 def get_function(task):
     if task == 'FILES_SEG':
         return 'sct_deepseg_sc'
-    elif task == 'FILES_GMSEG':
-        return 'sct_deepseg_gm'
     elif task == 'FILES_LABEL':
         return 'sct_label_utils'
     else:
@@ -102,8 +152,6 @@ def get_function(task):
 def get_suffix(task, suffix=''):
     if task == 'FILES_SEG':
         return '_seg'+suffix
-    elif task == 'FILES_GMSEG':
-        return '_gmseg'+suffix
     elif task == 'FILES_LABEL':
         return '_labels'+suffix
     else:
@@ -132,8 +180,8 @@ def correct_vertebral_labeling(fname, fname_label):
     :param name_rater:
     :return:
     """
-    message = "Click inside the spinal cord, at C3 and C5 mid-vertebral levels, then click 'Save and Quit'."
-    os.system('sct_label_utils -i {} -create-viewer 3,5 -o {} -msg {}'.format(fname, fname_label, message))
+    message = "Click at the posterior tip of the disc between C2 and C2 at C3 vertebral levels, then click 'Save and Quit'."
+    os.system('sct_label_utils -i {} -create-viewer 3 -o {} -msg {}'.format(fname, fname_label, message))
 
 
 def create_json(fname_nifti, name_rater):
