@@ -28,7 +28,7 @@ def get_contrast(file):
     :param file:
     :return:
     """
-    return 'dwi' if file.split('_')[1] == 'dwi' else 'anat'
+    return 'anat'
 
 class SmartFormatter(argparse.HelpFormatter):
     """
