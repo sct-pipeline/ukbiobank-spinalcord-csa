@@ -18,9 +18,9 @@ from os import path
 
 setup(
 
-    name='ukbiobank_pipeline', 
-    version='1.0',  # Required
-    python_requires='>=2.7', # Change to python 3.7, validate
+    name='pipeline_ukbiobank', 
+    version='1.0',
+    python_requires='>=3.7',
     description='Collection of cli to process data from Cord CSA project', 
     url='https://github.com/sandrinebedard/Projet3', 
     #author='',  # Optional
@@ -42,7 +42,8 @@ setup(
     entry_points={
         'console_scripts': [
             'uk_get_subject_info = pipeline_ukbiobank.cli.get_subject_info:main',
-            'uk_select_subjects = pipeline_ukbiobank.cli.select_subjects:main'
+            'uk_select_subjects = pipeline_ukbiobank.cli.select_subjects:main',
+            'uk_manual_correction = pipeline_ukbiobank.cli.manual_correction:main'
         ],
     },
 
