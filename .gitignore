@@ -1,4 +1,4 @@
-ukbiobank_pipeline.egg-info/
+pipeline_ukbiobank.egg-info/
 pipeline_ukbiobank/cli/__pycache__/
 pipeline_ukbiobank/test/.ipynb_checkpoints/
 
