@@ -17,8 +17,7 @@ from textwrap import dedent
 import time
 import yaml
 
-import ukbiobank_pipeline as uk
-import ukbiobank_pipeline.utils
+import utils
 
 # Folder where to output manual labels, at the root of a BIDS dataset.
 # TODO: make it an input argument (with default value)
@@ -32,7 +31,7 @@ def get_parser():
     parser = argparse.ArgumentParser(
         description='Manual correction of spinal cord segmentation and vertebral labeling. '
                     'Manually corrected files are saved under derivatives/ folder (BIDS standard).',
-        formatter_class=uk.utils.SmartFormatter,
+        formatter_class=utils.SmartFormatter,
         prog=os.path.basename(__file__).strip('.py')
     )
     parser.add_argument(
@@ -47,18 +46,17 @@ def get_parser():
         + dedent(
             """
             FILES_SEG:
-            - sub-amu01_T1w_RPI_r.nii.gz
-            - sub-amu01_T2w_RPI_r.nii.gz
-            - sub-cardiff02_dwi_moco_dwi_mean.nii.gz
+            - sub-1000032_T1w_RPI_r_gradcorr.nii.gz
+            - sub-1000083_T2w_RPI_r_gradcorr.nii.gz
             FILES_LABEL:
-            - sub-amu01_T1w_RPI_r.nii.gz
-            - sub-amu02_T1w_RPI_r.nii.gz\n
+            - sub-1000032_T1w_RPI_r_gradcorr.nii.gz
+            - sub-1000710_T1w_RPI_r_gradcorr.nii.gz\n
             """)
     )
     parser.add_argument(
         '-path-in',
         metavar="<folder>",
-        help='Path to the processed data. Example: ~/ukbiobanl_results/processed_data',
+        help='Path to the processed data. Example: ~/ukbiobank_results/processed_data',
         default='./'
     )
     parser.add_argument(
@@ -123,8 +121,8 @@ def correct_vertebral_labeling(fname, fname_label):
     :param name_rater:
     :return:
     """
-    message = "Click at the posterior tip of the disc between C2 and C2 at C3 vertebral levels, then click 'Save and Quit'."
-    os.system('sct_label_utils -i {} -create-viewer 3 -o {} -msg {}'.format(fname, fname_label, message))
+    message = "Click at the posterior tip of the disc between C2 and C3 vertebral levels, then click 'Save and Quit'."
+    os.system('sct_label_utils -i {} -create-viewer 3 -o {} -msg "{}"'.format(fname, fname_label, message))
 
 
 def create_json(fname_nifti, name_rater):
@@ -154,7 +152,7 @@ def main():
 
     # Check if required software is installed (skip that if -qc-only is true)
     if not args.qc_only:
-        if not uk.utils.check_software_installed():
+        if not utils.check_software_installed():
             sys.exit("Some required software are not installed. Exit program.")
 
     # check if input yml file exists
@@ -171,10 +169,10 @@ def main():
             print(exc)
 
     # check for missing files before starting the whole process
-    uk.utils.check_files_exist(dict_yml, args.path_in)
+    utils.check_files_exist(dict_yml, args.path_in)
 
     # check that output folder exists and has write permission
-    path_out_deriv = uk.utils.check_output_folder(args.path_out, FOLDER_DERIVATIVES)
+    path_out_deriv = utils.check_output_folder(args.path_out, FOLDER_DERIVATIVES)
 
     # Get name of expert rater (skip if -qc-only is true)
     if not args.qc_only:
@@ -194,7 +192,7 @@ def main():
                 contrast = 'anat'
                 fname = os.path.join(args.path_in, subject, contrast, file)
                 fname_label = os.path.join(
-                    path_out_deriv, subject, contrast, uk.utils.add_suffix(file, get_suffix(task, '-manual')))
+                    path_out_deriv, subject, contrast, utils.add_suffix(file, get_suffix(task, '-manual')))
                 os.makedirs(os.path.join(path_out_deriv, subject, contrast), exist_ok=True)
                 if not args.qc_only:
                     if os.path.isfile(fname_label):
@@ -213,9 +211,9 @@ def main():
                         do_labeling = True
                     # Perform labeling for the specific task
                     if do_labeling:
-                        if task in ['FILES_SEG', 'FILES_GMSEG']:
-                            fname_seg = uk.utils.add_suffix(fname, get_suffix(task))
-                            shutil.copy(fname_seg, fname_label)
+                        if task in ['FILES_SEG']:
+                            fname_seg = utils.add_suffix(fname, get_suffix(task))
+                            shutil.copyfile(fname_seg, fname_label)
                             correct_segmentation(fname, fname_label)
                         elif task == 'FILES_LABEL':
                             correct_vertebral_labeling(fname, fname_label)
@@ -226,7 +224,7 @@ def main():
 
                 # generate QC report
                 os.system('sct_qc -i {} -s {} -p {} -qc {} -qc-subject {}'.format(
-                    fname, fname_label, get_function(task), fname_qc, subject))
+                    fname, fname_label, get_function(task) , fname_qc, subject))
 
     # Archive QC folder
     shutil.copy(fname_yml, fname_qc)
