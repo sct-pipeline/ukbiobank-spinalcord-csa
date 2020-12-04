@@ -1,6 +1,5 @@
-# Projet3
+# Cord CSA on UK biobank brain MRI database
 Measure of the averaged cross-sectional area (CSA) between C2 and C3 of the spinal cord with UK Biobank Brain MRI dataset.
-## Description
 - - -
 ## Data collection and organization
 ### Uk Biobank database
@@ -92,7 +91,7 @@ pip install -e ./
 A `coeff.grad` associated with the MRI used for the data is necessary if it has not been applied yet. In this project, the gradient distorsion correction is done in `process_data.sh` with [gradunwrap v1.2.0](https://github.com/Washington-University/gradunwarp/tree/v1.2.0) and Siemens `coeff.grad` file.
 - - -
 ### Usage
-Create a folder where the results will be generated
+Create a folder where the results will be generated:
 ~~~
 mkdir ~/ukbiobank_results
 ~~~
@@ -105,12 +104,48 @@ Launch processing:
 sct_run_batch -jobs -1 -path-data <PATH_DATA> -path-output ~/ukbiobank_results/ -script process_data.sh -script-args $PATH_GRADCORR_FILE
 ~~~
 - - -
+### Quality control
+After running the analysis, check your Quality Control (qc) report by opening the file `~/ukbiobank_results/qc/index.html`. Use the "search" feature of the QC report to quikly jump to segmentations or labeling issues.
+
+#### Segmentation and vertebral labeling
+If segmentation or labeling issues are noticed while checking the quality report, proceed to manual segmentation correction or manual labeling of C2-C3 intervertebral disc at the posterior tip of the disc unsing the procedure below:
+
+1. Create a .yml file that lists the data to correct segmentation or vertebral labeling.
+2. In QC report, search for "deepseg" to only display results of spinal cord segmentation, search for "vertebrae" to only display vertebral labeling.
+3. Review segmentation and spinal cord labeling, note that the segmentation et vertebral labeling need to be accurate only between C2-C3, for cord CSA. 
+4. If *major* issues are detected for C2-C3 segmentation and vertebral labeling, add the image name into the .yml file as in the example below:
+
+~~~
+FILES_SEG:
+- sub-1000032_T1w_RPI_r_gradcorr.nii.gz
+- sub-1000083_T2w_RPI_r_gradcorr.nii.gz
+FILES_LABEL:
+- sub-1000032_T1w_RPI_r_gradcorr.nii.gz
+- sub-1000710_T1w_RPI_r_gradcorr.nii.gz
+~~~
+
+* `FILES_SEG`: Images associated with spinal cord segmentation
+* `FILES_LABEL` Images associated with vertebral labeling
+
+After completing .yml file list of images to proceed with manual correction, run the following line:
+~~~
+uk_manual_correction -config <.yml file> -path-in ~/ukbiobank_results/processed_data -path-out <PATH_DATA>
+~~~
+The script loop through all the files listed in .yml file and opens an interactive window to either correct manually segmentation or vertebral labeling. Each mannually corrected label is saved under `derivative/labels/`folder at the root of `PATH_DATA` according to the BIDS convention. Each manually-corrected file has the suffix `-manual`.
+
+|TODO add how to label C2-C3 intervertebral disc 
+
+#### Upload the manually-corrected files
+|TODO
+#### Re-run the analysis
+After all the necessary segmentation and labels are corrected, re-run the analysis (`sct_run_batch`command in **Usage** section). If manually-corrected files exists, they will be used intead of proceeding to automatic segmentation and labeling. Make sure to put the output results in another folder (flag `-path-output`) if you don't want the previous relsults to be overwritten.
+
 ### Statistical analysis
 #### Generate datafile:
 To generate a data file with the CSA results from `process_data.sh`, run the follwing line:
 
 ~~~
-uk_get_subject_info -path-data <PATH_DATA> -path-output ~/ukbiobank_results/
+uk_get_subject_info -path-data <PATH_DATA> -path-output ~/ukbiobank_results/ 
 ~~~
 
 If in the initial BIDS data structure, the file subjects_gbm3100.csv with fields of the subjects has another name, specify the name using the flag `-datafile`:
