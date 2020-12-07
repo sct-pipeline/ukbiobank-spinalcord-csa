@@ -41,6 +41,7 @@ setup(
         'console_scripts': [
             'uk_get_subject_info = pipeline_ukbiobank.cli.get_subject_info:main',
             'uk_select_subjects = pipeline_ukbiobank.cli.select_subjects:main',
+            'uk_compute_stats = pipeline_ukbiobank.cli.compute_stats:main'
             'uk_manual_correction = pipeline_ukbiobank.cli.manual_correction:main'
         ],
     },
