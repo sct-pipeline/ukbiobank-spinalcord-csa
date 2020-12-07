@@ -17,8 +17,7 @@ with open(req_path, "r") as f:
     install_reqs = install_reqs.split("\n")
 
 setup(
-
-    name='ukbiobank_pipeline', 
+    name='pipeline_ukbiobank', 
     version='1.0',
     python_requires='>=3.7',
     description='Collection of cli to process data from cord CSA project on UK Biobank database', 
@@ -41,7 +40,8 @@ setup(
     entry_points={
         'console_scripts': [
             'uk_get_subject_info = pipeline_ukbiobank.cli.get_subject_info:main',
-            'uk_select_subjects = pipeline_ukbiobank.cli.select_subjects:main'
+            'uk_select_subjects = pipeline_ukbiobank.cli.select_subjects:main',
+            'uk_manual_correction = pipeline_ukbiobank.cli.manual_correction:main'
         ],
     },
 
