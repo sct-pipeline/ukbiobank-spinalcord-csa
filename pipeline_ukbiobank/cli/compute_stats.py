@@ -269,7 +269,7 @@ def generate_linear_model(x, y, selected_predictors):
 
 def compute_stepwise(X,y, threshold_in, threshold_out):
     """
-    Performs backword and forward predictor selection based on p-values 
+    Performs backward and forward predictor selection based on p-values 
     
     Args:
         X (panda.DataFrame): Candidate predictors
