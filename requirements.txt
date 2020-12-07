@@ -1,0 +1,8 @@
+scipy
+nibabel
+pandas
+yaml
+coloredlogs
+scipystatsmodels
+seaborn
+matplotlib
