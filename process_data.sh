@@ -157,7 +157,7 @@ FILES_TO_CHECK=(
   "${SUBJECT}_T2w_RPI_r_gradcorr.nii.gz"
   "${SUBJECT}_T1w_RPI_r_gradcorr_seg.nii.gz" 
   "${SUBJECT}_T2w_RPI_r_gradcorr_seg.nii.gz"
-  "${SUBJECT}_T1w_RPI_r_gradcorr_seg_labeled_discs.nii.gz"
+  "${SUBJECT}_T1w_RPI_r_gradcorr_seg_labeled_discs.nii.gz" # to remove, will not be ther for manual seg
   "label_T1w/template/PAM50_levels.nii.gz"
   "PAM50_levels2${SUBJECT}_T2w_RPI_r_gradcorr.nii.gz"
   
