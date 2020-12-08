@@ -1,8 +1,8 @@
 scipy
 nibabel
 pandas
-yaml
+pyyaml
 coloredlogs
-scipystatsmodels
+statsmodels
 seaborn
 matplotlib
