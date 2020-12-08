@@ -88,7 +88,7 @@ cd Projet3
 pip install -e ./
 ~~~
 ### Note on gradient distorsion correction
-A `coeff.grad` associated with the MRI used for the data is necessary if it has not been applied yet. In this project, the gradient distorsion correction is done in `process_data.sh` with [gradunwrap v1.2.0](https://github.com/Washington-University/gradunwarp/tree/v1.2.0) and Siemens `coeff.grad` file.
+A `coeff.grad` associated with the MRI scanner used for the data is necessary if it has not been applied yet. In this project, the gradient distorsion correction is done in `process_data.sh` with [gradunwrap v1.2.0](https://github.com/Washington-University/gradunwarp/tree/v1.2.0) and Siemens `coeff.grad` file.
 - - -
 ### Usage
 Create a folder where the results will be generated:
@@ -108,7 +108,7 @@ sct_run_batch -jobs -1 -path-data <PATH_DATA> -path-output ~/ukbiobank_results/ 
 After running the analysis, check your Quality Control (qc) report by opening the file `~/ukbiobank_results/qc/index.html`. Use the "search" feature of the QC report to quikly jump to segmentations or labeling issues.
 
 #### Segmentation and vertebral labeling
-If segmentation or labeling issues are noticed while checking the quality report, proceed to manual segmentation correction or manual labeling of C2-C3 intervertebral disc at the posterior tip of the disc unsing the procedure below:
+If segmentation or labeling issues are noticed while checking the quality report, proceed to manual segmentation correction or manual labeling of C2-C3 intervertebral disc at the posterior tip of the disc using the procedure below:
 
 1. Create a .yml file that lists the data to correct segmentation or vertebral labeling.
 2. In QC report, search for "deepseg" to only display results of spinal cord segmentation, search for "vertebrae" to only display vertebral labeling.
@@ -133,10 +133,16 @@ uk_manual_correction -config <.yml file> -path-in ~/ukbiobank_results/processed_
 ~~~
 The script loop through all the files listed in .yml file and opens an interactive window to either correct manually segmentation or vertebral labeling. Each mannually corrected label is saved under `derivative/labels/`folder at the root of `PATH_DATA` according to the BIDS convention. Each manually-corrected file has the suffix `-manual`.
 
-|TODO add how to label C2-C3 intervertebral disc 
+C2-C3 disc label will be located at the posterior tip of the disc as shown in the following image. 
+
+![alt text](https://user-images.githubusercontent.com/2482071/100895704-dabf4a00-348b-11eb-8b1c-67d5024bfeda.png)
 
 #### Upload the manually-corrected files
-|TODO
+A QC report of the manually correct files is created in a zip file. To update the database, follow this proceedure:
+* Commit and push manually-corrected files (placed in folders under `derivatives/lables/`
+* Create a pull request and add qc zip file in the body of the PR. 
+* If PR is accepted, a new release of the dataset will be created and the qc zip file will be uploaded as a release object.
+
 #### Re-run the analysis
 After all the necessary segmentation and labels are corrected, re-run the analysis (`sct_run_batch`command in **Usage** section). If manually-corrected files exists, they will be used intead of proceeding to automatic segmentation and labeling. Make sure to put the output results in another folder (flag `-path-output`) if you don't want the previous relsults to be overwritten.
 
