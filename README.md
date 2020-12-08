@@ -88,7 +88,7 @@ cd Projet3
 pip install -e ./
 ~~~
 ### Note on gradient distorsion correction
-A `coeff.grad` associated with the MRI used for the data is necessary if it has not been applied yet. In this project, the gradient distorsion correction is done in `process_data.sh` with [gradunwrap v1.2.0](https://github.com/Washington-University/gradunwarp/tree/v1.2.0) and Siemens `coeff.grad` file.
+A `coeff.grad` associated with the MRI scanner used for the data is necessary if it has not been applied yet. In this project, the gradient distorsion correction is done in `process_data.sh` with [gradunwrap v1.2.0](https://github.com/Washington-University/gradunwarp/tree/v1.2.0) and Siemens `coeff.grad` file.
 - - -
 ### Usage
 Create a folder where the results will be generated:
