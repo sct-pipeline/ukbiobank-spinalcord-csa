@@ -75,10 +75,10 @@ def get_csa(csa_filename):
     sc_data = csv2dataFrame(csa_filename)
     csa = pd.DataFrame(sc_data[['Filename','MEAN(area)']]).rename(columns={'Filename':'Subject'})
     # Add a columns with subjects eid from Filename column
-    csa.loc[:, 'Subject'] = csa['Subject'].str.slice(-37, -30)
-    # Set index to subject ied and sort dataframe with index
-    csa = csa.set_index('Subject').sort_index()
-    return csa['MEAN(area)']
+    csa.loc[:, 'Subject'] = csa['Subject'].str.slice(-37, -30).astype(int)
+    # Set index to subject eid
+    csa = csa.set_index('Subject')
+    return csa
 
 
 def compute_age(df):
@@ -89,17 +89,33 @@ def compute_age(df):
     Returns:
         df (pd.dataFrame): modified dataFrame with age
     """
-    # Sperates year, month and day of 2nd assessment date
+    # Sperate year, month and day of 2nd assessment date
     df[['Year', 'Month', 'Day']] = (df['Date'].str.split('-', expand=True)).astype(int)
     # If the birth month is passed the 2nd assessment month, the age is this 2nd assessment year minus the birth year
     df.loc[df['Month of birth']<= df['Month'], 'Age'] = df['Year']- df['Year of birth']
     # If the birth month is not passed, the age is the 2nd assessment minus the birth year minus 1
     df.loc[df['Month of birth']> df['Month'], 'Age'] = df['Year'] - df['Year of birth'] -1
-    # Deletes the columns used to compute age
+    # Delete the columns used to compute age
     df =  df.drop(columns = ['Year of birth', 'Month of birth', 'Year', 'Date', 'Month', 'Day'])
-    # Formats age as integer
+    # Format age as integer
     df['Age'] = df['Age'].astype(int)
     return df
+
+
+def append_csa_to_df(df, csa, column_name):
+    """
+    Adds CSA values to dataframe for each subjects.
+    Args:
+        df (pandas.DataFrame): dataframe of parameters for all subjects with subjects' eid as row index
+        csa (pandas.DataFrame): dataframe of csa values with subjects' eid as row index
+        column_name (str): name of the new column to add
+    """
+    # Loop through all subjects of Uk biobank
+    for subject in df.index.tolist():
+        # For subjects that have csa values,
+        if subject in csa.index:
+            # Set csa value for the subject
+            df.loc[subject,column_name] = csa.loc[subject,'MEAN(area)']
 
 
 def main():
@@ -111,25 +127,30 @@ def main():
     raw_data = csv2dataFrame(path_data)
     # Initialize an empty dataframe with the predictors as columns
     df = pd.DataFrame(columns = param_dict.values())
-    # Copies the raw data of the predictors into df
+    # Copie the raw data of the predictors into df
     for key,param in param_dict.items():
         df[param] = raw_data[key]
     
-    #Computes age and adds an 'Age' column to df
+    # Compute age and adds an 'Age' column to df
     df = compute_age(df)
-    # Initializes names of csv files of CSA in results file --> maybe there is an other way 
+
+    # Initialize names of csv files of CSA in results file --> maybe there is an other way 
     path_results = os.path.join(args.path_output,'results')
     t1_csaPath = os.path.join(path_results,'csa-SC_T1w.csv')
     t2_csaPath = os.path.join(path_results,'csa-SC_T2w.csv')
     
-    #Sets the index of the dataFrame to 'Subject'
+    # Set the index of the dataFrame to 'Subject'
     df = df.set_index('Subject')
 
-    # Add column to dataFrame of CSA values for T1w and T2w
-    df['T1w_CSA'] = get_csa(t1_csaPath).tolist()
-    df['T2w_CSA'] = get_csa(t2_csaPath).tolist()
+    # Get csa values for T1w and T2w
+    csa_t1w = get_csa(t1_csaPath)
+    csa_t2w = get_csa(t2_csaPath)
 
-    # Writes a .csv file in <path_results/results> folder
+    # Add column to dataFrame of CSA values for T1w and T2w for each subject
+    append_csa_to_df(df, csa_t1w, 'T1w_CSA')
+    append_csa_to_df(df, csa_t2w, 'T2w_CSA')
+
+    # Write a .csv file in <path_results/results> folder
     filename = 'data_ukbiobank.csv'
     df.to_csv(os.path.join(path_results,filename))
 
