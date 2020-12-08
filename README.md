@@ -133,7 +133,8 @@ uk_manual_correction -config <.yml file> -path-in ~/ukbiobank_results/processed_
 ~~~
 The script loop through all the files listed in .yml file and opens an interactive window to either correct manually segmentation or vertebral labeling. Each mannually corrected label is saved under `derivative/labels/`folder at the root of `PATH_DATA` according to the BIDS convention. Each manually-corrected file has the suffix `-manual`.
 
-C2-C3 disc label will be located at the posterior tip of the disc as shown in the following image.
+C2-C3 disc label will be located at the posterior tip of the disc as shown in the following image. 
+
 ![alt text](https://user-images.githubusercontent.com/2482071/100895704-dabf4a00-348b-11eb-8b1c-67d5024bfeda.png)
 
 #### Upload the manually-corrected files
