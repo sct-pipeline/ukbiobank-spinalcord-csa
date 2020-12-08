@@ -116,7 +116,7 @@ sct_register_to_template -i ${file_t1}.nii.gz -s ${file_t1_seg}.nii.gz -ldisc ${
 mv warp_template2anat.nii.gz warp_template2T1w.nii.gz
 mv warp_anat2template.nii.gz warp_T1w2template.nii.gz
 # Warp template without the white matter atlas (we don't need it at this point)
-sct_warp_template -d ${file_t1}.nii.gz -w warp_template2T1w.nii.gz -a 0 -o folder label_T1w
+sct_warp_template -d ${file_t1}.nii.gz -w warp_template2T1w.nii.gz -a 0 -ofolder label_T1w
 # Generate QC report to assess vertebral labeling
 sct_qc -i ${file_t1}.nii.gz -s label_T1w/template/PAM50_levels.nii.gz -p sct_label_vertebrae -qc ${PATH_QC} -qc-subject ${SUBJECT}
 # Flatten scan along R-L direction (to make nice figures)
