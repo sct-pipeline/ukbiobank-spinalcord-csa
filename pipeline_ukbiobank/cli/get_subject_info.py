@@ -25,6 +25,7 @@ param_dict = {
         '53-2.0': 'Date'
     }
 
+
 def get_parser():
     parser = argparse.ArgumentParser(
         description="Gets the subjects parameters and CSA results from process_data.sh and writes them in data_ukbiobank.csv file in <path-output>/results",
@@ -48,6 +49,7 @@ def get_parser():
                         help="Name of the csv file of the ukbiobank raw data. Default: subjects_gbm3100.csv")
     return parser
 
+
 def csv2dataFrame(filename):
     """
     Loads a .csv file and builds a pandas dataFrame of the data
@@ -59,19 +61,25 @@ def csv2dataFrame(filename):
     data = pd.read_csv(filename)
     return data
 
+
 def get_csa(csa_filename):
     """
     From .csv output file of process_data.sh (sct_process_segmentation),
-    returns a panda dataFrame with the subjects' eid and CSA values
+    returns a panda dataFrame with CSA values sorted by subject eid.
     Args:
         csa_filename (str): filename of the .csv file that contains de CSA values
     Returns:
-        csa (pd.dataFrame): dataframe of CSA values
+        csa (pd.Series): column of CSA values
 
     """
     sc_data = csv2dataFrame(csa_filename)
-    csa = sc_data['MEAN(area)']
-    return csa
+    csa = pd.DataFrame(sc_data[['Filename','MEAN(area)']]).rename(columns={'Filename':'Subject'})
+    # Add a columns with subjects eid from Filename column
+    csa.loc[:, 'Subject'] = csa['Subject'].str.slice(-37, -30)
+    # Set index to subject ied and sort dataframe with index
+    csa = csa.set_index('Subject').sort_index()
+    return csa['MEAN(area)']
+
 
 def compute_age(df):
     """
@@ -93,6 +101,7 @@ def compute_age(df):
     df['Age'] = df['Age'].astype(int)
     return df
 
+
 def main():
     parser = get_parser()
     args = parser.parse_args()
@@ -113,12 +122,12 @@ def main():
     t1_csaPath = os.path.join(path_results,'csa-SC_T1w.csv')
     t2_csaPath = os.path.join(path_results,'csa-SC_T2w.csv')
     
-    #Gets data frame of CSA for T1w and T2w
-    df['T1w_CSA'] = get_csa(t1_csaPath)
-    df['T2w_CSA'] = get_csa(t2_csaPath)
-
     #Sets the index of the dataFrame to 'Subject'
     df = df.set_index('Subject')
+
+    # Add column to dataFrame of CSA values for T1w and T2w
+    df['T1w_CSA'] = get_csa(t1_csaPath).tolist()
+    df['T2w_CSA'] = get_csa(t2_csaPath).tolist()
 
     # Writes a .csv file in <path_results/results> folder
     filename = 'data_ukbiobank.csv'
