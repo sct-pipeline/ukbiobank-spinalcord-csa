@@ -127,7 +127,7 @@ def main():
     raw_data = csv2dataFrame(path_data)
     # Initialize an empty dataframe with the predictors as columns
     df = pd.DataFrame(columns = param_dict.values())
-    # Copie the raw data of the predictors into df
+    # Copy the raw data of the predictors into df
     for key,param in param_dict.items():
         df[param] = raw_data[key]
     
