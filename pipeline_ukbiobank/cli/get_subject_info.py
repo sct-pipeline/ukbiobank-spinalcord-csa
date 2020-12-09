@@ -115,7 +115,7 @@ def append_csa_to_df(df, csa, column_name):
         # For subjects that have csa values,
         if subject in csa.index:
             # Set csa value for the subject
-            df.loc[subject,column_name] = csa.loc[subject,'MEAN(area)']
+            df.loc[subject, column_name] = csa.loc[subject, 'MEAN(area)']
 
 
 def main():
