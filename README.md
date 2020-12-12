@@ -161,7 +161,7 @@ If in the initial BIDS data structure, the file subjects_gbm3100.csv with fields
 uk_get_subject_info -path-data <PATH_DATA> -path-output ~/ukbiobank_results/ -datafile <FILENAME>
 ~~~
 #### Compute statistical analysis
-To compute the statistical analysis of the data of the pipeline analysis with the output file of `uk_get_subject_info`, use `uk_compute_stats`.  If the datafile ouput of uk_get_subject_info is not `data_ukbiobank.csv`, add the flag `-dataFile <FILENAME>`. Run this script in `/results` folder or specify path to folder that contains output files in with `-path-output` flag. The flag -exclude points to a yml file containing the subjects to be excluded from the statistics:
+To compute the statistical analysis of cord CSA results, use `uk_compute_stats`.  If the datafile ouput of `uk_get_subject_info` is not `data_ukbiobank.csv`, add the flag `-dataFile <FILENAME>`. Run this script in `/results` folder or specify path to folder that contains output files of analysis pipeline in with `-path-output` flag. The flag -exclude points to a yml file containing the subjects to be excluded from the statistical analysis:
 ~~~
 uk_compute_stats -path-output ~/ukbiobank_results/ -dataFile <DATAFILE> -exclude <EXCLUDE.yml>
 ~~~
