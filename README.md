@@ -55,7 +55,7 @@ uk_biobank_BIDS
  
 ~~~
 
-### Aquisition parameters
+### Aquisition parameters |TODO to complete
 #### T1-weighted structural imaging
     Resolution: 1x1x1 mm
     Field-of-view: 208x256x256 matrix
