@@ -47,7 +47,7 @@ uk_biobank_BIDS
             │
             └── anat
                 ├── sub-1000710_T1w_RPI_r_seg-manual.nii.gz  <---------- manually-corrected spinal cord segmentation
-                ├── sub-1000710_T1w_RPI_r_seg-manual.json  <------------ information about origin of segmentation (see below)
+                ├── sub-1000710_T1w_RPI_r_seg-manual.json  <------------ information about origin of segmentation
                 ├── sub-1000710_T1w_RPI_r_labels-manual.nii.gz  <------- manual vertebral labels
                 ├── sub-1000710_T1w_RPI_r_labels-manual.json
                 ├── sub-10007106_T2w_RPI_r_seg-manual.nii.gz  <---------- manually-corrected spinal cord segmentation
