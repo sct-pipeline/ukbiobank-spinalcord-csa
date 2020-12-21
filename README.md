@@ -130,7 +130,7 @@ FILES_LABEL:
 
 After completing .yml file list of images to proceed with manual correction, run the following line:
 ~~~
-uk_manual_correction -config <.yml file> -path-in ~/ukbiobank_results/processed_data -path-out <PATH_DATA>
+uk_manual_correction -config <.yml file> -path-in ~/ukbiobank_results/data_processed -path-out <PATH_DATA>
 ~~~
 The script loop through all the files listed in .yml file and opens an interactive window to either correct manually segmentation or vertebral labeling. Each mannually corrected label is saved under `derivative/labels/`folder at the root of `PATH_DATA` according to the BIDS convention. Each manually-corrected file has the suffix `-manual`.
 
