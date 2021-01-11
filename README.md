@@ -166,7 +166,7 @@ To compute the statistical analysis of cord CSA results, use `uk_compute_stats`.
 uk_compute_stats -path-output ~/ukbiobank_results/ -dataFile <DATAFILE> -exclude <EXCLUDE.yml>
 ~~~
 
-The output of `uk_compute_stats`has the following data_structure:
+The output of `uk_compute_stats`has the following data structure:
 ~~~
 ukbiobank_results
 │
