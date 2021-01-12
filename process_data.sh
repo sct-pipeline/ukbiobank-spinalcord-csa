@@ -137,6 +137,7 @@ gradient_unwarp.py ${file_t2}.nii.gz ${file_t2}_gradcorr.nii.gz siemens -g ${PAT
 file_t2="${file_t2}_gradcorr"
 
 # Segment spinal cord (only if it does not exist)
+# Note: we specify the "t1" contrast for the automatic segmentation because the T2-FLAIR contrast is more similar to the T1 MPRAGE (this is due to the inversion recovery 'IR' in 'FLAIR' pulse which nulls the CSF signal)
 segment_if_does_not_exist $file_t2 "t1"
 file_t2_seg=$FILESEG
 # Flatten scan along R-L direction (to make nice figures) 
