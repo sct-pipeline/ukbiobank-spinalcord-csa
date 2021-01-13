@@ -81,7 +81,7 @@ OPTIONAL:
 ### Installation
 Download this repository:
 ~~~
-git clone https://github.com/sandrinebedard/Projet3.git
+git clone https://github.com/neuropoly/ukbiobank-spinalcord-csa.git
 ~~~
 Install:
 ~~~
