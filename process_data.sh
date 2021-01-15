@@ -143,9 +143,9 @@ file_t2_seg=$FILESEG
 # Flatten scan along R-L direction (to make nice figures) 
 sct_flatten_sagittal -i ${file_t2}.nii.gz -s ${file_t2_seg}.nii.gz
 
-# Dilate segmentation to use as mask for registration
+# Dilate t2 cord segmentation to use as mask for registration
 file_t2_mask="${file_t2_seg}_dil"
-ImageMath 3 ${file_t2_mask}.nii.gz MD ${file_t2_seg}.nii.gz 35
+ImageMath 3 ${file_t2_mask}.nii.gz MD ${file_t2_seg}.nii.gz 40 # test at 40
 
 # Register T1w image to T2w FLAIR (rigid)
 isct_antsRegistration -d 3 -m CC[ ${file_t2}.nii.gz , ${file_t1}.nii.gz , 1, 4] -t Rigid[0.5] -c 50x20x10 -f 8x4x2 -s 0x0x0 -o [_rigid, ${file_t1}_reg_mask.nii.gz] -v 1 -x ${file_t2_mask}.nii.gz
