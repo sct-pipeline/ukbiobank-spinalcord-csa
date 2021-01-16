@@ -13,7 +13,7 @@ import pandas as pd
 import numpy as np
 from datetime import date
 
-# Dictionary of the predictors and field number correspondance| TODO: add to participants.tsv, add assessment center + age
+# Dictionary of the predictors and field number correspondance
 param_dict = {
         'eid':'Subject',
         '31-0.0':'Sex',
@@ -41,7 +41,7 @@ def get_parser():
                         type=str,
                         metavar='<dir_path>',
                         help="Path to the folder that will contain output files (processed data, results, log, QC).")
-    parser.add_argument('-datafile', # TO remove, will always be participant.tsv
+    parser.add_argument('-datafile',
                         required=False,
                         type=str,
                         default='participant.tsv', 
@@ -134,7 +134,7 @@ def main():
     parser = get_parser()
     args = parser.parse_args()
 
-    # Open participant.tsv --> gets data for subjects and selected predictors, creates a dataframe.
+    # Open participant.tsv --> get data for subjects and selected predictors, create a dataframe.
     path_data  = os.path.join(args.path_data, args.datafile)
     raw_data = tsv2dataFrame(path_data)
  
@@ -144,7 +144,7 @@ def main():
     for key,param in param_dict.items():
         df[param] = raw_data[key]
     
-    # Compute age and adds an 'Age' column to df
+    # Compute age and add an 'Age' column to df
     df = compute_age(df)
 
     # Initialize names of csv files of CSA in results file 
