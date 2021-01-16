@@ -148,7 +148,7 @@ file_t2_mask="${file_t2_seg}_dil"
 ImageMath 3 ${file_t2_mask}.nii.gz MD ${file_t2_seg}.nii.gz 40
 
 # Register T1w image to T2w FLAIR (rigid)
-isct_antsRegistration -d 3 -m CC[ ${file_t2}.nii.gz , ${file_t1}.nii.gz , 1, 4] -t Rigid[0.5] -c 50x20x10 -f 8x4x2 -s 0x0x0 -o [_rigid, ${file_t1}_reg_mask.nii.gz] -v 1 -x ${file_t2_mask}.nii.gz
+isct_antsRegistration -d 3 -m CC[ ${file_t2}.nii.gz , ${file_t1}.nii.gz , 1, 4] -t Rigid[0.5] -c 50x20x10 -f 8x4x2 -s 0x0x0 -o [_rigid, ${file_t1}_reg.nii.gz] -v 1 -x ${file_t2_mask}.nii.gz
 
 # Apply transformation to T1w vertebral level
 isct_antsApplyTransforms -i label_T1w/template/PAM50_levels.nii.gz -r ${file_t2}.nii.gz -t _rigid0GenericAffine.mat -o PAM50_levels2${file_t2}.nii.gz -n NearestNeighbor
