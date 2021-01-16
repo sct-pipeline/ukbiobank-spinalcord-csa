@@ -145,7 +145,7 @@ sct_flatten_sagittal -i ${file_t2}.nii.gz -s ${file_t2_seg}.nii.gz
 
 # Dilate t2 cord segmentation to use as mask for registration
 file_t2_mask="${file_t2_seg}_dil"
-ImageMath 3 ${file_t2_mask}.nii.gz MD ${file_t2_seg}.nii.gz 40 # test at 40
+ImageMath 3 ${file_t2_mask}.nii.gz MD ${file_t2_seg}.nii.gz 40
 
 # Register T1w image to T2w FLAIR (rigid)
 isct_antsRegistration -d 3 -m CC[ ${file_t2}.nii.gz , ${file_t1}.nii.gz , 1, 4] -t Rigid[0.5] -c 50x20x10 -f 8x4x2 -s 0x0x0 -o [_rigid, ${file_t1}_reg_mask.nii.gz] -v 1 -x ${file_t2_mask}.nii.gz
@@ -156,7 +156,7 @@ isct_antsApplyTransforms -i label_T1w/template/PAM50_levels.nii.gz -r ${file_t2}
 # Generate QC report to assess T1w registration to T2w
 sct_qc -i ${file_t1}_reg_mask.nii.gz -s PAM50_levels2${file_t2}.nii.gz -d ${file_t2}.nii.gz -p sct_register_multimodal -qc ${PATH_QC} -qc-subject ${SUBJECT}
 
-# Generate QC report to assess vertebral labeling of T2w
+# Generate QC report to assess T2w vertebral labeling
 sct_qc -i ${file_t2}.nii.gz -s PAM50_levels2${file_t2}.nii.gz -p sct_label_vertebrae -qc ${PATH_QC} -qc-subject ${SUBJECT}
 
 # Compute average cord CSA between C2 and C3
