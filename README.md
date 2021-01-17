@@ -27,7 +27,6 @@ Here is an example of the BIDS data structure of UK biobank data:
 uk_biobank_BIDS
 │
 ├── participants.tsv
-├── subjects_gbm3100.csv
 ├── sub-1000032
 ├── sub-1000083
 ├── sub-1000252
@@ -81,7 +80,7 @@ OPTIONAL:
 ### Installation
 Download this repository:
 ~~~
-git clone https://github.com/sandrinebedard/Projet3.git
+git clone https://github.com/neuropoly/ukbiobank-spinalcord-csa.git
 ~~~
 Install:
 ~~~
@@ -149,17 +148,12 @@ After all the necessary segmentation and labels are corrected, re-run the analys
 
 ### Statistical analysis
 #### Generate datafile:
-To generate a data file with the CSA results from `process_data.sh`, run the follwing line:
+To generate a data file with the CSA results from `process_data.sh` and fields from `participant.tsv`, run the follwing line:
 
 ~~~
 uk_get_subject_info -path-data <PATH_DATA> -path-output ~/ukbiobank_results/ 
 ~~~
 
-If in the initial BIDS data structure, the file subjects_gbm3100.csv with fields of the subjects has another name, specify the name using the flag `-datafile`:
-
-~~~
-uk_get_subject_info -path-data <PATH_DATA> -path-output ~/ukbiobank_results/ -datafile <FILENAME>
-~~~
 #### Compute statistical analysis
 To compute the statistical analysis of cord CSA results, use `uk_compute_stats`.  If the datafile ouput of `uk_get_subject_info` is not `data_ukbiobank.csv`, add the flag `-dataFile <FILENAME>`. Run this script in `/results` folder or specify path to folder that contains output files of analysis pipeline in with `-path-output` flag. The flag -exclude points to a yml file containing the subjects to be excluded from the statistical analysis:
 ~~~
