@@ -13,7 +13,7 @@ import pandas as pd
 import numpy as np
 from datetime import date
 
-# Dictionary of the predictors and field number correspondance| TODO: add to participants.tsv
+# Dictionary of the predictors and field number correspondance
 param_dict = {
         'eid':'Subject',
         '31-0.0':'Sex',
@@ -28,7 +28,7 @@ param_dict = {
 
 def get_parser():
     parser = argparse.ArgumentParser(
-        description="Gets the subjects parameters and CSA results from process_data.sh and writes them in data_ukbiobank.csv file in <path-output>/results",
+        description="Gets the subjects parameters from participant.tsv and CSA results from process_data.sh and writes them in data_ukbiobank.csv file in <path-output>/results",
         prog=os.path.basename(__file__).strip('.py')
         )
     parser.add_argument('-path-data',
@@ -44,10 +44,22 @@ def get_parser():
     parser.add_argument('-datafile',
                         required=False,
                         type=str,
-                        default='subjects_gbm3100.csv',
+                        default='participant.tsv', 
                         metavar='<filename>',
-                        help="Name of the csv file of the ukbiobank raw data. Default: subjects_gbm3100.csv")
+                        help="Name of the tsv file of the ukbiobank raw data. Default: participant.tsv")
     return parser
+
+
+def tsv2dataFrame(filename):
+    """
+    Loads a .tsv file and builds a pandas dataFrame of the data
+    Args:
+        filename (str): filename of the .tsv file
+    Returns:
+        data (pd.dataFrame): pandas dataframe of the .tsv file's data
+    """
+    data = pd.read_csv(filename, sep='\t')
+    return data
 
 
 def csv2dataFrame(filename):
@@ -122,16 +134,17 @@ def main():
     parser = get_parser()
     args = parser.parse_args()
 
-    # Open <datafile>.csv --> gets data for subjects and selected predictors, creates a dataframe.
+    # Open participant.tsv --> get data for subjects and selected predictors, create a dataframe.
     path_data  = os.path.join(args.path_data, args.datafile)
-    raw_data = csv2dataFrame(path_data)
+    raw_data = tsv2dataFrame(path_data)
+ 
     # Initialize an empty dataframe with the predictors as columns
     df = pd.DataFrame(columns = param_dict.values())
     # Copy the raw data of the predictors into df
     for key,param in param_dict.items():
         df[param] = raw_data[key]
     
-    # Compute age and adds an 'Age' column to df
+    # Compute age and add an 'Age' column to df
     df = compute_age(df)
 
     # Initialize names of csv files of CSA in results file 

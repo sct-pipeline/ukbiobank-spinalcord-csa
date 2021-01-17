@@ -143,8 +143,21 @@ file_t2_seg=$FILESEG
 # Flatten scan along R-L direction (to make nice figures) 
 sct_flatten_sagittal -i ${file_t2}.nii.gz -s ${file_t2_seg}.nii.gz
 
-# Bring vertebral level into T2 space 
-sct_register_multimodal -i label_T1w/template/PAM50_levels.nii.gz -d ${file_t2_seg}.nii.gz -o PAM50_levels2${file_t2}.nii.gz -identity 1 -x nn
+# Bring vertebral level into T2 space | To remove
+#sct_register_multimodal -i label_T1w/template/PAM50_levels.nii.gz -d ${file_t2_seg}.nii.gz -o PAM50_levels2${file_t2}.nii.gz -identity 1 -x nn
+
+# Dilate segmentation to use as mask for registration
+file_t2_mask="${file_t2_seg}_dil"
+ImageMath 3 ${file_t2_mask}.nii.gz MD ${file_t2_seg}.nii.gz 35
+
+# Register T1w image to T2w FLAIR (rigid)|remove v 1??
+isct_antsRegistration -d 3 -m CC[ ${file_t2}.nii.gz , ${file_t1}.nii.gz , 1, 4] -t Rigid[0.5] -c 50x20x10 -f 8x4x2 -s 0x0x0 -o [_rigid, ${file_t1}_reg_mask.nii.gz] -v 1 -x ${file_t2_mask}.nii.gz
+
+# Apply transformation to T1w vertebral level
+isct_antsApplyTransforms -i label_T1w/template/PAM50_levels.nii.gz -r ${file_t2}.nii.gz -t _rigid0GenericAffine.mat -o PAM50_levels2${file_t2}.nii.gz -n NearestNeighbor
+
+# Generate QC report to assess T1w registration to T2w
+sct_qc -i ${file_t1}_reg_mask.nii.gz -s PAM50_levels2${file_t2}.nii.gz -d ${file_t2}.nii.gz -p sct_register_multimodal -qc ${PATH_QC} -qc-subject ${SUBJECT}
 
 # Generate QC report to assess vertebral labeling of T2w
 sct_qc -i ${file_t2}.nii.gz -s PAM50_levels2${file_t2}.nii.gz -p sct_label_vertebrae -qc ${PATH_QC} -qc-subject ${SUBJECT}
@@ -158,7 +171,7 @@ FILES_TO_CHECK=(
   "${SUBJECT}_T2w_RPI_r_gradcorr.nii.gz"
   "${SUBJECT}_T1w_RPI_r_gradcorr_seg.nii.gz" 
   "${SUBJECT}_T2w_RPI_r_gradcorr_seg.nii.gz"
-  "${SUBJECT}_T1w_RPI_r_gradcorr_seg_labeled_discs.nii.gz" # to remove, will not be ther for manual seg
+  "${SUBJECT}_T1w_RPI_r_gradcorr_seg_labeled_discs.nii.gz" # to remove, will not be there for manual seg
   "label_T1w/template/PAM50_levels.nii.gz"
   "PAM50_levels2${SUBJECT}_T2w_RPI_r_gradcorr.nii.gz"
   
