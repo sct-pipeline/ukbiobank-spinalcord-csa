@@ -84,7 +84,7 @@ git clone https://github.com/neuropoly/ukbiobank-spinalcord-csa.git
 ~~~
 Install:
 ~~~
-cd Projet3
+cd ukbiobank-spinalcord-csa
 pip install -e ./
 ~~~
 ### Note on gradient distorsion correction
