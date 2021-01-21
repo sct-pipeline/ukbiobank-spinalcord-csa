@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Process data.
+# Process data shorten: proceeds to reorientation to RPI, resampling, gradient distortion correction and spinal cord segmentation.
 #
 # Usage:
 #   ./process_data.sh <SUBJECT> <PATH_GRADCORR_FILE>
@@ -26,28 +26,6 @@ start=`date +%s`
 
 # FUNCTIONS
 # ==============================================================================
-
-# Check if manual label already exists. If it does, copy it locally. If it does
-# not, perform labeling.
-label_if_does_not_exist(){
-  local file="$1"
-  local file_seg="$2"
-  # Update global variable with segmentation file name
-  FILELABEL="${file}_labels"
-  FILELABELMANUAL="${PATH_DATA}/derivatives/labels/${SUBJECT}/anat/${FILELABEL}-manual.nii.gz"
-  echo "Looking for manual label: $FILELABELMANUAL"
-  if [[ -e $FILELABELMANUAL ]]; then
-    echo "Found! Using manual labels."
-    rsync -avzh $FILELABELMANUAL ${FILELABEL}.nii.gz
-  else
-    echo "Not found. Proceeding with automatic labeling."
-    # Generate labeled segmentation
-    sct_label_vertebrae -i ${file}.nii.gz -s ${file_seg}.nii.gz -c t1
-    # Create label at the C2-C3 intervertebral disc
-    sct_label_utils -i ${file_seg}_labeled_discs.nii.gz -keep 3 -o ${FILELABEL}.nii.gz
-  fi
-}
-
 # Check if manual segmentation already exists. If it does, copy it locally. If it does not, perform segmentation.
 segment_if_does_not_exist(){
   local file="$1"
@@ -104,25 +82,7 @@ file_t1="${file_t1}_gradcorr"
 
 # Segment spinal cord (only if it does not exist)
 segment_if_does_not_exist $file_t1 "t1"
-file_t1_seg=$FILESEG
 
-# Create label at the C2-C3 intervertebral disc (only if it does not exist) 
-label_if_does_not_exist ${file_t1} ${file_t1_seg}
-
-file_label=$FILELABEL
-# Register to PAM50 template
-sct_register_to_template -i ${file_t1}.nii.gz -s ${file_t1_seg}.nii.gz -ldisc ${file_label}.nii.gz -c t1 -param step=1,type=seg,algo=centermassrot:step=2,type=seg,algo=syn,slicewise=1,smooth=0,iter=5:step=3,type=im,algo=syn,slicewise=1,smooth=0,iter=3 -qc ${PATH_QC} -qc-subject ${SUBJECT}
-# Rename warping fields for clarity
-mv warp_template2anat.nii.gz warp_template2T1w.nii.gz
-mv warp_anat2template.nii.gz warp_T1w2template.nii.gz
-# Warp template without the white matter atlas (we don't need it at this point)
-sct_warp_template -d ${file_t1}.nii.gz -w warp_template2T1w.nii.gz -a 0 -ofolder label_T1w
-# Generate QC report to assess vertebral labeling
-sct_qc -i ${file_t1}.nii.gz -s label_T1w/template/PAM50_levels.nii.gz -p sct_label_vertebrae -qc ${PATH_QC} -qc-subject ${SUBJECT}
-# Flatten scan along R-L direction (to make nice figures)
-sct_flatten_sagittal -i ${file_t1}.nii.gz -s ${file_t1_seg}.nii.gz
-# Compute average cord CSA between C2 and C3
-sct_process_segmentation -i ${file_t1_seg}.nii.gz -vert 2:3 -vertfile label_T1w/template/PAM50_levels.nii.gz -o ${PATH_RESULTS}/csa-SC_T1w.csv -append 1
 
 # T2
 # ------------------------------------------------------------------------------
@@ -139,28 +99,6 @@ file_t2="${file_t2}_gradcorr"
 # Segment spinal cord (only if it does not exist)
 # Note: we specify the "t1" contrast for the automatic segmentation because the T2-FLAIR contrast is more similar to the T1 MPRAGE (this is due to the inversion recovery 'IR' in 'FLAIR' pulse which nulls the CSF signal)
 segment_if_does_not_exist $file_t2 "t1"
-file_t2_seg=$FILESEG
-# Flatten scan along R-L direction (to make nice figures) 
-sct_flatten_sagittal -i ${file_t2}.nii.gz -s ${file_t2_seg}.nii.gz
-
-# Dilate t2 cord segmentation to use as mask for registration
-file_t2_mask="${file_t2_seg}_dil"
-ImageMath 3 ${file_t2_mask}.nii.gz MD ${file_t2_seg}.nii.gz 40
-
-# Register T1w image to T2w FLAIR (rigid)
-isct_antsRegistration -d 3 -m CC[ ${file_t2}.nii.gz , ${file_t1}.nii.gz , 1, 4] -t Rigid[0.5] -c 50x20x10 -f 8x4x2 -s 0x0x0 -o [_rigid, ${file_t1}_reg.nii.gz] -v 1 -x ${file_t2_mask}.nii.gz
-
-# Apply transformation to T1w vertebral level
-isct_antsApplyTransforms -i label_T1w/template/PAM50_levels.nii.gz -r ${file_t2}.nii.gz -t _rigid0GenericAffine.mat -o PAM50_levels2${file_t2}.nii.gz -n NearestNeighbor
-
-# Generate QC report to assess T1w registration to T2w
-sct_qc -i ${file_t1}_reg_mask.nii.gz -s PAM50_levels2${file_t2}.nii.gz -d ${file_t2}.nii.gz -p sct_register_multimodal -qc ${PATH_QC} -qc-subject ${SUBJECT}
-
-# Generate QC report to assess T2w vertebral labeling
-sct_qc -i ${file_t2}.nii.gz -s PAM50_levels2${file_t2}.nii.gz -p sct_label_vertebrae -qc ${PATH_QC} -qc-subject ${SUBJECT}
-
-# Compute average cord CSA between C2 and C3
-sct_process_segmentation -i ${file_t2_seg}.nii.gz -vert 2:3 -vertfile PAM50_levels2${file_t2}.nii.gz -o ${PATH_RESULTS}/csa-SC_T2w.csv -append 1
 
 # Verify presence of output files and write log file if error
 # ------------------------------------------------------------------------------
@@ -169,9 +107,6 @@ FILES_TO_CHECK=(
   "${SUBJECT}_T2w_RPI_r_gradcorr.nii.gz"
   "${SUBJECT}_T1w_RPI_r_gradcorr_seg.nii.gz" 
   "${SUBJECT}_T2w_RPI_r_gradcorr_seg.nii.gz"
-  "${SUBJECT}_T1w_RPI_r_gradcorr_labels.nii.gz"
-  "label_T1w/template/PAM50_levels.nii.gz"
-  "PAM50_levels2${SUBJECT}_T2w_RPI_r_gradcorr.nii.gz"
   
 )
 pwd
