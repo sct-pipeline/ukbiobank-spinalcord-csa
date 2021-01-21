@@ -7,4 +7,3 @@ jobs: -1
 batch_log: sct_run_batch_log.txt
 continue_on_error: 1
 subject_prefix: sub-
-zip: true
