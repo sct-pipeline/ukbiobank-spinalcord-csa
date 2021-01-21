@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Process data shorten: proceeds to reorientation to RPI, resampling, gradient distortion correction and spinal cord segmentation.
+# Process data shortened: proceeds to reorientation to RPI, resampling, gradient distortion correction and spinal cord segmentation.
 #
 # Usage:
 #   ./process_data.sh <SUBJECT> <PATH_GRADCORR_FILE>
