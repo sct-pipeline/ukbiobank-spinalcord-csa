@@ -103,6 +103,14 @@ Launch processing:
 ~~~
 sct_run_batch -jobs -1 -path-data <PATH_DATA> -path-output ~/ukbiobank_results/ -script process_data.sh -script-args $PATH_GRADCORR_FILE
 ~~~
+
+Or you can launch processing with a config file instead by using the flag `-config` and by adjusting the file `config_sct_run_batch.yml` according to your setups.
+See `sct_run_batch -h` to look at the available options. To launch processing:
+
+~~~
+sct_run_batch -config config_sct_run_batch.yml
+~~~
+
 - - -
 ### Quality control
 After running the analysis, check your Quality Control (qc) report by opening the file `~/ukbiobank_results/qc/index.html`. Use the "search" feature of the QC report to quikly jump to segmentations or labeling issues.
