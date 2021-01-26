@@ -80,7 +80,7 @@ OPTIONAL:
 ### Installation
 Download this repository:
 ~~~
-git clone https://github.com/neuropoly/ukbiobank-spinalcord-csa.git
+git clone https://github.com/sct-pipeline/ukbiobank-spinalcord-csa.git
 ~~~
 Install:
 ~~~
