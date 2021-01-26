@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Preprocess data.
+# Preprocess data. From raw images, preceeds to resampling, reorientation, gradient distortion correction.
 # Usage:
 #   ./preprocess_data.sh <SUBJECT> <PATH_GRADCORR_FILE>
 #
@@ -52,14 +52,14 @@ sct_image -i ${file_t1}.nii.gz -setorient RPI -o ${file_t1}_RPI.nii.gz
 sct_resample -i ${file_t1}_RPI.nii.gz -mm 1x1x1 -o ${file_t1}_RPI_r.nii.gz
 file_t1="${file_t1}_RPI_r"
 
-# Gradient distorsion correction
+# Gradient distortion correction
 gradient_unwarp.py ${file_t1}.nii.gz ${file_t1}_gradcorr.nii.gz siemens -g ${PATH_GRADCORR_FILE}/coeff.grad -n
 file_t1="${file_t1}_gradcorr"
 
 # Rename gradcorr file
 mv ${file_t1}.nii.gz ${SUBJECT}_T1w.nii.gz
-# Delete raw, resampled and reoriented to RPI images
-rm -f ${SUBJECT}_T1w_raw.nii.gz ${SUBJECT}_T1w_raw_RPI.nii.gz ${SUBJECT}_T1w_raw_RPI_r.nii.gz # Remove f or not?
+# Delete raw, resampled and reoriented to RPI images and warp file from gradient distortion correction
+rm -f ${SUBJECT}_T1w_raw.nii.gz ${SUBJECT}_T1w_raw_RPI.nii.gz ${SUBJECT}_T1w_raw_RPI_r.nii.gz fullWarp_abs.nii.gz
 
 # T2w FLAIR
 # ------------------------------------------------------------------------------
@@ -73,14 +73,14 @@ sct_image -i ${file_t2}.nii.gz -setorient RPI -o ${file_t2}_RPI.nii.gz
 sct_resample -i ${file_t2}_RPI.nii.gz -mm 1x1x1 -o ${file_t2}_RPI_r.nii.gz
 file_t2="${file_t2}_RPI_r"
 
-# Gradient distorsion correction
+# Gradient distortion correction
 gradient_unwarp.py ${file_t2}.nii.gz ${file_t2}_gradcorr.nii.gz siemens -g ${PATH_GRADCORR_FILE}/coeff.grad -n
 file_t2="${file_t2}_gradcorr"
 
 # Rename gradcorr file
 mv ${file_t2}.nii.gz ${SUBJECT}_T2w.nii.gz
-# Delete raw, resampled and reoriented to RPI images
-rm -f ${SUBJECT}_T2w_raw.nii.gz ${SUBJECT}_T2w_raw_RPI.nii.gz ${SUBJECT}_T2w_raw_RPI_r.nii.gz # Remove f or not?
+# Delete raw, resampled and reoriented to RPI images and warp file from gradient distortion correction
+rm -f ${SUBJECT}_T2w_raw.nii.gz ${SUBJECT}_T2w_raw_RPI.nii.gz ${SUBJECT}_T2w_raw_RPI_r.nii.gz fullWarp_abs.nii.gz
 
 # Verify presence of output files and write log file if error
 # ------------------------------------------------------------------------------
