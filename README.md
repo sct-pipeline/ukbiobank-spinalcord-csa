@@ -91,18 +91,26 @@ pip install -e ./
 ### Note on gradient distorsion correction
 A `coeff.grad` associated with the MRI scanner used for the data is necessary if it has not been applied yet. In this project, the gradient distorsion correction is done in `process_data.sh` with [gradunwrap v1.2.0](https://github.com/Washington-University/gradunwarp/tree/v1.2.0) and Siemens `coeff.grad` file.
 - - -
+### Preprocessing
+Initialize shell variable with the path to the folder with the `coeff.grad` file:
+~~~
+PATH_GRADCORR_FILE=<path-gradcorr>
+~~~
+Launch preprocessing:
+~~~
+sct_run_batch -jobs -1 -path-data <PATH-DATA> -path-output ~/ukbiobank_preprocess -script preprocess_data.sh -script-args $PATH_GRADCORR_FILE
+~~~
+
+TODO : create dataset with preprocessed data
 ### Usage
 Create a folder where the results will be generated:
 ~~~
 mkdir ~/ukbiobank_results
 ~~~
-Initialize shell variable with the path to the folder with the `coeff.grad` file:
-~~~
-PATH_GRADCORR_FILE=<path-gradcorr>
-~~~
+
 Launch processing:
 ~~~
-sct_run_batch -jobs -1 -path-data <PATH_DATA> -path-output ~/ukbiobank_results/ -script process_data.sh -script-args $PATH_GRADCORR_FILE
+sct_run_batch -jobs -1 -path-data <PATH_DATA> -path-output ~/ukbiobank_results/ -script process_data.sh
 ~~~
 
 Or you can launch processing with a config file instead by using the flag `-config` and by adjusting the file `config_sct_run_batch.yml` according to your setups.
