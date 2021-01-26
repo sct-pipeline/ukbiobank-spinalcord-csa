@@ -81,11 +81,11 @@ OPTIONAL:
 ### Installation
 Download this repository:
 ~~~
-git clone https://github.com/neuropoly/ukbiobank-spinalcord-csa.git
+git clone https://github.com/sct-pipeline/ukbiobank-spinalcord-csa.git
 ~~~
 Install:
 ~~~
-cd Projet3
+cd ukbiobank-spinalcord-csa
 pip install -e ./
 ~~~
 ### Note on gradient distorsion correction
@@ -104,6 +104,14 @@ Launch processing:
 ~~~
 sct_run_batch -jobs -1 -path-data <PATH_DATA> -path-output ~/ukbiobank_results/ -script process_data.sh -script-args $PATH_GRADCORR_FILE
 ~~~
+
+Or you can launch processing with a config file instead by using the flag `-config` and by adjusting the file `config_sct_run_batch.yml` according to your setups.
+See `sct_run_batch -h` to look at the available options. To launch processing:
+
+~~~
+sct_run_batch -config config_sct_run_batch.yml
+~~~
+
 - - -
 ### Quality control
 After running the analysis, check your Quality Control (qc) report by opening the file `~/ukbiobank_results/qc/index.html`. Use the "search" feature of the QC report to quikly jump to segmentations or labeling issues.
@@ -140,7 +148,7 @@ C2-C3 disc label will be located at the posterior tip of the disc as shown in th
 
 #### Upload the manually-corrected files
 A QC report of the manually correct files is created in a zip file. To update the database, follow this proceedure:
-* Commit and push manually-corrected files (placed in folders under `derivatives/lables/`
+* Commit and push manually-corrected files (placed in folders under `derivatives/labels/`
 * Create a pull request and add qc zip file in the body of the PR. 
 * If PR is accepted, a new release of the dataset will be created and the qc zip file will be uploaded as a release object.
 
