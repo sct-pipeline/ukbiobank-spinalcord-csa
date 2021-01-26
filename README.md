@@ -20,11 +20,11 @@ To convert the DICOM dataset in a BIDS structure for this project, run the follo
 ~~~
 curate_project.py -path-in <path_DICOM_dataset> -path-output <path_BIDS_dataset>
 ~~~
-The BIDS datset is (for now) in `duke: temp/uk_biobank_BIDS`
+The BIDS datset is (for now) in **|TODO : update with raw and processed repo**
 
-Here is an example of the BIDS data structure of UK biobank data:
+Here is an example of the BIDS data structure of UK biobank dataset:
 ~~~
-uk_biobank_BIDS
+uk-biobank
 │
 ├── participants.tsv
 ├── sub-1000032
@@ -45,12 +45,12 @@ uk_biobank_BIDS
         └── sub-1000710
             │
             └── anat
-                ├── sub-1000710_T1w_RPI_r_seg-manual.nii.gz  <---------- manually-corrected spinal cord segmentation
-                ├── sub-1000710_T1w_RPI_r_seg-manual.json  <------------ information about origin of segmentation
-                ├── sub-1000710_T1w_RPI_r_labels-manual.nii.gz  <------- manual vertebral labels
-                ├── sub-1000710_T1w_RPI_r_labels-manual.json
-                ├── sub-10007106_T2w_RPI_r_seg-manual.nii.gz  <---------- manually-corrected spinal cord segmentation
-                └── sub-1000710_T2w_RPI_r_seg-manual.json
+                ├── sub-1000710_T1w_seg-manual.nii.gz  <---------- manually-corrected spinal cord segmentation
+                ├── sub-1000710_T1w_seg-manual.json  <------------ information about origin of segmentation
+                ├── sub-1000710_T1w_labels-manual.nii.gz  <------- manual vertebral labels
+                ├── sub-1000710_T1w_labels-manual.json
+                ├── sub-10007106_T2w_seg-manual.nii.gz  <---------- manually-corrected spinal cord segmentation
+                └── sub-1000710_T2w_seg-manual.json
  
 ~~~
 
@@ -89,10 +89,12 @@ cd ukbiobank-spinalcord-csa
 pip install -e ./
 ~~~
 ### Note on gradient distorsion correction
-A `coeff.grad` associated with the MRI scanner used for the data is necessary if it has not been applied yet. In this project, the gradient distorsion correction is done in `process_data.sh` with [gradunwrap v1.2.0](https://github.com/Washington-University/gradunwarp/tree/v1.2.0) and Siemens `coeff.grad` file.
+A `coeff.grad` associated with the MRI scanner used for the data is necessary if it has not been applied yet. In this project, the gradient distorsion correction is done in `preprocess_data.sh` with [gradunwrap v1.2.0](https://github.com/Washington-University/gradunwarp/tree/v1.2.0) and Siemens `coeff.grad` file.
 - - -
 ### Preprocessing
-Initialize shell variable with the path to the folder with the `coeff.grad` file:
+Preprocessing generates a dataset with gradient distortion correction. 
+
+First, initialize shell variable with the path to the folder with the `coeff.grad` file:
 ~~~
 PATH_GRADCORR_FILE=<path-gradcorr>
 ~~~
@@ -101,12 +103,10 @@ Launch preprocessing:
 sct_run_batch -jobs -1 -path-data <PATH-DATA> -path-output ~/ukbiobank_preprocess -script preprocess_data.sh -script-args $PATH_GRADCORR_FILE
 ~~~
 
-TODO : create dataset with preprocessed data
-### Usage
-Create a folder where the results will be generated:
-~~~
-mkdir ~/ukbiobank_results
-~~~
+The results to use as the new dataset wil be in `~/ukbiobank_preprocess/data_processed/`.
+
+### Processing
+Processing will generate spinal cord segmentation, vertebral labels and compute cord CSA. Specify the path of preprocessed data with the flag `path-data`.
 
 Launch processing:
 ~~~
@@ -134,11 +134,11 @@ If segmentation or labeling issues are noticed while checking the quality report
 
 ~~~
 FILES_SEG:
-- sub-1000032_T1w_RPI_r_gradcorr.nii.gz
-- sub-1000083_T2w_RPI_r_gradcorr.nii.gz
+- sub-1000032_T1w.nii.gz
+- sub-1000083_T2w.nii.gz
 FILES_LABEL:
-- sub-1000032_T1w_RPI_r_gradcorr.nii.gz
-- sub-1000710_T1w_RPI_r_gradcorr.nii.gz
+- sub-1000032_T1w.nii.gz
+- sub-1000710_T1w.nii.gz
 ~~~
 
 * `FILES_SEG`: Images associated with spinal cord segmentation
@@ -155,13 +155,13 @@ C2-C3 disc label will be located at the posterior tip of the disc as shown in th
 ![alt text](https://user-images.githubusercontent.com/2482071/100895704-dabf4a00-348b-11eb-8b1c-67d5024bfeda.png)
 
 #### Upload the manually-corrected files
-A QC report of the manually correct files is created in a zip file. To update the database, follow this proceedure:
+A QC report of the manually correct files is created in a zip file. To update the dataset, follow this proceedure:
 * Commit and push manually-corrected files (placed in folders under `derivatives/labels/`
 * Create a pull request and add qc zip file in the body of the PR. 
 * If PR is accepted, a new release of the dataset will be created and the qc zip file will be uploaded as a release object.
 
 #### Re-run the analysis
-After all the necessary segmentation and labels are corrected, re-run the analysis (`sct_run_batch`command in **Usage** section). If manually-corrected files exists, they will be used intead of proceeding to automatic segmentation and labeling. Make sure to put the output results in another folder (flag `-path-output`) if you don't want the previous relsults to be overwritten.
+After all the necessary segmentation and labels are corrected, re-run the analysis (`sct_run_batch`command in **Processing** section). If manually-corrected files exists, they will be used intead of proceeding to automatic segmentation and labeling. Make sure to put the output results in another folder (flag `-path-output`) if you don't want the previous relsults to be overwritten.
 
 ### Statistical analysis
 #### Generate datafile:
