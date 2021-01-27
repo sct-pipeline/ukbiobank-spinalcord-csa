@@ -106,7 +106,7 @@ sct_run_batch -jobs -1 -path-data <PATH-DATA> -path-output ~/ukbiobank_preproces
 The results to use as the new dataset wil be in `~/ukbiobank_preprocess/data_processed/`.
 
 ### Processing
-Processing will generate spinal cord segmentation, vertebral labels and compute cord CSA. Specify the path of preprocessed data with the flag `path-data`.
+Processing will generate spinal cord segmentation, vertebral labels and compute cord CSA. Specify the path of preprocessed dataset with the flag `path-data`.
 
 Launch processing:
 ~~~
