@@ -1,9 +1,9 @@
 #!/bin/bash
 #
-# Process data shortened: proceeds to reorientation to RPI, resampling, gradient distortion correction and spinal cord segmentation.
+# Process data shortened: proceeds to spinal cord segmentation only.
 #
 # Usage:
-#   ./process_data.sh <SUBJECT> <PATH_GRADCORR_FILE>
+#   ./process_data.sh <SUBJECT>
 #
 # Manual segmentations or labels should be located under:
 # PATH_DATA/derivatives/labels/SUBJECT/anat/
@@ -19,7 +19,6 @@ trap "echo Caught Keyboard Interrupt within script. Exiting now.; exit" INT
 
 # Retrieve input params
 SUBJECT=$1
-PATH_GRADCORR_FILE=$2 
 
 # get starting time:
 start=`date +%s`
@@ -71,14 +70,6 @@ cd ${SUBJECT}/anat/
 # T1w
 # ------------------------------------------------------------------------------
 file_t1="${SUBJECT}_T1w"
-# Reorient to RPI and resample to 1 mm iso (supposed to be the effective resolution)
-sct_image -i ${file_t1}.nii.gz -setorient RPI -o ${file_t1}_RPI.nii.gz
-sct_resample -i ${file_t1}_RPI.nii.gz -mm 1x1x1 -o ${file_t1}_RPI_r.nii.gz
-file_t1="${file_t1}_RPI_r"
-
-# Gradient distorsion correction
-gradient_unwarp.py ${file_t1}.nii.gz ${file_t1}_gradcorr.nii.gz siemens -g ${PATH_GRADCORR_FILE}/coeff.grad -n
-file_t1="${file_t1}_gradcorr"
 
 # Segment spinal cord (only if it does not exist)
 segment_if_does_not_exist $file_t1 "t1"
@@ -87,14 +78,6 @@ segment_if_does_not_exist $file_t1 "t1"
 # T2
 # ------------------------------------------------------------------------------
 file_t2="${SUBJECT}_T2w"
-# Reorient to RPI and resample to 1mm iso (supposed to be the effective resolution)
-sct_image -i ${file_t2}.nii.gz -setorient RPI -o ${file_t2}_RPI.nii.gz
-sct_resample -i ${file_t2}_RPI.nii.gz -mm 1x1x1 -o ${file_t2}_RPI_r.nii.gz
-file_t2="${file_t2}_RPI_r"
-
-#Gradient distorsion correction
-gradient_unwarp.py ${file_t2}.nii.gz ${file_t2}_gradcorr.nii.gz siemens -g ${PATH_GRADCORR_FILE}/coeff.grad -n
-file_t2="${file_t2}_gradcorr"
 
 # Segment spinal cord (only if it does not exist)
 # Note: we specify the "t1" contrast for the automatic segmentation because the T2-FLAIR contrast is more similar to the T1 MPRAGE (this is due to the inversion recovery 'IR' in 'FLAIR' pulse which nulls the CSF signal)
@@ -103,10 +86,8 @@ segment_if_does_not_exist $file_t2 "t1"
 # Verify presence of output files and write log file if error
 # ------------------------------------------------------------------------------
 FILES_TO_CHECK=(
-  "${SUBJECT}_T1w_RPI_r_gradcorr.nii.gz"
-  "${SUBJECT}_T2w_RPI_r_gradcorr.nii.gz"
-  "${SUBJECT}_T1w_RPI_r_gradcorr_seg.nii.gz" 
-  "${SUBJECT}_T2w_RPI_r_gradcorr_seg.nii.gz"
+  "${SUBJECT}_T1w_seg.nii.gz" 
+  "${SUBJECT}_T2w_seg.nii.gz"
   
 )
 pwd
