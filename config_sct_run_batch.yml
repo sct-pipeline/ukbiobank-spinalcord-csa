@@ -2,7 +2,6 @@
 path_data: /scratch/sabeda/uk-biobank
 path_output: /scratch/sabeda/ukbiobank_results
 script: /home/sabeda/ukbiobank-spinalcord-csa/process_data.sh
-script_args: $PATH_GRADCORR_FILE
 jobs: -1
 batch_log: sct_run_batch_log.txt
 continue_on_error: 1

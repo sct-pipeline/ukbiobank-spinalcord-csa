@@ -3,7 +3,7 @@
 # Process data.
 #
 # Usage:
-#   ./process_data.sh <SUBJECT> <PATH_GRADCORR_FILE>
+#   ./process_data.sh <SUBJECT>
 #
 # Manual segmentations or labels should be located under:
 # PATH_DATA/derivatives/labels/SUBJECT/anat/
@@ -19,7 +19,7 @@ trap "echo Caught Keyboard Interrupt within script. Exiting now.; exit" INT
 
 # Retrieve input params
 SUBJECT=$1
-PATH_GRADCORR_FILE=$2 
+PATH_GRADCORR_FILE=$2 #to remove
 
 # get starting time:
 start=`date +%s`
@@ -93,14 +93,6 @@ cd ${SUBJECT}/anat/
 # T1w
 # ------------------------------------------------------------------------------
 file_t1="${SUBJECT}_T1w"
-# Reorient to RPI and resample to 1 mm iso (supposed to be the effective resolution)
-sct_image -i ${file_t1}.nii.gz -setorient RPI -o ${file_t1}_RPI.nii.gz
-sct_resample -i ${file_t1}_RPI.nii.gz -mm 1x1x1 -o ${file_t1}_RPI_r.nii.gz
-file_t1="${file_t1}_RPI_r"
-
-# Gradient distorsion correction
-gradient_unwarp.py ${file_t1}.nii.gz ${file_t1}_gradcorr.nii.gz siemens -g ${PATH_GRADCORR_FILE}/coeff.grad -n
-file_t1="${file_t1}_gradcorr"
 
 # Segment spinal cord (only if it does not exist)
 segment_if_does_not_exist $file_t1 "t1"
@@ -124,17 +116,9 @@ sct_flatten_sagittal -i ${file_t1}.nii.gz -s ${file_t1_seg}.nii.gz
 # Compute average cord CSA between C2 and C3
 sct_process_segmentation -i ${file_t1_seg}.nii.gz -vert 2:3 -vertfile label_T1w/template/PAM50_levels.nii.gz -o ${PATH_RESULTS}/csa-SC_T1w.csv -append 1
 
-# T2
+# T2w FLAIR
 # ------------------------------------------------------------------------------
 file_t2="${SUBJECT}_T2w"
-# Reorient to RPI and resample to 1mm iso (supposed to be the effective resolution)
-sct_image -i ${file_t2}.nii.gz -setorient RPI -o ${file_t2}_RPI.nii.gz
-sct_resample -i ${file_t2}_RPI.nii.gz -mm 1x1x1 -o ${file_t2}_RPI_r.nii.gz
-file_t2="${file_t2}_RPI_r"
-
-#Gradient distorsion correction
-gradient_unwarp.py ${file_t2}.nii.gz ${file_t2}_gradcorr.nii.gz siemens -g ${PATH_GRADCORR_FILE}/coeff.grad -n
-file_t2="${file_t2}_gradcorr"
 
 # Segment spinal cord (only if it does not exist)
 # Note: we specify the "t1" contrast for the automatic segmentation because the T2-FLAIR contrast is more similar to the T1 MPRAGE (this is due to the inversion recovery 'IR' in 'FLAIR' pulse which nulls the CSF signal)
@@ -154,7 +138,7 @@ isct_antsRegistration -d 3 -m CC[ ${file_t2}.nii.gz , ${file_t1}.nii.gz , 1, 4] 
 isct_antsApplyTransforms -i label_T1w/template/PAM50_levels.nii.gz -r ${file_t2}.nii.gz -t _rigid0GenericAffine.mat -o PAM50_levels2${file_t2}.nii.gz -n NearestNeighbor
 
 # Generate QC report to assess T1w registration to T2w
-sct_qc -i ${file_t1}_reg_mask.nii.gz -s PAM50_levels2${file_t2}.nii.gz -d ${file_t2}.nii.gz -p sct_register_multimodal -qc ${PATH_QC} -qc-subject ${SUBJECT}
+sct_qc -i ${file_t1}_reg.nii.gz -s PAM50_levels2${file_t2}.nii.gz -d ${file_t2}.nii.gz -p sct_register_multimodal -qc ${PATH_QC} -qc-subject ${SUBJECT}
 
 # Generate QC report to assess T2w vertebral labeling
 sct_qc -i ${file_t2}.nii.gz -s PAM50_levels2${file_t2}.nii.gz -p sct_label_vertebrae -qc ${PATH_QC} -qc-subject ${SUBJECT}
@@ -165,14 +149,11 @@ sct_process_segmentation -i ${file_t2_seg}.nii.gz -vert 2:3 -vertfile PAM50_leve
 # Verify presence of output files and write log file if error
 # ------------------------------------------------------------------------------
 FILES_TO_CHECK=(
-  "${SUBJECT}_T1w_RPI_r_gradcorr.nii.gz"
-  "${SUBJECT}_T2w_RPI_r_gradcorr.nii.gz"
-  "${SUBJECT}_T1w_RPI_r_gradcorr_seg.nii.gz" 
-  "${SUBJECT}_T2w_RPI_r_gradcorr_seg.nii.gz"
-  "${SUBJECT}_T1w_RPI_r_gradcorr_labels.nii.gz"
+  "${SUBJECT}_T1w_seg.nii.gz" 
+  "${SUBJECT}_T2w_seg.nii.gz"
+  "${SUBJECT}_T1w_labels.nii.gz"
   "label_T1w/template/PAM50_levels.nii.gz"
-  "PAM50_levels2${SUBJECT}_T2w_RPI_r_gradcorr.nii.gz"
-  
+  "PAM50_levels2${SUBJECT}_T2w.nii.gz"
 )
 pwd
 for file in ${FILES_TO_CHECK[@]}; do
