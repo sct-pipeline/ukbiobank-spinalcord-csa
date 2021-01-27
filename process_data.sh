@@ -3,7 +3,7 @@
 # Process data.
 #
 # Usage:
-#   ./process_data.sh <SUBJECT> <PATH_GRADCORR_FILE>
+#   ./process_data.sh <SUBJECT>
 #
 # Manual segmentations or labels should be located under:
 # PATH_DATA/derivatives/labels/SUBJECT/anat/
