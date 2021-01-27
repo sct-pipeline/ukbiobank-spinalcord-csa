@@ -154,7 +154,6 @@ FILES_TO_CHECK=(
   "${SUBJECT}_T1w_labels.nii.gz"
   "label_T1w/template/PAM50_levels.nii.gz"
   "PAM50_levels2${SUBJECT}_T2w.nii.gz"
-  
 )
 pwd
 for file in ${FILES_TO_CHECK[@]}; do

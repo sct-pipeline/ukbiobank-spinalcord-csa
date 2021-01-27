@@ -1,11 +1,12 @@
 #!/bin/bash
 #
-# Preprocess data. From raw images, preceeds to resampling, reorientation, gradient distortion correction.
+# Preprocess data. From raw images, preceeds to resampling, reorientation and gradient distortion correction.
 # Usage:
 #   ./preprocess_data.sh <SUBJECT> <PATH_GRADCORR_FILE>
 #
 #
 # Authors: Sandrine Bédard, Julien Cohen-Adad
+
 set -x
 # Immediately exit if error
 set -e -o pipefail
