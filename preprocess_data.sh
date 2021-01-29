@@ -54,7 +54,7 @@ sct_resample -i ${file_t1}_RPI.nii.gz -mm 1x1x1 -o ${file_t1}_RPI_r.nii.gz
 file_t1="${file_t1}_RPI_r"
 
 # Gradient distortion correction
-gradient_unwarp.py ${file_t1}.nii.gz ${file_t1}_gradcorr.nii.gz siemens -g ${PATH_GRADCORR_FILE}/coeff.grad -n
+PYTHONNOUSERSITE= gradient_unwarp.py ${file_t1}.nii.gz ${file_t1}_gradcorr.nii.gz siemens -g ${PATH_GRADCORR_FILE}/coeff.grad -n
 file_t1="${file_t1}_gradcorr"
 
 # Rename gradcorr file
@@ -75,7 +75,7 @@ sct_resample -i ${file_t2}_RPI.nii.gz -mm 1x1x1 -o ${file_t2}_RPI_r.nii.gz
 file_t2="${file_t2}_RPI_r"
 
 # Gradient distortion correction
-gradient_unwarp.py ${file_t2}.nii.gz ${file_t2}_gradcorr.nii.gz siemens -g ${PATH_GRADCORR_FILE}/coeff.grad -n
+PYTHONNOUSERSITE= gradient_unwarp.py ${file_t2}.nii.gz ${file_t2}_gradcorr.nii.gz siemens -g ${PATH_GRADCORR_FILE}/coeff.grad -n
 file_t2="${file_t2}_gradcorr"
 
 # Rename gradcorr file
