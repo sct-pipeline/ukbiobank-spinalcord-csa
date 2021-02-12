@@ -46,11 +46,11 @@ def get_parser():
         + dedent(
             """
             FILES_SEG:
-            - sub-1000032_T1w_RPI_r_gradcorr.nii.gz
-            - sub-1000083_T2w_RPI_r_gradcorr.nii.gz
+            - sub-1000032_T1w.nii.gz
+            - sub-1000083_T2w.nii.gz
             FILES_LABEL:
-            - sub-1000032_T1w_RPI_r_gradcorr.nii.gz
-            - sub-1000710_T1w_RPI_r_gradcorr.nii.gz\n
+            - sub-1000032_T1w.nii.gz
+            - sub-1000710_T1w.nii.gz\n
             """)
     )
     parser.add_argument(
