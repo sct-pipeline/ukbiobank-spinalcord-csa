@@ -1,5 +1,18 @@
 # Cord CSA on UK biobank brain MRI database
 Measure of the averaged cross-sectional area (CSA) between C2 and C3 of the spinal cord with UK Biobank Brain MRI dataset.
+# Table of contents
+* [Data collection and organization](https://github.com/sct-pipeline/ukbiobank-spinalcord-csa/tree/master#data-collection-and-organization)
+    * [Uk Biobank database](https://github.com/sct-pipeline/ukbiobank-spinalcord-csa/tree/master#uk-biobank-database)
+    * [Data conversion: DICOM to BIDS](https://github.com/sct-pipeline/ukbiobank-spinalcord-csa/tree/master#data-conversion-dicom-to-bids)
+    * [Aquisition parameters](https://github.com/sct-pipeline/ukbiobank-spinalcord-csa/tree/master#aquisition-parameters-todo-to-complete)
+* [Analysis pipeline](https://github.com/sct-pipeline/ukbiobank-spinalcord-csa/tree/master#analysis-pipeline)
+    * [Dependencies](https://github.com/sct-pipeline/ukbiobank-spinalcord-csa/tree/master#dependencies)
+    * [Installation](https://github.com/sct-pipeline/ukbiobank-spinalcord-csa/tree/master#installation)
+    * [Preprocessing](https://github.com/sct-pipeline/ukbiobank-spinalcord-csa/tree/master#preprocessing)
+    * [Processing](https://github.com/sct-pipeline/ukbiobank-spinalcord-csa/tree/master#processing)
+    * [Quality control](https://github.com/sct-pipeline/ukbiobank-spinalcord-csa/tree/master#quality-control)
+    * [Statistical analysis](https://github.com/sct-pipeline/ukbiobank-spinalcord-csa/tree/master#statistical-analysis)
+    
 - - -
 ## Data collection and organization
 ### Uk Biobank database
@@ -88,7 +101,7 @@ Install:
 cd ukbiobank-spinalcord-csa
 pip install -e ./
 ~~~
-### Note on gradient distorsion correction
+#### Note on gradient distorsion correction
 A `coeff.grad` associated with the MRI scanner used for the data is necessary if it has not been applied yet. In this project, the gradient distorsion correction is done in `preprocess_data.sh` with [gradunwrap v1.2.0](https://github.com/Washington-University/gradunwarp/tree/v1.2.0) and Siemens `coeff.grad` file.
 - - -
 ### Preprocessing
@@ -162,6 +175,8 @@ A QC report of the manually correct files is created in a zip file. To update th
 
 #### Re-run the analysis
 After all the necessary segmentation and labels are corrected, re-run the analysis (`sct_run_batch`command in **Processing** section). If manually-corrected files exists, they will be used intead of proceeding to automatic segmentation and labeling. Make sure to put the output results in another folder (flag `-path-output`) if you don't want the previous relsults to be overwritten.
+
+- - -
 
 ### Statistical analysis
 #### Generate datafile:
