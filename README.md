@@ -20,9 +20,9 @@ The brain MRI data of UK biobank follows the DICOM convention. The spinal cord o
  * `T1_orig_defaced.nii.gz`
  * `T2_FLAIR_orig_defaced.nii.gz`
 
-The raw images have gradient distorsion, a distorsion correction will be applied in the analysis pipeline. 
+The raw images have gradient distorsion, a distorsion correction will be applied in the preprocessing steps of the analysis pipeline. 
 
-The DICOM dataset is in: `duke:mri/uk_biobank`
+The DICOM dataset is under: `duke:mri/uk_biobank`
 ### Data conversion: DICOM to BIDS
 For this project, a BIDS standard dataset is used. A conversion of DICOM to BIDS is necessary for the UK Biobank dataset. 
 The data from the DICOM dataset in the BIDS standard for this project have the following correspondance for each subjects:
@@ -33,13 +33,17 @@ To convert the DICOM dataset in a BIDS structure for this project, run the follo
 ~~~
 curate_project.py -path-in <path_DICOM_dataset> -path-output <path_BIDS_dataset>
 ~~~
-The BIDS datset is (for now) in **|TODO : update with raw and processed repo**
+The BIDS datset with raw data is under: `data.neuro.polymtl.ca:datasets/uk-biobank`.
+The dataset resulting from [preprocessing](https://github.com/sct-pipeline/ukbiobank-spinalcord-csa/tree/master#preprocessing) is under `data.neuro.polymtl.ca:datasets/uk-biobank-processed`.
 
-Here is an example of the BIDS data structure of UK biobank dataset:
+Here is an example of the BIDS data structure of uk-biobank-processed:
 ~~~
-uk-biobank
+uk-biobank-processed
 │
+├── dataset_description.json
+├── participants.json
 ├── participants.tsv
+├── README
 ├── sub-1000032
 ├── sub-1000083
 ├── sub-1000252
