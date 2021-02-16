@@ -168,8 +168,8 @@ C2-C3 disc label will be located at the posterior tip of the disc as shown in th
 ![alt text](https://user-images.githubusercontent.com/2482071/100895704-dabf4a00-348b-11eb-8b1c-67d5024bfeda.png)
 
 #### Upload the manually-corrected files
-A QC report of the manually correct files is created in a zip file. To update the dataset, follow this proceedure:
-* Commit and push manually-corrected files (placed in folders under `derivatives/labels/`
+A QC report of the manually correct files is created in a zip file. To update the dataset, follow this procedure:
+* Commit and push manually-corrected files (placed in folders under `derivatives/labels/`)
 * Create a pull request and add qc zip file in the body of the PR. 
 * If PR is accepted, a new release of the dataset will be created and the qc zip file will be uploaded as a release object.
 
