@@ -137,7 +137,7 @@ sct_run_batch -config config_sct_run_batch.yml
 ### Quality control
 After running the analysis, check your Quality Control (qc) report by opening the file `~/ukbiobank_results/qc/index.html`. Use the "search" feature of the QC report to quikly jump to segmentations or labeling issues.
 
-#### Segmentation and vertebral labeling
+#### Assess quality of segmentation and vertebral labeling
 If segmentation or labeling issues are noticed while checking the quality report, proceed to manual segmentation correction or manual labeling of C2-C3 intervertebral disc at the posterior tip of the disc using the procedure below:
 
 1. Create two .yml file that lists the data to correct segmentation and vertebral labeling.
@@ -160,7 +160,7 @@ FILES_LABEL:
 * `FILES_SEG`: Images associated with spinal cord segmentation
 * `FILES_LABEL` Images associated with vertebral labeling (T1w images only)
 After, the script `uk_manual_correction` loops through all the files listed in .yml file and opens an interactive window to either correct manually segmentation or vertebral labeling. Each mannually corrected label is saved under `derivative/labels/`folder at the root of `PATH_DATA` according to the BIDS convention. Each manually-corrected file has the suffix `-manual`. The procedure is described bellow for cord segmentation and for vertebral labeling.
-##### Manual correction of segmentation
+#### Segmentation
 Manual correction of segmentation uses [itk-snap](http://www.itksnap.org/pmwiki/pmwiki.php?n=Downloads.SNAP3) only. SCT is not necessary to correct segmentations.
 
 **TODO: put video here**
@@ -171,7 +171,7 @@ uk_manual_correction -config <.yml file> -path-in ~/ukbiobank_results/data_proce
 ~~~
 After all correction are done, you can generate a QC report by adding the flag `-qc-only-` to the command above. Note that SCT is required for generating QC report.
 
-#### Manual correction of vertebral lablel
+#### Vertebral labeling
 Manual labeling uses SCT and the QC report is generated automatically.
 
 **TODO: put video here**
