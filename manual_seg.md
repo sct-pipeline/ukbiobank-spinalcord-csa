@@ -12,6 +12,6 @@
 * **ITK-SNAP**
     Download installer frome [here](http://www.itksnap.org/pmwiki/pmwiki.php?n=Downloads.SNAP3)
     
-    **Make sure to add SNAP to the system path by selecting one of options bellow when running the installer**:
+    Make sure to add SNAP to the system path by selecting one of options bellow when running the installer:
     
     ![image](https://user-images.githubusercontent.com/71230552/108115977-e7a21180-7068-11eb-9bfc-df541ad82bc6.png)
