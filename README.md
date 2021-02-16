@@ -164,6 +164,7 @@ After, the script `uk_manual_correction` loops through all the files listed in .
 Manual correction of segmentation uses [itk-snap](http://www.itksnap.org/pmwiki/pmwiki.php?n=Downloads.SNAP3) only. SCT is not necessary to correct segmentations.
 
 **TODO: put video here**
+
 Run the following line and specify the .yml list for cord segmentation with the flag `-config`:
 ~~~
 uk_manual_correction -config <.yml file> -path-in ~/ukbiobank_results/data_processed -path-out <PATH_DATA>
@@ -174,6 +175,7 @@ After all correction are done, you can generate a QC report by adding the flag `
 Manual labeling uses SCT and the QC report is generated automatically.
 
 **TODO: put video here**
+
 Run the following line and specify the .yml list for vertebral labeling with the flag `-config`:
 ~~~
 uk_manual_correction -config <.yml file> -path-in ~/ukbiobank_results/data_processed -path-out <PATH_DATA> -
