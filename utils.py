@@ -150,15 +150,14 @@ def check_output_folder(path_bids, folder_derivatives):
     return path_bids_derivatives
 
 
-def check_software_installed(list_software=['fsleyes', 'sct']):
+def check_software_installed(list_software=['sct']):
     """
     Make sure software are installed
-    :param list_software: {'fsleyes', 'sct'}
+    :param list_software: {'sct'}
     :return:
     """
     install_ok = True
     software_cmd = {
-        'fsleyes': 'fsleyes --version',
         'sct': 'sct_version'
         }
     logging.info("Checking if required software are installed...")

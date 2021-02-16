@@ -42,7 +42,7 @@ def get_parser():
         "R|Config yaml file listing images that require manual corrections for segmentation and vertebral "
         "labeling. 'FILES_SEG' lists images associated with spinal cord segmentation"
         "and 'FILES_LABEL' lists images associated with vertebral labeling. "
-        "You can validate your yaml file at this website: http://www.yamllint.com/. Below is an example yaml file:\n"
+        "You can validate your yaml file at this website: http://www.yamllint.com/. If you only want to correct segmentation only, ommit 'FILES_LABEL' in the list. Below is an example yaml file:\n"
         + dedent(
             """
             FILES_SEG:
@@ -56,7 +56,7 @@ def get_parser():
     parser.add_argument(
         '-path-in',
         metavar="<folder>",
-        help='Path to the processed data. Example: ~/ukbiobank_results/processed_data',
+        help='Path to the processed data. Example: ~/ukbiobank_results/data_processed',
         default='./'
     )
     parser.add_argument(
@@ -101,16 +101,16 @@ def get_suffix(task, suffix=''):
 
 def correct_segmentation(fname, fname_seg_out):
     """
-    Copy fname_seg in fname_seg_out, then open fsleyes with fname and fname_seg_out.
+    Copy fname_seg in fname_seg_out, then open ITK-SNAP with fname and fname_seg_out.
     :param fname:
     :param fname_seg:
     :param fname_seg_out:
     :param name_rater:
     :return:
     """
-    # launch FSLeyes
-    print("In FSLeyes, click on 'Edit mode', correct the segmentation, then save it with the same name (overwrite).")
-    os.system('fsleyes -yh ' + fname + ' ' + fname_seg_out + ' -cm red')
+    # launch ITK-SNAP
+    print("In ITK-SNAP, correct the segmentation, then save it with the same name (overwrite).")
+    os.system('ITK-SNAP -g ' + fname + ' -s ' + fname_seg_out)
 
 
 def correct_vertebral_labeling(fname, fname_label):
@@ -149,11 +149,6 @@ def main():
         coloredlogs.install(fmt='%(message)s', level='DEBUG')
     else:
         coloredlogs.install(fmt='%(message)s', level='INFO')
-
-    # Check if required software is installed (skip that if -qc-only is true)
-    if not args.qc_only:
-        if not utils.check_software_installed():
-            sys.exit("Some required software are not installed. Exit program.")
 
     # check if input yml file exists
     if os.path.isfile(args.config):
@@ -216,21 +211,22 @@ def main():
                             shutil.copyfile(fname_seg, fname_label)
                             correct_segmentation(fname, fname_label)
                         elif task == 'FILES_LABEL':
+                            if not utils.check_software_installed():
+                                sys.exit("Some required software are not installed. Exit program.")
                             correct_vertebral_labeling(fname, fname_label)
                         else:
                             sys.exit('Task not recognized from yml file: {}'.format(task))
                         # create json sidecar with the name of the expert rater
                         create_json(fname_label, name_rater)
 
-                # generate QC report
-                os.system('sct_qc -i {} -s {} -p {} -qc {} -qc-subject {}'.format(
-                    fname, fname_label, get_function(task) , fname_qc, subject))
-
-    # Archive QC folder
-    shutil.copy(fname_yml, fname_qc)
-    shutil.make_archive(fname_qc, 'zip', fname_qc)
-    print("Archive created:\n--> {}".format(fname_qc+'.zip'))
-
+                # generate QC report (only for vertebral labeling or for qc only)
+                if args.qc_only or task == 'FILES_LABEL':
+                    os.system('sct_qc -i {} -s {} -p {} -qc {} -qc-subject {}'.format(
+                        fname, fname_label, get_function(task) , fname_qc, subject))
+                    # Archive QC folder
+                    shutil.copy(fname_yml, fname_qc)
+                    shutil.make_archive(fname_qc, 'zip', fname_qc)
+                    print("Archive created:\n--> {}".format(fname_qc+'.zip'))
 
 if __name__ == '__main__':
     main()
