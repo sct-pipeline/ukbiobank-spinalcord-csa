@@ -178,7 +178,7 @@ Manual labeling uses SCT and the QC report is generated automatically.
 
 Run the following line and specify the .yml list for vertebral labeling with the flag `-config`:
 ~~~
-uk_manual_correction -config <.yml file> -path-in ~/ukbiobank_results/data_processed -path-out <PATH_DATA> -
+uk_manual_correction -config <.yml file> -path-in ~/ukbiobank_results/data_processed -path-out <PATH_DATA>
 ~~~
 C2-C3 disc label will be located at the posterior tip of the disc as shown in the following image. 
 
