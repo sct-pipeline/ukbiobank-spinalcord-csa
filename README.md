@@ -1,17 +1,17 @@
 # Cord CSA on UK biobank brain MRI database
 Measure of the averaged cross-sectional area (CSA) between C2 and C3 of the spinal cord with UK Biobank Brain MRI dataset.
-# Table of contents
-* [Data collection and organization](https://github.com/sct-pipeline/ukbiobank-spinalcord-csa/tree/master#data-collection-and-organization)
-    * [Uk Biobank database](https://github.com/sct-pipeline/ukbiobank-spinalcord-csa/tree/master#uk-biobank-database)
-    * [Data conversion: DICOM to BIDS](https://github.com/sct-pipeline/ukbiobank-spinalcord-csa/tree/master#data-conversion-dicom-to-bids)
-    * [Aquisition parameters](https://github.com/sct-pipeline/ukbiobank-spinalcord-csa/tree/master#aquisition-parameters-todo-to-complete)
-* [Analysis pipeline](https://github.com/sct-pipeline/ukbiobank-spinalcord-csa/tree/master#analysis-pipeline)
-    * [Dependencies](https://github.com/sct-pipeline/ukbiobank-spinalcord-csa/tree/master#dependencies)
-    * [Installation](https://github.com/sct-pipeline/ukbiobank-spinalcord-csa/tree/master#installation)
-    * [Preprocessing](https://github.com/sct-pipeline/ukbiobank-spinalcord-csa/tree/master#preprocessing)
-    * [Processing](https://github.com/sct-pipeline/ukbiobank-spinalcord-csa/tree/master#processing)
-    * [Quality control](https://github.com/sct-pipeline/ukbiobank-spinalcord-csa/tree/master#quality-control)
-    * [Statistical analysis](https://github.com/sct-pipeline/ukbiobank-spinalcord-csa/tree/master#statistical-analysis)
+# Table of contents 
+* [Data collection and organization](#data-collection-and-organization)
+    * [Uk Biobank database](#uk-biobank-database)
+    * [Data conversion: DICOM to BIDS](#data-conversion-dicom-to-bids)
+    * [Aquisition parameters](#aquisition-parameters-todo-to-complete)
+* [Analysis pipeline](#analysis-pipeline)
+    * [Dependencies](#dependencies)
+    * [Installation](#installation)
+    * [Preprocessing](#preprocessing)
+    * [Processing](#processing)
+    * [Quality control](#quality-control)
+    * [Statistical analysis](#statistical-analysis)
     
 - - -
 ## Data collection and organization
@@ -34,7 +34,7 @@ To convert the DICOM dataset in a BIDS structure for this project, run the follo
 curate_project.py -path-in <path_DICOM_dataset> -path-output <path_BIDS_dataset>
 ~~~
 The BIDS datset with raw data is under: `data.neuro.polymtl.ca:datasets/uk-biobank`.
-The dataset resulting from [preprocessing](https://github.com/sct-pipeline/ukbiobank-spinalcord-csa/tree/master#preprocessing) is under `data.neuro.polymtl.ca:datasets/uk-biobank-processed`.
+The dataset resulting from [preprocessing](#preprocessing) is under `data.neuro.polymtl.ca:datasets/uk-biobank-processed`.
 
 Here is an example of the BIDS data structure of uk-biobank-processed:
 ~~~
@@ -93,7 +93,12 @@ MANDATORY:
 
 OPTIONAL:
 
-* [FSLeyes](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FSLeyes) for correcting segmentations
+* [ITK-SNAP](http://www.itksnap.org/pmwiki/pmwiki.php?n=Downloads.SNAP3) for correcting cord segmentations
+
+    **NOTE:** 
+    Make sure to add ITK-SNAP to the system path:
+    - For Windows, select the option during installation.
+    - For macOS, after installation, go to **Help->Install Command-Line Tools**.
 
 ### Installation
 Download this repository:
@@ -141,44 +146,64 @@ sct_run_batch -config config_sct_run_batch.yml
 ### Quality control
 After running the analysis, check your Quality Control (qc) report by opening the file `~/ukbiobank_results/qc/index.html`. Use the "search" feature of the QC report to quikly jump to segmentations or labeling issues.
 
-#### Segmentation and vertebral labeling
+#### 1. Assess quality of segmentation and vertebral labeling
 If segmentation or labeling issues are noticed while checking the quality report, proceed to manual segmentation correction or manual labeling of C2-C3 intervertebral disc at the posterior tip of the disc using the procedure below:
 
-1. Create a .yml file that lists the data to correct segmentation or vertebral labeling.
+1. Create two .yml files that list the data to correct, one for segmentation and the other for vertebral labeling.
 2. In QC report, search for "deepseg" to only display results of spinal cord segmentation, search for "vertebrae" to only display vertebral labeling.
 3. Review segmentation and spinal cord labeling, note that the segmentation et vertebral labeling need to be accurate only between C2-C3, for cord CSA. 
-4. If *major* issues are detected for C2-C3 segmentation and vertebral labeling, add the image name into the .yml file as in the example below:
+4. If *major* issues are detected for C2-C3 segmentation and vertebral labeling, add the image's name into the corresponding .yml file as in the example below:
 
+*.yml list for correcting cord segmentation:*
 ~~~
 FILES_SEG:
 - sub-1000032_T1w.nii.gz
 - sub-1000083_T2w.nii.gz
+~~~
+*.yml list for correcting vertebral labeling:*
+~~~
 FILES_LABEL:
 - sub-1000032_T1w.nii.gz
 - sub-1000710_T1w.nii.gz
 ~~~
 
 * `FILES_SEG`: Images associated with spinal cord segmentation
-* `FILES_LABEL` Images associated with vertebral labeling
+* `FILES_LABEL` Images associated with vertebral labeling (T1w images only)
 
-After completing .yml file list of images to proceed with manual correction, run the following line:
+For the next steps, the script `uk_manual_correction` loops through all the files listed in .yml file and opens an interactive window to either manually correct segmentation or vertebral labeling. Each manually-corrected label is saved under `derivatives/labels/` folder at the root of `PATH_DATA` according to the BIDS convention. Each manually-corrected file has the suffix `-manual`. The procedure is described bellow for cord segmentation and for vertebral labeling.
+
+#### 2. Correct segmentations
+For manual segmentation, you will need ITK-SNAP and this repository only. See **[installation](#installation)** instructions and **[dependencies](#dependencies)**.
+
+**TODO: put video here**
+
+Run the following line and specify the .yml list for cord segmentation with the flag `-config`:
 ~~~
 uk_manual_correction -config <.yml file> -path-in ~/ukbiobank_results/data_processed -path-out <PATH_DATA>
 ~~~
-The script loop through all the files listed in .yml file and opens an interactive window to either correct manually segmentation or vertebral labeling. Each mannually corrected label is saved under `derivative/labels/`folder at the root of `PATH_DATA` according to the BIDS convention. Each manually-corrected file has the suffix `-manual`.
+After all corrections are done, you can generate a QC report by adding the flag `-qc-only-` to the command above. Note that SCT is required for generating QC report.
+
+#### 3. Vertebral labeling
+Note that manual labeling uses SCT and the QC report is generated automatically.
+
+**TODO: put video here**
+
+Run the following line and specify the .yml list for vertebral labeling with the flag `-config`:
+~~~
+uk_manual_correction -config <.yml file> -path-in ~/ukbiobank_results/data_processed -path-out <PATH_DATA>
+~~~
 
 C2-C3 disc label will be located at the posterior tip of the disc as shown in the following image. 
 
 ![alt text](https://user-images.githubusercontent.com/2482071/100895704-dabf4a00-348b-11eb-8b1c-67d5024bfeda.png)
 
 #### Upload the manually-corrected files
-A QC report of the manually correct files is created in a zip file. To update the dataset, follow this procedure:
-* Commit and push manually-corrected files (placed in folders under `derivatives/labels/`)
-* Create a pull request and add qc zip file in the body of the PR. 
-* If PR is accepted, a new release of the dataset will be created and the qc zip file will be uploaded as a release object.
+
+A QC report of the manually corrected files is created in a zip file. To update the dataset, add all manually-corrected files `derivatives/labels/`,  and include the qc zip file in the body of the PR. See our [internal procedure](https://github.com/neuropoly/data-management/blob/master/internal-server.md#upload) for more details.
+**TODO see if it is possible to inlcude the qc zipe file in PR** 
 
 #### Re-run the analysis
-After all the necessary segmentation and labels are corrected, re-run the analysis (`sct_run_batch`command in **Processing** section). If manually-corrected files exists, they will be used intead of proceeding to automatic segmentation and labeling. Make sure to put the output results in another folder (flag `-path-output`) if you don't want the previous relsults to be overwritten.
+After all the necessary segmentation and labels are corrected, re-run the analysis (`sct_run_batch` command in [Processing](###processing)). If manually-corrected files exist, they will be used instead of proceeding to automatic segmentation and labeling. Make sure to put the output results in another folder (flag `-path-output`) if you don't want the previous results to be overwritten. 
 
 - - -
 
