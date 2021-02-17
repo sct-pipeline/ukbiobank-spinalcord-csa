@@ -170,7 +170,7 @@ FILES_LABEL:
 * `FILES_SEG`: Images associated with spinal cord segmentation
 * `FILES_LABEL` Images associated with vertebral labeling (T1w images only)
 
-For the next steps, the script `uk_manual_correction` loops through all the files listed in .yml file and opens an interactive window to either correct manually segmentation or vertebral labeling. Each manually corrected label is saved under `derivative/labels/`folder at the root of `PATH_DATA` according to the BIDS convention. Each manually-corrected file has the suffix `-manual`. The procedure is described bellow for cord segmentation and for vertebral labeling.
+For the next steps, the script `uk_manual_correction` loops through all the files listed in .yml file and opens an interactive window to either manually correct segmentation or vertebral labeling. Each manually-corrected label is saved under `derivatives/labels/` folder at the root of `PATH_DATA` according to the BIDS convention. Each manually-corrected file has the suffix `-manual`. The procedure is described bellow for cord segmentation and for vertebral labeling.
 
 #### 2. Correct segmentations
 For manual segmentation, you will need ITK-SNAP and this repository only. See **[installation](#installation)** instructions and **[dependencies](#dependencies)**.
