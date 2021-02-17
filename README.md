@@ -160,7 +160,7 @@ FILES_SEG:
 - sub-1000032_T1w.nii.gz
 - sub-1000083_T2w.nii.gz
 ~~~
-*.yml list for correcting vertebtal labeling:*
+*.yml list for correcting vertebral labeling:*
 ~~~
 FILES_LABEL:
 - sub-1000032_T1w.nii.gz
