@@ -1,8 +1,8 @@
 # Cord CSA on UK biobank brain MRI database
 Measure of the averaged cross-sectional area (CSA) between C2 and C3 of the spinal cord with UK Biobank Brain MRI dataset.
 # Table of contents 
-* [Data collection and organization](/#data-collection-and-organization)
-    * [Uk Biobank database](/#uk-biobank-database)
+* [Data collection and organization](https://github.com/sct-pipeline/ukbiobank-spinalcord-csa/tree/master#data-collection-and-organization)
+    * [Uk Biobank database](https://github.com/sct-pipeline/ukbiobank-spinalcord-csa/tree/master#uk-biobank-database)
     * [Data conversion: DICOM to BIDS](https://github.com/sct-pipeline/ukbiobank-spinalcord-csa/tree/master#data-conversion-dicom-to-bids)
     * [Aquisition parameters](https://github.com/sct-pipeline/ukbiobank-spinalcord-csa/tree/master#aquisition-parameters-todo-to-complete)
 * [Analysis pipeline](https://github.com/sct-pipeline/ukbiobank-spinalcord-csa/tree/master#analysis-pipeline)
@@ -91,10 +91,10 @@ OPTIONAL:
 
 * [ITK-SNAP](http://www.itksnap.org/pmwiki/pmwiki.php?n=Downloads.SNAP3) for correcting cord segmentations
 
-**NOTE:** Make sure to add SNAP to the system path.
-For Windows, select the option during installation.
-For macOS, after installation, got to **Help->Install Command-Line Tools**.
-SCT is not necessary to correct segmentations.
+**NOTE:** 
+Make sure to add SNAP to the system path.
+- For Windows, select the option during installation.
+- For macOS, after installation, got to **Help->Install Command-Line Tools**.
 
 ### Installation
 Download this repository:
