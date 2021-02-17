@@ -13,6 +13,7 @@ import json
 import os
 import sys
 import shutil
+import subprocess
 from textwrap import dedent
 import time
 import yaml
@@ -111,7 +112,10 @@ def correct_segmentation(fname, fname_seg_out):
     """
     # launch ITK-SNAP
     print("In ITK-SNAP, correct the segmentation, then save it with the same name (overwrite).")
-    os.system('ITK-SNAP -g ' + fname + ' -s ' + fname_seg_out)
+    if shutil.which('itksnap')!=None:
+        os.system('itksnap -g ' + fname + ' -s ' + fname_seg_out) # for macOS
+    else:
+        os.system('ITK-SNAP -g ' + fname + ' -s ' + fname_seg_out) # For windows
 
 
 def correct_vertebral_labeling(fname, fname_label):
