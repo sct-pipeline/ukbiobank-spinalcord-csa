@@ -40,9 +40,10 @@ def get_parser():
         required=True,
         help=
         "R|Config yaml file listing images that require manual corrections for segmentation and vertebral "
-        "labeling. 'FILES_SEG' lists images associated with spinal cord segmentation"
+        "labeling. 'FILES_SEG' lists images associated with spinal cord segmentation "
         "and 'FILES_LABEL' lists images associated with vertebral labeling. "
-        "You can validate your yaml file at this website: http://www.yamllint.com/. If you only want to correct segmentation only, ommit 'FILES_LABEL' in the list. Below is an example yaml file:\n"
+        "You can validate your yaml file at this website: http://www.yamllint.com/."
+        " If you want to correct segmentation only, ommit 'FILES_LABEL' in the list. Below is an example yaml file:\n"
         + dedent(
             """
             FILES_SEG:
