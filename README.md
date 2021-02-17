@@ -160,6 +160,7 @@ FILES_LABEL:
 
 * `FILES_SEG`: Images associated with spinal cord segmentation
 * `FILES_LABEL` Images associated with vertebral labeling (T1w images only)
+
 After, the script `uk_manual_correction` loops through all the files listed in .yml file and opens an interactive window to either correct manually segmentation or vertebral labeling. Each mannually corrected label is saved under `derivative/labels/`folder at the root of `PATH_DATA` according to the BIDS convention. Each manually-corrected file has the suffix `-manual`. The procedure is described bellow for cord segmentation and for vertebral labeling.
 #### Segmentation
 ##### Dependencies
