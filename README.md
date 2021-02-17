@@ -96,7 +96,7 @@ OPTIONAL:
 * [ITK-SNAP](http://www.itksnap.org/pmwiki/pmwiki.php?n=Downloads.SNAP3) for correcting cord segmentations
 
     **NOTE:** 
-    Make sure to add SNAP to the system path:
+    Make sure to add ITK-SNAP to the system path:
     - For Windows, select the option during installation.
     - For macOS, after installation, got to **Help->Install Command-Line Tools**.
 
