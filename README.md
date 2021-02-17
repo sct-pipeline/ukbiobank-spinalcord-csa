@@ -89,7 +89,7 @@ MANDATORY:
 
 OPTIONAL:
 
-* [itk-snap](http://www.itksnap.org/pmwiki/pmwiki.php?n=Downloads.SNAP3) for correcting cord segmentations
+* [ITK-SNAP](http://www.itksnap.org/pmwiki/pmwiki.php?n=Downloads.SNAP3) for correcting cord segmentations
 
 ### Installation
 Download this repository:
@@ -140,17 +140,18 @@ After running the analysis, check your Quality Control (qc) report by opening th
 #### Assess quality of segmentation and vertebral labeling
 If segmentation or labeling issues are noticed while checking the quality report, proceed to manual segmentation correction or manual labeling of C2-C3 intervertebral disc at the posterior tip of the disc using the procedure below:
 
-1. Create two .yml file that lists the data to correct segmentation and vertebral labeling.
+1. Create two .yml files that list the data to correct segmentation and vertebral labeling.
 2. In QC report, search for "deepseg" to only display results of spinal cord segmentation, search for "vertebrae" to only display vertebral labeling.
 3. Review segmentation and spinal cord labeling, note that the segmentation et vertebral labeling need to be accurate only between C2-C3, for cord CSA. 
-4. If *major* issues are detected for C2-C3 segmentation and vertebral labeling, add the image name into the corresponding .yml file as in the example below:
-.yml list for correcting cord segmentation:
+4. If *major* issues are detected for C2-C3 segmentation and vertebral labeling, add the image's name into the corresponding .yml file as in the example below:
+
+*.yml list for correcting cord segmentation*
 ~~~
 FILES_SEG:
 - sub-1000032_T1w.nii.gz
 - sub-1000083_T2w.nii.gz
 ~~~
-.yml list for correcting vertebtal labeling:
+*.yml list for correcting vertebtal labeling:*
 ~~~
 FILES_LABEL:
 - sub-1000032_T1w.nii.gz
@@ -161,6 +162,8 @@ FILES_LABEL:
 * `FILES_LABEL` Images associated with vertebral labeling (T1w images only)
 After, the script `uk_manual_correction` loops through all the files listed in .yml file and opens an interactive window to either correct manually segmentation or vertebral labeling. Each mannually corrected label is saved under `derivative/labels/`folder at the root of `PATH_DATA` according to the BIDS convention. Each manually-corrected file has the suffix `-manual`. The procedure is described bellow for cord segmentation and for vertebral labeling.
 #### Segmentation
+##### Dependencies
+* [ITK-SNAP](http://www.itksnap.org/pmwiki/pmwiki.php?n=Downloads.SNAP3) **NOTE:** Make sure to add SNAP to the system path by selecting one of options in the installing options.
 Manual correction of segmentation uses [itk-snap](http://www.itksnap.org/pmwiki/pmwiki.php?n=Downloads.SNAP3) only. SCT is not necessary to correct segmentations.
 
 **TODO: put video here**
@@ -185,10 +188,10 @@ C2-C3 disc label will be located at the posterior tip of the disc as shown in th
 ![alt text](https://user-images.githubusercontent.com/2482071/100895704-dabf4a00-348b-11eb-8b1c-67d5024bfeda.png)
 
 #### Upload the manually-corrected files
-A QC report of the manually correct files is created in a zip file. To update the dataset, add manually-corrected files `derivatives/labels/`, see our [internal procedure](https://github.com/neuropoly/data-management/blob/master/internal-server.md#upload) and include the qc zip file in the body of the PR. **TODO see if it is possible to inlcude the qc zipe file** 
+A QC report of the manually corrected files is created in a zip file. To update the dataset, add manually-corrected files `derivatives/labels/`, see our [internal procedure](https://github.com/neuropoly/data-management/blob/master/internal-server.md#upload) and include the qc zip file in the body of the PR. **TODO see if it is possible to inlcude the qc zipe file** 
 
 #### Re-run the analysis
-After all the necessary segmentation and labels are corrected, re-run the analysis (`sct_run_batch`command in **Processing** section). If manually-corrected files exists, they will be used intead of proceeding to automatic segmentation and labeling. Make sure to put the output results in another folder (flag `-path-output`) if you don't want the previous relsults to be overwritten.
+After all the necessary segmentation and labels are corrected, re-run the analysis (`sct_run_batch`command in **Processing** section). If manually-corrected files exists, they will be used intead of proceeding to automatic segmentation and labeling. Make sure to put the output results in another folder (flag `-path-output`) if you don't want the previous relsults to be overwritten. 
 
 - - -
 
