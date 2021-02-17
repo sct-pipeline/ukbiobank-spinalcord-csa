@@ -98,7 +98,7 @@ OPTIONAL:
     **NOTE:** 
     Make sure to add ITK-SNAP to the system path:
     - For Windows, select the option during installation.
-    - For macOS, after installation, got to **Help->Install Command-Line Tools**.
+    - For macOS, after installation, go to **Help->Install Command-Line Tools**.
 
 ### Installation
 Download this repository:
