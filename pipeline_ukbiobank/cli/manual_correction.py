@@ -113,7 +113,7 @@ def correct_segmentation(fname, fname_seg_out):
     # launch ITK-SNAP
     # Note: command line differs for macOs and Windows
     print("In ITK-SNAP, correct the segmentation, then save it with the same name (overwrite).")
-    if shutil.which('itksnap')!=None: # Check if command 'itksnap' exists
+    if shutil.which('itksnap') != None: # Check if command 'itksnap' exists
         os.system('itksnap -g ' + fname + ' -s ' + fname_seg_out) # for macOS
     else:
         os.system('ITK-SNAP -g ' + fname + ' -s ' + fname_seg_out) # For windows
