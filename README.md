@@ -1,6 +1,7 @@
 # Cord CSA on UK biobank brain MRI database
 Measure of the averaged cross-sectional area (CSA) between C2 and C3 of the spinal cord with UK Biobank Brain MRI dataset.
 # Table of contents 
+[Data collection and organization](#data-collection-and-organization)
 * [Data collection and organization](https://github.com/sct-pipeline/ukbiobank-spinalcord-csa/tree/master#data-collection-and-organization)
     * [Uk Biobank database](https://github.com/sct-pipeline/ukbiobank-spinalcord-csa/tree/master#uk-biobank-database)
     * [Data conversion: DICOM to BIDS](https://github.com/sct-pipeline/ukbiobank-spinalcord-csa/tree/master#data-conversion-dicom-to-bids)
@@ -168,9 +169,7 @@ FILES_LABEL:
 
 After, the script `uk_manual_correction` loops through all the files listed in .yml file and opens an interactive window to either correct manually segmentation or vertebral labeling. Each manually corrected label is saved under `derivative/labels/`folder at the root of `PATH_DATA` according to the BIDS convention. Each manually-corrected file has the suffix `-manual`. The procedure is described bellow for cord segmentation and for vertebral labeling.
 #### 2. Correct segmentations
-##### Dependencies
-* [ITK-SNAP](http://www.itksnap.org/pmwiki/pmwiki.php?n=Downloads.SNAP3) 
-
+For manual segmentation, you will need ITK-SNAP and this repository only. See [Installation]()
 **TODO: put video here**
 
 Run the following line and specify the .yml list for cord segmentation with the flag `-config`:
