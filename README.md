@@ -140,7 +140,7 @@ After running the analysis, check your Quality Control (qc) report by opening th
 #### Assess quality of segmentation and vertebral labeling
 If segmentation or labeling issues are noticed while checking the quality report, proceed to manual segmentation correction or manual labeling of C2-C3 intervertebral disc at the posterior tip of the disc using the procedure below:
 
-1. Create two .yml files that list the data to correct segmentation and vertebral labeling.
+1. Create two .yml files that list the data to correct, one for segmentation and the other for vertebral labeling.
 2. In QC report, search for "deepseg" to only display results of spinal cord segmentation, search for "vertebrae" to only display vertebral labeling.
 3. Review segmentation and spinal cord labeling, note that the segmentation et vertebral labeling need to be accurate only between C2-C3, for cord CSA. 
 4. If *major* issues are detected for C2-C3 segmentation and vertebral labeling, add the image's name into the corresponding .yml file as in the example below:
