@@ -44,7 +44,7 @@ def get_parser():
         "labeling. 'FILES_SEG' lists images associated with spinal cord segmentation "
         "and 'FILES_LABEL' lists images associated with vertebral labeling. "
         "You can validate your .yml file at this website: http://www.yamllint.com/."
-        " If you want to correct segmentation only, ommit 'FILES_LABEL' in the list. Below is an example yaml file:\n"
+        " If you want to correct segmentation only, ommit 'FILES_LABEL' in the list. Below is an example .yml file:\n"
         + dedent(
             """
             FILES_SEG:
