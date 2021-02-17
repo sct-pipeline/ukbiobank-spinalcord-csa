@@ -181,7 +181,7 @@ Run the following line and specify the .yml list for cord segmentation with the 
 ~~~
 uk_manual_correction -config <.yml file> -path-in ~/ukbiobank_results/data_processed -path-out <PATH_DATA>
 ~~~
-After all correction are done, you can generate a QC report by adding the flag `-qc-only-` to the command above. Note that SCT is required for generating QC report.
+After all corrections are done, you can generate a QC report by adding the flag `-qc-only-` to the command above. Note that SCT is required for generating QC report.
 
 #### 3. Vertebral labeling
 Note that manual labeling uses SCT and the QC report is generated automatically.
