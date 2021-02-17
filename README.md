@@ -91,10 +91,10 @@ OPTIONAL:
 
 * [ITK-SNAP](http://www.itksnap.org/pmwiki/pmwiki.php?n=Downloads.SNAP3) for correcting cord segmentations
 
-**NOTE:** 
-Make sure to add SNAP to the system path.
-- For Windows, select the option during installation.
-- For macOS, after installation, got to **Help->Install Command-Line Tools**.
+    **NOTE:** 
+    Make sure to add SNAP to the system path:
+    - For Windows, select the option during installation.
+    - For macOS, after installation, got to **Help->Install Command-Line Tools**.
 
 ### Installation
 Download this repository:
@@ -150,7 +150,7 @@ If segmentation or labeling issues are noticed while checking the quality report
 3. Review segmentation and spinal cord labeling, note that the segmentation et vertebral labeling need to be accurate only between C2-C3, for cord CSA. 
 4. If *major* issues are detected for C2-C3 segmentation and vertebral labeling, add the image's name into the corresponding .yml file as in the example below:
 
-*.yml list for correcting cord segmentation*
+*.yml list for correcting cord segmentation:*
 ~~~
 FILES_SEG:
 - sub-1000032_T1w.nii.gz
@@ -166,9 +166,11 @@ FILES_LABEL:
 * `FILES_SEG`: Images associated with spinal cord segmentation
 * `FILES_LABEL` Images associated with vertebral labeling (T1w images only)
 
-After, the script `uk_manual_correction` loops through all the files listed in .yml file and opens an interactive window to either correct manually segmentation or vertebral labeling. Each manually corrected label is saved under `derivative/labels/`folder at the root of `PATH_DATA` according to the BIDS convention. Each manually-corrected file has the suffix `-manual`. The procedure is described bellow for cord segmentation and for vertebral labeling.
+For the next steps, the script `uk_manual_correction` loops through all the files listed in .yml file and opens an interactive window to either correct manually segmentation or vertebral labeling. Each manually corrected label is saved under `derivative/labels/`folder at the root of `PATH_DATA` according to the BIDS convention. Each manually-corrected file has the suffix `-manual`. The procedure is described bellow for cord segmentation and for vertebral labeling.
+
 #### 2. Correct segmentations
-For manual segmentation, you will need ITK-SNAP and this repository only. See [Installation]()
+For manual segmentation, you will need ITK-SNAP and this repository only. See [Installation](##installation) instructions and [Dependencies](###dependencies).
+
 **TODO: put video here**
 
 Run the following line and specify the .yml list for cord segmentation with the flag `-config`:
@@ -178,7 +180,7 @@ uk_manual_correction -config <.yml file> -path-in ~/ukbiobank_results/data_proce
 After all correction are done, you can generate a QC report by adding the flag `-qc-only-` to the command above. Note that SCT is required for generating QC report.
 
 #### 3. Vertebral labeling
-Manual labeling uses SCT and the QC report is generated automatically.
+Note that manual labeling uses SCT and the QC report is generated automatically.
 
 **TODO: put video here**
 
@@ -186,15 +188,17 @@ Run the following line and specify the .yml list for vertebral labeling with the
 ~~~
 uk_manual_correction -config <.yml file> -path-in ~/ukbiobank_results/data_processed -path-out <PATH_DATA>
 ~~~
+
 C2-C3 disc label will be located at the posterior tip of the disc as shown in the following image. 
 
 ![alt text](https://user-images.githubusercontent.com/2482071/100895704-dabf4a00-348b-11eb-8b1c-67d5024bfeda.png)
 
 #### Upload the manually-corrected files
-A QC report of the manually corrected files is created in a zip file. To update the dataset, add manually-corrected files `derivatives/labels/`, see our [internal procedure](https://github.com/neuropoly/data-management/blob/master/internal-server.md#upload) and include the qc zip file in the body of the PR. **TODO see if it is possible to inlcude the qc zipe file** 
+A QC report of the manually corrected files is created in a zip file. To update the dataset, add all manually-corrected files `derivatives/labels/`,  and include the qc zip file in the body of the PR. See our [internal procedure](https://github.com/neuropoly/data-management/blob/master/internal-server.md#upload) for more details.
+**TODO see if it is possible to inlcude the qc zipe file in PR** 
 
 #### Re-run the analysis
-After all the necessary segmentation and labels are corrected, re-run the analysis (`sct_run_batch`command in **Processing** section). If manually-corrected files exists, they will be used intead of proceeding to automatic segmentation and labeling. Make sure to put the output results in another folder (flag `-path-output`) if you don't want the previous relsults to be overwritten. 
+After all the necessary segmentation and labels are corrected, re-run the analysis (`sct_run_batch`command in [Processing](###processing)). If manually-corrected files exists, they will be used intead of proceeding to automatic segmentation and labeling. Make sure to put the output results in another folder (flag `-path-output`) if you don't want the previous relsults to be overwritten. 
 
 - - -
 
