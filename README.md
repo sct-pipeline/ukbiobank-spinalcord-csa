@@ -1,18 +1,17 @@
 # Cord CSA on UK biobank brain MRI database
 Measure of the averaged cross-sectional area (CSA) between C2 and C3 of the spinal cord with UK Biobank Brain MRI dataset.
 # Table of contents 
-[Data collection and organization](#data-collection-and-organization)
-* [Data collection and organization](https://github.com/sct-pipeline/ukbiobank-spinalcord-csa/tree/master#data-collection-and-organization)
-    * [Uk Biobank database](https://github.com/sct-pipeline/ukbiobank-spinalcord-csa/tree/master#uk-biobank-database)
-    * [Data conversion: DICOM to BIDS](https://github.com/sct-pipeline/ukbiobank-spinalcord-csa/tree/master#data-conversion-dicom-to-bids)
-    * [Aquisition parameters](https://github.com/sct-pipeline/ukbiobank-spinalcord-csa/tree/master#aquisition-parameters-todo-to-complete)
-* [Analysis pipeline](https://github.com/sct-pipeline/ukbiobank-spinalcord-csa/tree/master#analysis-pipeline)
-    * [Dependencies](https://github.com/sct-pipeline/ukbiobank-spinalcord-csa/tree/master#dependencies)
-    * [Installation](https://github.com/sct-pipeline/ukbiobank-spinalcord-csa/tree/master#installation)
-    * [Preprocessing](https://github.com/sct-pipeline/ukbiobank-spinalcord-csa/tree/master#preprocessing)
-    * [Processing](https://github.com/sct-pipeline/ukbiobank-spinalcord-csa/tree/master#processing)
-    * [Quality control](https://github.com/sct-pipeline/ukbiobank-spinalcord-csa/tree/master#quality-control)
-    * [Statistical analysis](https://github.com/sct-pipeline/ukbiobank-spinalcord-csa/tree/master#statistical-analysis)
+* [Data collection and organization](#data-collection-and-organization)
+    * [Uk Biobank database](#uk-biobank-database)
+    * [Data conversion: DICOM to BIDS](#data-conversion-dicom-to-bids)
+    * [Aquisition parameters](#aquisition-parameters-todo-to-complete)
+* [Analysis pipeline](#analysis-pipeline)
+    * [Dependencies](#dependencies)
+    * [Installation](#installation)
+    * [Preprocessing](#preprocessing)
+    * [Processing](#processing)
+    * [Quality control](#quality-control)
+    * [Statistical analysis](#statistical-analysis)
     
 - - -
 ## Data collection and organization
