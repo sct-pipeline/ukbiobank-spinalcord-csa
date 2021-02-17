@@ -203,7 +203,7 @@ A QC report of the manually corrected files is created in a zip file. To update 
 **TODO see if it is possible to inlcude the qc zipe file in PR** 
 
 #### Re-run the analysis
-After all the necessary segmentation and labels are corrected, re-run the analysis (`sct_run_batch`command in [Processing](###processing)). If manually-corrected files exists, they will be used intead of proceeding to automatic segmentation and labeling. Make sure to put the output results in another folder (flag `-path-output`) if you don't want the previous relsults to be overwritten. 
+After all the necessary segmentation and labels are corrected, re-run the analysis (`sct_run_batch` command in [Processing](###processing)). If manually-corrected files exist, they will be used instead of proceeding to automatic segmentation and labeling. Make sure to put the output results in another folder (flag `-path-output`) if you don't want the previous results to be overwritten. 
 
 - - -
 
