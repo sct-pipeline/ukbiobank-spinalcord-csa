@@ -175,8 +175,6 @@ For the next steps, the script `uk_manual_correction` loops through all the file
 #### 2. Correct segmentations
 For manual segmentation, you will need ITK-SNAP and this repository only. See **[installation](#installation)** instructions and **[dependencies](#dependencies)**.
 
-**TODO: put video here**
-
 Run the following line and specify the .yml list for cord segmentation with the flag `-config`:
 ~~~
 uk_manual_correction -config <.yml file> -path-in ~/ukbiobank_results/data_processed -path-out <PATH_DATA>
@@ -185,8 +183,6 @@ After all corrections are done, you can generate a QC report by adding the flag 
 
 #### 3. Vertebral labeling
 Note that manual labeling uses SCT and the QC report is generated automatically.
-
-**TODO: put video here**
 
 Run the following line and specify the .yml list for vertebral labeling with the flag `-config`:
 ~~~
