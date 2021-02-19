@@ -175,6 +175,10 @@ For the next steps, the script `uk_manual_correction` loops through all the file
 #### 2. Correct segmentations
 For manual segmentation, you will need ITK-SNAP and this repository only. See **[installation](#installation)** instructions and **[dependencies](#dependencies)**.
 
+Here is a tutorial for manually correcting segmentations:
+
+[![IMAGE ALT TEXT](http://img.youtube.com/vi/vCVEGmKKY3o/sddefault.jpg)](https://youtu.be/vCVEGmKKY3o "Correcting segmentations across multiple subjects")
+
 Run the following line and specify the .yml list for cord segmentation with the flag `-config`:
 ~~~
 uk_manual_correction -config <.yml file> -path-in ~/ukbiobank_results/data_processed -path-out <PATH_DATA>
@@ -183,6 +187,8 @@ After all corrections are done, you can generate a QC report by adding the flag 
 
 #### 3. Vertebral labeling
 Note that manual labeling uses SCT and the QC report is generated automatically.
+
+**TODO: add video here**
 
 Run the following line and specify the .yml list for vertebral labeling with the flag `-config`:
 ~~~
@@ -199,7 +205,7 @@ A QC report of the manually corrected files is created in a zip file. To update 
 **TODO see if it is possible to inlcude the qc zipe file in PR** 
 
 #### Re-run the analysis
-After all the necessary segmentation and labels are corrected, re-run the analysis (`sct_run_batch` command in [Processing](###processing)). If manually-corrected files exist, they will be used instead of proceeding to automatic segmentation and labeling. Make sure to put the output results in another folder (flag `-path-output`) if you don't want the previous results to be overwritten. 
+After all the necessary segmentation and labels are corrected, re-run the analysis (`sct_run_batch` command in [Processing](#processing)). If manually-corrected files exist, they will be used instead of proceeding to automatic segmentation and labeling. Make sure to put the output results in another folder (flag `-path-output`) if you don't want the previous results to be overwritten. 
 
 - - -
 
