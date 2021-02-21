@@ -4,7 +4,7 @@ Measure of the averaged cross-sectional area (CSA) between C2 and C3 of the spin
 * [Data collection and organization](#data-collection-and-organization)
     * [Uk Biobank database](#uk-biobank-database)
     * [Data conversion: DICOM to BIDS](#data-conversion-dicom-to-bids)
-    * [Aquisition parameters](#aquisition-parameters-todo-to-complete)
+    * [Acquisition parameters](#acquisition-parameters-todo-to-complete)
 * [Analysis pipeline](#analysis-pipeline)
     * [Dependencies](#dependencies)
     * [Installation](#installation)
@@ -71,7 +71,7 @@ uk-biobank-processed
  
 ~~~
 
-### Aquisition parameters |TODO to complete
+### Acquisition parameters |TODO to complete
 --> add scanner
 #### T1-weighted structural imaging
     Resolution: 1x1x1 mm
