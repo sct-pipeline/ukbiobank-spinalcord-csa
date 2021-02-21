@@ -1,5 +1,5 @@
 # config file for sct_run_batch for run_all.py script
-path_data: /scratch/sabeda/uk-biobank
+path_data: /scratch/sabeda/uk-biobank-processed
 path_output: /scratch/sabeda/ukbiobank_results
 script: /home/sabeda/ukbiobank-spinalcord-csa/process_data.sh
 jobs: -1
