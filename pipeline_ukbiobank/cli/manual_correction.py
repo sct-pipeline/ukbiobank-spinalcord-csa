@@ -111,10 +111,10 @@ def correct_segmentation(fname, fname_seg_out):
     :return:
     """
     # launch ITK-SNAP
-    # Note: command line differs for macOs and Windows
+    # Note: command line differs for macOs/Linux and Windows
     print("In ITK-SNAP, correct the segmentation, then save it with the same name (overwrite).")
     if shutil.which('itksnap') != None: # Check if command 'itksnap' exists
-        os.system('itksnap -g ' + fname + ' -s ' + fname_seg_out) # for macOS
+        os.system('itksnap -g ' + fname + ' -s ' + fname_seg_out) # for macOS and Linux
     elif shutil.which('ITK-SNAP') != None: # Check if command 'ITK-SNAP' exists
         os.system('ITK-SNAP -g ' + fname + ' -s ' + fname_seg_out) # For windows
     else:
