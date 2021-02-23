@@ -115,8 +115,10 @@ def correct_segmentation(fname, fname_seg_out):
     print("In ITK-SNAP, correct the segmentation, then save it with the same name (overwrite).")
     if shutil.which('itksnap') != None: # Check if command 'itksnap' exists
         os.system('itksnap -g ' + fname + ' -s ' + fname_seg_out) # for macOS
-    else:
+    elif shutil.which('ITK-SNAP') != None: # Check if command 'ITK-SNAP' exists
         os.system('ITK-SNAP -g ' + fname + ' -s ' + fname_seg_out) # For windows
+    else:
+        sys.exit("ITK-SNAP not found. Please install it before using this program or check if it was added to PATH variable. Exit program.")
 
 
 def correct_vertebral_labeling(fname, fname_label):
