@@ -17,8 +17,7 @@ import subprocess
 from textwrap import dedent
 import time
 import yaml
-
-import utils
+import pipeline_ukbiobank.utils as utils
 
 # Folder where to output manual labels, at the root of a BIDS dataset.
 # TODO: make it an input argument (with default value)
