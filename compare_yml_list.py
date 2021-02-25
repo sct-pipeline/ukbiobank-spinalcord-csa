@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8
-# Compares multiple yml list with a reference list.
+# Compares multiple .yml lists with a reference list.
 #
 # For usage, type: python compare_yml_list.py -h
 #
@@ -33,7 +33,7 @@ class SmartFormatter(argparse.HelpFormatter):
 
 def get_parser():
     parser = argparse.ArgumentParser(
-        description="Compares multiple .yml lists of subjects to perform manual segmentation with a reference list and outputs the results",
+        description="Compares multiple .yml lists of subjects to perform manual segmentation with a reference list. Outputs the results.",
         prog=os.path.basename(__file__).strip('.py'),
         formatter_class=SmartFormatter
         )
@@ -54,7 +54,7 @@ def get_parser():
                         required=True,
                         type=str,
                         metavar='<dir_path>',
-                        help="Folder containing .yml lists to compare")
+                        help="Folder containing all .yml lists to compare with ref-list.")
     parser.add_argument('-path-out',
                         required=False,
                         default='./',
@@ -87,34 +87,35 @@ def check_FILESEG(ref_dict, list_dict): # Maybe change name source
     """
     Checks if "FILESEG:" is at the beginning of the .yml file.
     Args:
-        ref (dict): dictionnary of the reference .yml file.
-        source (dict): dictionnary of the .yml file to compare.
+        ref_dict (dict): dictionnary of the reference .yml file.
+        list_dict (dict): dictionnary of the .yml file to compare.
     Returns:
-        has_fileseg (bool): True if "FILESEG" is at the begining of the .yml file of source.
+        has_fileseg (bool): True if "FILESEG" is at the begining of the .yml file of list_dict.
     """
-    # Check the type of list_dict. (If 'FILESEG' was ommited, will be a list not a dict)
+    # Check the type of list_dict. (If 'FILESEG:' was ommited, list_dict will be a list not a dict)
     if  isinstance(list_dict, dict):
         # Check if key in list_dict is the same as in the reference list. (FILESEG)
         if list_dict.keys() == ref_dict.keys():
             has_fileseg = True
-            logger.info('FILESEG is the first line of the file.')
+            logger.info('"FILESEG" is the first line of the .yml file.')
         else:
+            # list_dict is a dictionnary, but the key is not FILESEG.
             has_fileseg = False
-            logger.info('FILESEG wrongly nameed {}.'.format(list(list_dict.keys())[0]))
+            logger.info('"{}" instead of "FILESEG" in .yml file.'.format(list(list_dict.keys())[0]))
     else:
         has_fileseg = False
-        logger.info('Missing FILESEG.')
+        logger.info('Missing "FILESEG" at the beginning of the .yml file.')
     return has_fileseg
    
 
 def compare_lists(ref_dict, list_dict):
-    """
-    Compares two dictionnary and retruns the number of file identified and correctly identified.
+    """ 
+    Compares two dictionnaries and returns the total of files identified and the number of files correctly identified.
     Args:
         ref_dict (dict): Dictionnary of the reference .yml file.
-        list_dict (dict): Dictionnary of the .yml list to compare. Note: could be a list if 'FILESEG' is missing.
+        list_dict (dict): Dictionnary of the .yml list to compare. Note: could be a list if 'FILESEG:' is missing.
     Returns:
-        n_files_identified (str): Ratio of identified files to correct by number of files that their should be
+        n_files_identified (str): Ratio of identified files to correct by number of files that their should be.
         n_right_files (str): Ratio of files from those identified that truly need manual segmentation.
     """
     # Check if list_dict is a dict and not a list (if missing FILESEG).
@@ -124,20 +125,20 @@ def compare_lists(ref_dict, list_dict):
     else:
         list_yml = list_dict
     
-    total_selected = len(list_yml) # Compute number of files identified that need manual segmentation
-    total_ref = len(ref_list) # Compute number of files that truly need manual segmentation
+    total_selected = len(list_yml) # Total of files identified
+    total_ref = len(ref_list) # Number of files that truly need manual segmentation
     # Initialization
     n_true = 0 # Number of correctly identified files
     right_files = [] # List of files that are identified correctly
 
-    # Loop through both list to compare
+    # Loop through both lists to compare.
     for filename in list_yml:
         for true_filename in ref_list:
             if filename == true_filename:
                 n_true = n_true + 1
                 right_files.append(filename)
     
-    # Get filnames wrongly identified
+    # Get filnames wrongly identified (false positive)
     wrong_files = list_yml.copy()
     for filename in right_files:
         wrong_files.remove(filename)
@@ -173,7 +174,7 @@ def main():
     fh = logging.FileHandler(path_log)
     logging.root.addHandler(fh)
 
-    # Read ref yml file
+    # Read ref .yml file
     ref_dict = read_yml(args.ref_list)
 
     # Initialize lists for results
@@ -183,17 +184,17 @@ def main():
     nb_files = [] # Number of files identified for manual correction
     nb_true = [] # Number of files from those identified that truly need manual segmentation
 
-    # Loop through all yml lists to compare with ref.
+    # Loop through all .yml files to compare with ref.
     for filename in os.listdir(args.path_lists):
         # Get name of the filename for identification
         name  = filename[:-4]
         names.append(name) # Adds name to list
         logger.info('\nComparing {} ...'.format(filename))
         
-        # Read yml file.
+        # Read .yml file.
         list_dict = read_yml(os.path.join(args.path_lists,filename))
 
-        # If yml file was not properly loaded, doesn't perform comparasion
+        # If .yml file was not properly loaded, doesn't perform comparasion
         if list_dict == 0 : # There was an error when loading .yml file
             formating.append('ERROR')
             fileseg.append('-')
@@ -211,16 +212,18 @@ def main():
             nb_files.append(n_total)
             nb_true.append(n_right)
 
-
+    # Create dataframe with results
     columns = ['FORMAT', 'FILESEG', 'Nb_files_identified', 'Nb_right_files']
     df = pd.DataFrame(index=names, columns= columns)
     df['FORMAT'] = formating
     df['FILESEG'] = fileseg
     df['Nb_files_identified'] = nb_files
     df['Nb_right_files'] = nb_true
+
     # Save results to .csv file
     path_results = os.path.join(args.path_out, 'results.csv')
     df_to_csv(df, path_results)
+    logger.info('Results: \n {}'.format(df))
     logger.info('Comparison completed.')
 
 if __name__ == '__main__':
