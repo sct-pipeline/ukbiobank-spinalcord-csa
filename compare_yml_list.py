@@ -146,7 +146,7 @@ def compare_lists(ref_dict, list_dict):
     n_files_identified = '{}/{}'.format(total_selected, total_ref) # Ratio of idenified files
     n_right_files = '{}/{}'.format(n_true, total_selected) # Ratio of correctly identified files
     logger.info('- Number of files identified = {}'.format(n_files_identified))
-    logger.info('- Number of right files = {}'.format(n_right_files))
+    logger.info('- Number of correct files = {}'.format(n_right_files))
     logger.info('- Files wrongly identified are: {}'.format(wrong_files))
     return n_files_identified, n_right_files
 
