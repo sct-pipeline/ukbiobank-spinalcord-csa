@@ -115,7 +115,7 @@ def compare_lists(ref_dict, list_dict):
         ref_dict (dict): Dictionnary of the reference .yml file.
         list_dict (dict): Dictionnary of the .yml list to compare. Note: could be a list if 'FILESEG:' is missing.
     Returns:
-        n_files_identified (str): Ratio of identified files to correct by number of files that their should be.
+        n_files_identified (str): Ratio of identified files to correct by number of files that should be present.
         n_right_files (str): Ratio of files from those identified that truly need manual segmentation.
     """
     # Check if list_dict is a dict and not a list (if missing FILESEG).
