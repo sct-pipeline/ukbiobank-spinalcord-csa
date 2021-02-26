@@ -194,7 +194,7 @@ def main():
         # Read .yml file.
         list_dict = read_yml(os.path.join(args.path_lists,filename))
 
-        # If .yml file was not properly loaded, doesn't perform comparasion
+        # If .yml file was not properly loaded, doesn't perform comparision
         if list_dict == 0 : # There was an error when loading .yml file
             formating.append('ERROR')
             fileseg.append('-')
@@ -202,7 +202,7 @@ def main():
             nb_true.append('-')
             logger.info('{} has the wrong format. Unable to compare files.'.format(filename))
         else:
-            # Perform comparasion
+            # Perform comparision
             formating.append('OK') # Format of .yml file is ok, can continue
             # Check if 'FILESEG' is at the beginning of the file
             is_FILESEG = check_FILESEG(ref_dict, list_dict)
