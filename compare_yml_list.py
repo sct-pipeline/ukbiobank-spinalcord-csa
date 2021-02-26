@@ -14,7 +14,7 @@ import yaml
 import pandas as pd
 from textwrap import dedent
 
-FNAME_LOG = 'log_yml_comparasion.txt'
+FNAME_LOG = 'log_yml_comparison.txt'
 
 # Initialize logging
 logger = logging.getLogger(__name__)
