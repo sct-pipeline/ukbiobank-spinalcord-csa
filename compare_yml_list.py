@@ -90,7 +90,7 @@ def check_FILESEG(ref_dict, list_dict): # Maybe change name source
         ref_dict (dict): dictionnary of the reference .yml file.
         list_dict (dict): dictionnary of the .yml file to compare.
     Returns:
-        has_fileseg (bool): True if "FILESEG" is at the begining of the .yml file of list_dict.
+        has_fileseg (bool): True if "FILESEG" is at the beginning of the .yml file of list_dict.
     """
     # Check the type of list_dict. (If 'FILESEG:' was ommited, list_dict will be a list not a dict)
     if  isinstance(list_dict, dict):
