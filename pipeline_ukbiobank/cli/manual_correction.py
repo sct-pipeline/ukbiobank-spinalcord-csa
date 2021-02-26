@@ -17,8 +17,7 @@ import subprocess
 from textwrap import dedent
 import time
 import yaml
-
-import utils
+import pipeline_ukbiobank.utils as utils
 
 # Folder where to output manual labels, at the root of a BIDS dataset.
 # TODO: make it an input argument (with default value)
@@ -111,12 +110,14 @@ def correct_segmentation(fname, fname_seg_out):
     :return:
     """
     # launch ITK-SNAP
-    # Note: command line differs for macOs and Windows
+    # Note: command line differs for macOs/Linux and Windows
     print("In ITK-SNAP, correct the segmentation, then save it with the same name (overwrite).")
     if shutil.which('itksnap') != None: # Check if command 'itksnap' exists
-        os.system('itksnap -g ' + fname + ' -s ' + fname_seg_out) # for macOS
-    else:
+        os.system('itksnap -g ' + fname + ' -s ' + fname_seg_out) # for macOS and Linux
+    elif shutil.which('ITK-SNAP') != None: # Check if command 'ITK-SNAP' exists
         os.system('ITK-SNAP -g ' + fname + ' -s ' + fname_seg_out) # For windows
+    else:
+        sys.exit("ITK-SNAP not found. Please install it before using this program or check if it was added to PATH variable. Exit program.")
 
 
 def correct_vertebral_labeling(fname, fname_label):
