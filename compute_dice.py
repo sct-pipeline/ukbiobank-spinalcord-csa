@@ -11,6 +11,7 @@ import logging
 import os
 import sys
 import pandas as pd
+import numpy as np
 import shutil
 import pipeline_ukbiobank.utils as utils
 
@@ -85,7 +86,6 @@ def compute_dice(fname_ref_seg, fname_manual_seg):
     with open('dice_coeff.txt', 'r') as reader:
         text = reader.read()
         dice = float(text.split()[-1])
-        print(dice)
     os.remove('dice_coeff.txt') # Delete .txt file
     return dice
 
@@ -107,16 +107,18 @@ def main():
         sys.exit("SCT is not installed. Exit program.")
     dices = []
     images = []
-    candidate = []
+    candidates = []
     # Loop through candidates folder
     for candidate in os.listdir(args.path_seg):
-        candidate.append(candidate)
+        candidates.append(candidate)
         # Loop through 5 segmentations
         path_manual_seg = os.path.join(args.path_seg, candidate, 'derivatives', 'labels')
         for subject in os.listdir(path_manual_seg):
             for filename in os.listdir(os.path.join(path_manual_seg, subject, 'anat')):
                 if filename.endswith('.nii.gz'): # Is there another type to include?
-                    images.append(filename)
+                    if filename not in images:
+                        images.append(filename)
+
                     manual_seg = os.path.join(path_manual_seg, subject, 'anat', filename)
                     ref_seg = os.path.join(args.path_ref,'labels', subject, 'anat', filename)
                     dice = compute_dice(ref_seg, manual_seg)
@@ -125,8 +127,11 @@ def main():
             # Writes dice in list
         # compute mean dice and writes it
     # Writes dataframe of dice scrore for all subjects
-    columns = ['filename', candidate]
-    df = pd.DataFrame
-
+    columns = [candidates]
+    values = np.transpose([dices[i:i + len(images)] for i in range(0, len(dices), len(images))])
+    df = pd.DataFrame(data=values, index=images, columns=columns)
+    means = df.mean(axis=0)
+    df.loc['mean dice coeff',:] = means
+    logger.info('Dice coefficients are:\n{}'.format(df))
 if __name__ == '__main__':
     main()
