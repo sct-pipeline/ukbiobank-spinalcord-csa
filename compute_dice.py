@@ -14,6 +14,7 @@ import pandas as pd
 import numpy as np
 import shutil
 import pipeline_ukbiobank.utils as utils
+from textwrap import dedent
 
 FNAME_LOG = 'log_dice_coeff.txt'
 
@@ -23,21 +24,44 @@ logger.setLevel(logging.INFO)  # default: logging.DEBUG, logging.INFO
 hdlr = logging.StreamHandler(sys.stdout)
 logging.root.addHandler(hdlr)
 
+
+class SmartFormatter(argparse.HelpFormatter):
+
+    def _split_lines(self, text, width):
+        if text.startswith('R|'):
+            return text[2:].splitlines()  
+        # this is the RawTextHelpFormatter._split_lines
+        return argparse.HelpFormatter._split_lines(self, text, width)
+
+
 def get_parser():
     parser = argparse.ArgumentParser(
-        description=" TODO",
-        prog=os.path.basename(__file__).strip('.py')
+        description="Computes dice coefficient between manual segmentations of candidates and ground truth segmentations.",
+        prog=os.path.basename(__file__).strip('.py'),
+        formatter_class=SmartFormatter
         )
     parser.add_argument('-path-ref',
                         required=True, 
                         type=str,
                         metavar='<dir_path>',
-                        help="Path to the derivative folder of the ground truth segmentations.")
+                        help="Path to the derivative folder of the ground truth segmentations. Example: derivatives/")
     parser.add_argument('-path-seg', 
                         required=True,
                         type=str,
                         metavar='<dir_path>',
-                        help="Path to the folder including all the candidates manual segmentations.")
+                        help=
+                        "R|Path to the folder including all manual segmentations from candidates.\n"
+                        "Example of structure of the folder:\n"
+                        + dedent(
+                        """
+                        candidates_segmentations
+                        ├── surname_name1
+                        |    └── derivatives
+                        ├── surname_name2
+                        |    └── derivatives                        
+                        ...
+                        """
+                        ))
     parser.add_argument('-path-out',
                         required=False,
                         type=str,
@@ -66,10 +90,10 @@ def splitext(fname):
 
 def compute_dice(fname_ref_seg, fname_manual_seg):
     """
-    Computes dice coefficient between the ground truth segmentation and candidate manual segmentation.
+    Computes dice coefficient between the ground truth segmentation and a candidate's manual segmentation.
     Args:
         fname_ref_seg (str): file name of the ground truth segmentation.
-        fname_manual_seg (str): file name of the candidate segmentation.
+        fname_manual_seg (str): file name of the segmentation from a candidate.
     Returns:
         dice (float): dice coefficient.
     """
@@ -77,16 +101,16 @@ def compute_dice(fname_ref_seg, fname_manual_seg):
     stem, ext = splitext(fname_ref_seg)
     # Creates a temporary copy of the segmentation. Note: sct_dice_coefficient can't compute dice coefficient of files with the same name.
     ref_copy = os.path.join(stem + '-tmp'+ ext)
-    shutil.copyfile(fname_ref_seg, ref_copy) # Creates a copy of the ref seg.
+    shutil.copyfile(fname_ref_seg, ref_copy)  # Creates a copy of the ref seg.
 
     # Compute dice coefficient
-    os.system('sct_dice_coefficient -i ' + ref_copy + ' -d ' + fname_manual_seg + ' -o dice_coeff.txt')
+    os.system('sct_dice_coefficient -i ' + fname_manual_seg + ' -d ' +  ref_copy + ' -o dice_coeff.txt')
     os.remove(ref_copy) # Remove copy of ref seg
     # Read the .txt file with the dice coeff
     with open('dice_coeff.txt', 'r') as reader:
         text = reader.read()
         dice = float(text.split()[-1])
-    os.remove('dice_coeff.txt') # Delete .txt file
+    os.remove('dice_coeff.txt')  # Delete .txt file
     return dice
 
 
@@ -105,33 +129,32 @@ def main():
     # Check if SCT is installed
     if not utils.check_software_installed():
         sys.exit("SCT is not installed. Exit program.")
-    dices = []
-    images = []
-    candidates = []
-    # Loop through candidates folder
-    for candidate in os.listdir(args.path_seg):
-        candidates.append(candidate)
-        # Loop through 5 segmentations
-        path_manual_seg = os.path.join(args.path_seg, candidate, 'derivatives', 'labels')
-        for subject in os.listdir(path_manual_seg):
-            for filename in os.listdir(os.path.join(path_manual_seg, subject, 'anat')):
-                if filename.endswith('.nii.gz'): # Is there another type to include?
-                    if filename not in images:
-                        images.append(filename)
+    
+    # Initialize empty DataFrame
+    df = pd.DataFrame()
 
+    # Loop through candidates
+    for candidate in os.listdir(args.path_seg):
+        path_manual_seg = os.path.join(args.path_seg, candidate, 'derivatives', 'labels')
+        # Loop through subjects
+        for subject in os.listdir(path_manual_seg):
+            # Loop through files in anat/ folder
+            for filename in os.listdir(os.path.join(path_manual_seg, subject, 'anat')):
+                if filename.endswith('.nii.gz'):  # Is there another type to include?
+                    # Get path of manual segmentation
                     manual_seg = os.path.join(path_manual_seg, subject, 'anat', filename)
+                    # Get path of reference segmentation
                     ref_seg = os.path.join(args.path_ref,'labels', subject, 'anat', filename)
+                    # Compute dice coefficient
                     dice = compute_dice(ref_seg, manual_seg)
-                    dices.append(dice)
-            # Compute dice
-            # Writes dice in list
-        # compute mean dice and writes it
-    # Writes dataframe of dice scrore for all subjects
-    columns = [candidates]
-    values = np.transpose([dices[i:i + len(images)] for i in range(0, len(dices), len(images))])
-    df = pd.DataFrame(data=values, index=images, columns=columns)
-    means = df.mean(axis=0)
-    df.loc['mean dice coeff',:] = means
+                    # Add a row to the DataFrame with dice coefficient
+                    df.loc[filename, candidate] = dice
+    
+    # Compute mean dice coefficient for all segmentations from a candidate
+    df.loc['mean dice coeff',:] = df.mean(axis=0)
+
+    # Write dataframe to log
     logger.info('Dice coefficients are:\n{}'.format(df))
+
 if __name__ == '__main__':
     main()
