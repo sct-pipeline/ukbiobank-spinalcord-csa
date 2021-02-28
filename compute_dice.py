@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8
-# Computes mean dice coefficient accross manual segmentations from candidates and ground truth segmentation. 
+# Computes mean dice coefficient across manual segmentations from candidates and ground truth segmentations. 
 #
 # For usage, type: python compute_dice.py -h
 #
