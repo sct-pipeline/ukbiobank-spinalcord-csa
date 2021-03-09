@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Script to package data for manual correction.
+# Script to package data for manual correction from SpineGeneric adapted for ukbiobank cord CSA project.
 #
 # For usage, type: python package_for_correction.py -h
 #
@@ -16,9 +16,7 @@ import argparse
 import yaml
 import coloredlogs
 
-import spinegeneric as sg
-import spinegeneric.utils
-import spinegeneric.bids
+import pipeline_ukbiobank.utils as utils
 
 
 def get_parser():
@@ -26,44 +24,41 @@ def get_parser():
     parser function
     """
     parser = argparse.ArgumentParser(
-        description='Package data for manual correction. In case processing is ran on a remote cluster, it it '
+        description='Package data for manual correction. In case processing is ran on a remote cluster, it is '
                     'convenient to generate a package of the files that need correction to be able to only copy these '
                     'files locally, instead of copying the ~20GB of total processed files.',
-        formatter_class=sg.utils.SmartFormatter,
+        formatter_class=utils.SmartFormatter,
         prog=os.path.basename(__file__).rstrip('.py')
     )
     parser.add_argument(
         '-config',
-        metavar=sg.utils.Metavar.file,
+        metavar="<file>",
         required=True,
         help=
-        "R|Config yaml file listing images that require manual corrections for segmentation and vertebral "
+        "R|Config .yml file listing images that require manual corrections for segmentation and vertebral "
         "labeling. 'FILES_SEG' lists images associated with spinal cord segmentation, 'FILES_GMSEG' lists images "
         "associated with gray matter segmentation and 'FILES_LABEL' lists images associated with vertebral labeling. "
-        "You can validate your yaml file at this website: http://www.yamllint.com/. Below is an example yaml file:\n"
+        "You can validate your .yml file at this website: http://www.yamllint.com/. Below is an example .yml file:\n"
         + dedent(
             """
             FILES_SEG:
-            - sub-amu01_T1w_RPI_r.nii.gz
-            - sub-amu01_T2w_RPI_r.nii.gz
-            - sub-cardiff02_dwi_moco_dwi_mean.nii.gz
-            FILES_GMSEG:
-            - sub-amu01_T2star_rms.nii.gz
+            - sub-1000032_T1w.nii.gz
+            - sub-1000083_T2w.nii.gz
             FILES_LABEL:
-            - sub-amu01_T1w_RPI_r.nii.gz
-            - sub-amu02_T1w_RPI_r.nii.gz\n
+            - sub-1000032_T1w.nii.gz
+            - sub-1000710_T1w.nii.gz\n
             """)
     )
     parser.add_argument(
         '-path-in',
-        metavar=sg.utils.Metavar.folder,
+        metavar="<folder>",
         required=True,
-        help='Path to the processed data. Example: ~/spine-generic/results/data',
+        help='Path to the processed data. Example: ~/ukbiobank_results/data_processed',
         default='./'
     )
     parser.add_argument(
         '-o',
-        metavar=sg.utils.Metavar.folder,
+        metavar="<folder>",
         help="Zip file that contains the packaged data, without the extension. Default: data_to_correct",
         default='data_to_correct'
     )
@@ -109,7 +104,7 @@ def main():
             print(exc)
 
     # Check for missing files before starting the whole process
-    sg.utils.check_files_exist(dict_yml, args.path_in)
+    utils.check_files_exist(dict_yml, args.path_in)
 
     # Create temp folder
     path_tmp = tempfile.mkdtemp()
@@ -120,20 +115,18 @@ def main():
         for file in files:
             if task == 'FILES_SEG':
                 suffix_label = '_seg'
-            elif task == 'FILES_GMSEG':
-                suffix_label = '_gmseg'
             elif task == 'FILES_LABEL':
                 suffix_label = None
             else:
                 sys.exit('Task not recognized from yml file: {}'.format(task))
             # Copy image
-            copy_file(os.path.join(args.path_in, sg.bids.get_subject(file), sg.bids.get_contrast(file), file),
-                      os.path.join(path_tmp, sg.bids.get_subject(file), sg.bids.get_contrast(file)))
+            copy_file(os.path.join(args.path_in, utils.get_subject(file), utils.get_contrast(file), file),
+                      os.path.join(path_tmp, utils.get_subject(file), utils.get_contrast(file)))
             # Copy label if exists
             if suffix_label is not None:
-                copy_file(os.path.join(args.path_in, sg.bids.get_subject(file), sg.bids.get_contrast(file),
-                                       sg.utils.add_suffix(file, suffix_label)),
-                          os.path.join(path_tmp, sg.bids.get_subject(file), sg.bids.get_contrast(file)))
+                copy_file(os.path.join(args.path_in, utils.get_subject(file), utils.get_contrast(file),
+                                       utils.add_suffix(file, suffix_label)),
+                          os.path.join(path_tmp, utils.get_subject(file), utils.get_contrast(file)))
 
     # Package to zip file
     print("Creating archive...")
