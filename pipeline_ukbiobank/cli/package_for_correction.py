@@ -36,8 +36,8 @@ def get_parser():
         required=True,
         help=
         "R|Config .yml file listing images that require manual corrections for segmentation and vertebral "
-        "labeling. 'FILES_SEG' lists images associated with spinal cord segmentation, 'FILES_GMSEG' lists images "
-        "associated with gray matter segmentation and 'FILES_LABEL' lists images associated with vertebral labeling. "
+        "labeling. 'FILES_SEG' lists images associated with spinal cord segmentation,"
+        "and 'FILES_LABEL' lists images associated with vertebral labeling. "
         "You can validate your .yml file at this website: http://www.yamllint.com/. Below is an example .yml file:\n"
         + dedent(
             """
