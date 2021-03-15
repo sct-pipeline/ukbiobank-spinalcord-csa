@@ -29,6 +29,7 @@ start=`date +%s`
 
 # Check if manual label already exists. If it does, copy it locally. If it does
 # not, perform labeling.
+# NOTE: manual disc lables include C1-2, C2-3 and C3-4 dics.
 label_if_does_not_exist(){
   local file="$1"
   local file_seg="$2"
@@ -39,7 +40,7 @@ label_if_does_not_exist(){
   if [[ -e $FILELABELMANUAL ]]; then
     echo "Found! Using manual labels."
     rsync -avzh $FILELABELMANUAL ${FILELABEL}.nii.gz
-    # Generate labeled segmentation
+    # Generate labeled segmentation from manual disc labels
     sct_label_vertebrae -i ${file}.nii.gz -s ${file_seg}.nii.gz -discfile ${FILELABEL}.nii.gz -c t1
   else
     echo "Not found. Proceeding with automatic labeling."
@@ -98,7 +99,7 @@ file_t1="${SUBJECT}_T1w"
 segment_if_does_not_exist $file_t1 "t1"
 file_t1_seg=$FILESEG
 
-# Create disc label at C1-C2, C2-C3 and C3-C4 (only if it does not exist) 
+# Create labeled segmentation (only if it does not exist) 
 label_if_does_not_exist ${file_t1} ${file_t1_seg}
 file_t1_seg_labeled="${file_t1_seg}_labeled"
 
