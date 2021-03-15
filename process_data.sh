@@ -34,7 +34,6 @@ label_if_does_not_exist(){
   local file_seg="$2"
   # Update global variable with segmentation file name
   FILELABEL="${file}_labels"
-  #FILESEGLABELED="${file_seg}_labeled" to remove
   FILELABELMANUAL="${PATH_DATA}/derivatives/labels/${SUBJECT}/anat/${FILELABEL}-manual.nii.gz"
   echo "Looking for manual label: $FILELABELMANUAL"
   if [[ -e $FILELABELMANUAL ]]; then
