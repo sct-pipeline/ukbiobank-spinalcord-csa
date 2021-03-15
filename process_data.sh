@@ -145,9 +145,8 @@ sct_process_segmentation -i ${file_t2_seg}.nii.gz -vert 2:3 -vertfile ${file_t2}
 FILES_TO_CHECK=(
   "${SUBJECT}_T1w_seg.nii.gz" 
   "${SUBJECT}_T2w_seg.nii.gz"
-  "${SUBJECT}_T1w_labels.nii.gz"
-  "label_T1w/template/PAM50_levels.nii.gz"
-  "PAM50_levels2${SUBJECT}_T2w.nii.gz"
+  "${SUBJECT}_T1w_seg_labeled.nii.gz"
+  "${SUBJECT}_T2w_seg_labeled.nii.gz"
 )
 pwd
 for file in ${FILES_TO_CHECK[@]}; do
