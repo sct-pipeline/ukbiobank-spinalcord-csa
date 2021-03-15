@@ -195,7 +195,7 @@ Run the following line and specify the .yml list for vertebral labeling with the
 uk_manual_correction -config <.yml file> -path-in ~/ukbiobank_results/data_processed -path-out <PATH_DATA>
 ~~~
 
-To create disc labels, clic at the posterior tip of the disc for C1-C2, C2-C3 and C3-C4 as shown in the following image: 
+To create disc labels, click at the posterior tip of the disc for C1-C2, C2-C3 and C3-C4 as shown in the following image: 
 
 ![readme_labels](https://user-images.githubusercontent.com/71230552/111220077-18fdf680-85af-11eb-8ec4-4774db842a27.PNG)
 
