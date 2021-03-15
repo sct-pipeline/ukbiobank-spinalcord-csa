@@ -41,7 +41,7 @@ label_if_does_not_exist(){
     echo "Found! Using manual labels."
     rsync -avzh $FILELABELMANUAL ${FILELABEL}.nii.gz
     # Generate labeled segmentation
-    sct_label_vertebrae -i ${file}.nii.gz -s ${file_seg}.nii.gz -discfile ${FILELABEL}.nii.gz
+    sct_label_vertebrae -i ${file}.nii.gz -s ${file_seg}.nii.gz -discfile ${FILELABEL}.nii.gz -c t1
   else
     echo "Not found. Proceeding with automatic labeling."
     # Generate labeled segmentation
