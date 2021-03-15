@@ -128,8 +128,8 @@ def correct_vertebral_labeling(fname, fname_label):
     :param name_rater:
     :return:
     """
-    message = "Click at the posterior tip of the disc between C2 and C3 vertebral levels, then click 'Save and Quit'."
-    os.system('sct_label_utils -i {} -create-viewer 3 -o {} -msg "{}"'.format(fname, fname_label, message))
+    message = "Click at the posterior tip of the disc between C1-C2, C2-C3 and C3-C4 vertebral levels, then click 'Save and Quit'."
+    os.system('sct_label_utils -i {} -create-viewer 2,3,4 -o {} -msg "{}"'.format(fname, fname_label, message))
 
 
 def create_json(fname_nifti, name_rater):
