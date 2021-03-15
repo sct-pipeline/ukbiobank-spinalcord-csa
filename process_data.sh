@@ -29,7 +29,7 @@ start=`date +%s`
 
 # Check if manual label already exists. If it does, copy it locally. If it does
 # not, perform labeling.
-# NOTE: manual disc lables include C1-2, C2-3 and C3-4 dics.
+# NOTE: manual disc labels include C1-2, C2-3 and C3-4.
 label_if_does_not_exist(){
   local file="$1"
   local file_seg="$2"
