@@ -1,9 +1,9 @@
 - sub-1005491_T2w.nii.gz  # Don't see C2-3 disc, image tilted
 - sub-1011687_T2w.nii.gz  # Shading arround C2-C3, can't see SC
+- sub-1012113_T1w.nii.gz  # FOV cuts before C2-C3 disc
 - sub-1016730_T2w.nii.gz  # Shading arround C2-C3, can't see SC
 - sub-1017825_T2w.nii.gz  # Shading, can't see SC , image tiled
 - sub-1024269_T1w.nii.gz  # SC is blured and FOV cuts at C2-C3 disc
-- sub-1012113_T1w.nii.gz  # FOV cuts before C2-C3 disc
 - sub-1026594_T2w.nii.gz  # No contrast arround SC at C2-C3
 - sub-1027132_T2w.nii.gz  # Shading at C2-C3, don't see SC + disc
 - sub-1027567_T2w.nii.gz  # Shading at C2-C3, don't see SC + disc
