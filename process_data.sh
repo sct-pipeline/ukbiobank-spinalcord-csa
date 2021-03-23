@@ -19,7 +19,6 @@ trap "echo Caught Keyboard Interrupt within script. Exiting now.; exit" INT
 
 # Retrieve input params
 SUBJECT=$1
-PATH_GRADCORR_FILE=$2 #to remove
 
 # get starting time:
 start=`date +%s`
@@ -110,43 +109,11 @@ sct_flatten_sagittal -i ${file_t1}.nii.gz -s ${file_t1_seg}.nii.gz
 # Compute average cord CSA between C2 and C3
 sct_process_segmentation -i ${file_t1_seg}.nii.gz -vert 2:3 -vertfile ${file_t1_seg_labeled}.nii.gz -o ${PATH_RESULTS}/csa-SC_T1w.csv -append 1
 
-# T2w FLAIR
-# ------------------------------------------------------------------------------
-file_t2="${SUBJECT}_T2w"
-
-# Segment spinal cord (only if it does not exist)
-# Note: we specify the "t1" contrast for the automatic segmentation because the T2-FLAIR contrast is more similar to the T1 MPRAGE (this is due to the inversion recovery 'IR' in 'FLAIR' pulse which nulls the CSF signal)
-segment_if_does_not_exist $file_t2 "t1"
-file_t2_seg=$FILESEG
-# Flatten scan along R-L direction (to make nice figures) 
-sct_flatten_sagittal -i ${file_t2}.nii.gz -s ${file_t2_seg}.nii.gz
-
-# Dilate t2 cord segmentation to use as mask for registration
-file_t2_mask="${file_t2_seg}_dil"
-ImageMath 3 ${file_t2_mask}.nii.gz MD ${file_t2_seg}.nii.gz 40
-
-# Register T1w image to T2w FLAIR (rigid)
-isct_antsRegistration -d 3 -m CC[ ${file_t2}.nii.gz , ${file_t1}.nii.gz , 1, 4] -t Rigid[0.5] -c 50x20x10 -f 8x4x2 -s 0x0x0 -o [_rigid, ${file_t1}_reg.nii.gz] -v 1 -x ${file_t2_mask}.nii.gz
-
-# Apply transformation to T1w vertebral level
-isct_antsApplyTransforms -i ${file_t1_seg_labeled}.nii.gz -r ${file_t2}.nii.gz -t _rigid0GenericAffine.mat -o ${file_t2}_seg_labeled.nii.gz -n NearestNeighbor
-
-# Generate QC report to assess T1w registration to T2w
-sct_qc -i ${file_t1}_reg.nii.gz -s ${file_t2}_seg_labeled.nii.gz -d ${file_t2}.nii.gz -p sct_register_multimodal -qc ${PATH_QC} -qc-subject ${SUBJECT}
-
-# Generate QC report to assess T2w vertebral labeling
-sct_qc -i ${file_t2}.nii.gz -s ${file_t2}_seg_labeled.nii.gz -p sct_label_vertebrae -qc ${PATH_QC} -qc-subject ${SUBJECT}
-
-# Compute average cord CSA between C2 and C3
-sct_process_segmentation -i ${file_t2_seg}.nii.gz -vert 2:3 -vertfile ${file_t2}_seg_labeled.nii.gz -o ${PATH_RESULTS}/csa-SC_T2w.csv -append 1
-
 # Verify presence of output files and write log file if error
 # ------------------------------------------------------------------------------
 FILES_TO_CHECK=(
   "${SUBJECT}_T1w_seg.nii.gz" 
-  "${SUBJECT}_T2w_seg.nii.gz"
   "${SUBJECT}_T1w_seg_labeled.nii.gz"
-  "${SUBJECT}_T2w_seg_labeled.nii.gz"
 )
 pwd
 for file in ${FILES_TO_CHECK[@]}; do
