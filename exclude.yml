@@ -27,6 +27,7 @@
 - sub-1027567_T2w.nii.gz  # Shading at C2-C3, don't see SC + disc
 - sub-1029324_T2w.nii.gz  # Shading at C2-C3, don't see SC + disc
 - sub-1029729_T2w.nii.gz  # Shading at C2-C3, don't see SC + disc
+- sub-1029993_T1w.nii.gz  # FOV cuts before C2-C3 disc
 - sub-1029993_T2w.nii.gz  # Image tilted + shading, don't see SC + disc
 - sub-1030519_T2w.nii.gz  # Shading at C2-C3, don't see SC + disc
 - sub-1031426_T1w.nii.gz  # Motion artifact
@@ -37,6 +38,7 @@
 - sub-1036337_T2w.nii.gz  # FOV cuts SC
 - sub-1036523_T2w.nii.gz  # Shading at C2-C3, don't see SC + disc
 - sub-1036748_T2w.nii.gz  # Shading at C2-C3, don't see SC + disc
+- sub-1035680_T1w.nii.gz  # Bad data quality arround C2-3 + FOV cuts at C2-3
 - sub-1038735_T2w.nii.gz  # Shading at C2-C3, don't see SC + disc
 - sub-1039751_T2w.nii.gz  # Shading at C2-C3, don't see SC + disc
 - sub-1040099_T2w.nii.gz  # Shading at C2-C3, don't see SC + disc
