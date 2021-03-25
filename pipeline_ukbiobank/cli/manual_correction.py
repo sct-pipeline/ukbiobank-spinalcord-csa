@@ -75,6 +75,12 @@ def get_parser():
         action='store_true'
     )
     parser.add_argument(
+        '-add-only', # Find a better flag name
+        help="Only copies segmentation files that aren't in -config list and adds them to the derivatives/ folder. "
+             "This flag is to add manually QC-ed automatic segmentations to the derivatives folder.",
+        action='store_true'
+    )
+    parser.add_argument(
         '-v', '--verbose',
         help="Full verbose (for debugging)",
         action='store_true'
