@@ -20,7 +20,7 @@ The brain MRI data of UK biobank follows the DICOM convention. The spinal cord o
  * `T1_orig_defaced.nii.gz`
  * `T2_FLAIR_orig_defaced.nii.gz`
 
-The raw images have gradient distorsion, a distorsion correction will be applied in the preprocessing steps of the analysis pipeline. 
+The raw images have gradient distortion, correction will be applied in the preprocessing steps of the analysis pipeline. 
 
 The DICOM dataset is under: `duke:mri/uk_biobank`
 ### Data conversion: DICOM to BIDS
@@ -110,8 +110,8 @@ Install:
 cd ukbiobank-spinalcord-csa
 pip install -e ./
 ~~~
-#### Note on gradient distorsion correction
-A `coeff.grad` associated with the MRI scanner used for the data is necessary if it has not been applied yet. In this project, the gradient distorsion correction is done in `preprocess_data.sh` with [gradunwrap v1.2.0](https://github.com/Washington-University/gradunwarp/tree/v1.2.0) and Siemens `coeff.grad` file.
+#### Note on gradient distortion correction
+A `coeff.grad` associated with the MRI scanner used for the data is necessary if it has not been applied yet. In this project, the gradient distortion correction is done in `preprocess_data.sh` with [gradunwrap v1.2.0](https://github.com/Washington-University/gradunwarp/tree/v1.2.0) and Siemens `coeff.grad` file.
 - - -
 ### Preprocessing
 Preprocessing generates a dataset with gradient distortion correction. 
