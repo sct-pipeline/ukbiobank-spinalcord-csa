@@ -177,7 +177,7 @@ def main():
         except yaml.YAMLError as exc:
             print(exc)
 
-    # check for missing files before starting the whole process | !!
+    # check for missing files before starting the whole process
     utils.check_files_exist(dict_yml, args.path_in)
 
     # check that output folder exists and has write permission
