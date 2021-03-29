@@ -76,9 +76,9 @@ def get_parser():
         action='store_true'
     )
     parser.add_argument(
-        '-add-seg-only', # Find a better flag name
-        help="Only copies segmentation files that aren't in -config list and adds them to the derivatives/ folder. "
-             "This flag is to add manually QC-ed automatic segmentations to the derivatives folder.",
+        '-add-seg-only',
+        help="Only copy the source files (segmentation) that aren't in -config list to the derivatives/ folder. "
+             "Use this flag to add manually QC-ed automatic segmentations to the derivatives folder.",
         action='store_true'
     )
     parser.add_argument(
@@ -194,13 +194,13 @@ def main():
     # Get list of segmentations files for all subjects in -path-in (if -add-seg-only)
     if args.add_seg_only:
         path_list = glob.glob(args.path_in + "/**/*seg.nii.gz", recursive = True) # TODO: add other extension
-        # Get only filename without _seg suffix to match files in -config .yml list
+        # Get only filenames without suffix _seg  to match files in -config .yml list
         file_list = [utils.remove_suffix(os.path.split(path)[-1], '_seg') for path in path_list]
 
     # TODO: address "none" issue if no file present under a key
     # Perform manual corrections
     for task, files in dict_yml.items():
-        # Get the list of segmentation files to add to derivatives, excluding the manually corrrected files.
+        # Get the list of segmentation files to add to derivatives, excluding the manually corrrected files in -config.
         if args.add_seg_only and task=='FILES_SEG':
             # Remove the files in the -config list
             for file in files:
