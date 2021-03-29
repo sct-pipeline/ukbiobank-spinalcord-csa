@@ -30,6 +30,7 @@ def get_contrast(file):
     """
     return 'anat'
 
+
 class SmartFormatter(argparse.HelpFormatter):
     """
     Custom formatter that inherits from HelpFormatter, which adjusts the default width to the current Terminal size,
@@ -83,6 +84,7 @@ class SmartFormatter(argparse.HelpFormatter):
             return wrapped
         return argparse.HelpFormatter._split_lines(self, text, width)
 
+
 def splitext(fname):
         """
         Split a fname (folder/file + ext) into a folder/file and extension.
@@ -98,6 +100,7 @@ def splitext(fname):
         # If no special case, behaves like the regular splitext
         stem, ext = os.path.splitext(filename)
         return os.path.join(dir, stem), ext
+
 
 def add_suffix(fname, suffix):
     """
