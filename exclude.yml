@@ -20,6 +20,7 @@
 - sub-1021534_T2w.nii.gz  # Shading at C2-C3, don't see SC + disc
 - sub-1022232_T2w.nii.gz  # Shading at C2-C3, don't see SC + disc
 - sub-1023062_T2w.nii.gz  # Shading at C2-C3, don't see SC + disc
+- sub-1024305_T1w.nii.gz  # Motion artefact
 - sub-1024889_T2w.nii.gz  # Shading at C2-C3, don't see SC + disc
 - sub-1024269_T1w.nii.gz  # SC is blured and FOV cuts at C2-C3 disc
 - sub-1026594_T2w.nii.gz  # No contrast arround SC at C2-C3
