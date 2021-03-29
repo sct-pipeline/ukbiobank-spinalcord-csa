@@ -9,6 +9,7 @@
 
 import argparse
 import coloredlogs
+import glob
 import json
 import os
 import sys
@@ -72,6 +73,12 @@ def get_parser():
         '-qc-only',
         help="Only output QC report based on the manually-corrected files already present in the derivatives folder. "
              "Skip the copy of the source files, and the opening of the manual correction pop-up windows.",
+        action='store_true'
+    )
+    parser.add_argument(
+        '-add-seg-only',
+        help="Only copy the source files (segmentation) that aren't in -config list to the derivatives/ folder. "
+             "Use this flag to add manually QC-ed automatic segmentations to the derivatives folder.",
         action='store_true'
     )
     parser.add_argument(
@@ -184,10 +191,23 @@ def main():
     # Build QC report folder name
     fname_qc = 'qc_corr_' + time.strftime('%Y%m%d%H%M%S')
 
+    # Get list of segmentations files for all subjects in -path-in (if -add-seg-only)
+    if args.add_seg_only:
+        path_list = glob.glob(args.path_in + "/**/*seg.nii.gz", recursive=True) # TODO: add other extension
+        # Get only filenames without suffix _seg  to match files in -config .yml list
+        file_list = [utils.remove_suffix(os.path.split(path)[-1], '_seg') for path in path_list]
+
     # TODO: address "none" issue if no file present under a key
     # Perform manual corrections
     for task, files in dict_yml.items():
-        if files is not None:
+        # Get the list of segmentation files to add to derivatives, excluding the manually corrrected files in -config.
+        if args.add_seg_only and task=='FILES_SEG':
+            # Remove the files in the -config list
+            for file in files:
+                if file in file_list:
+                    file_list.remove(file)
+            files = file_list # Rename to use those files instead of the ones to exclude
+        if files is not None: 
             for file in files:
                 # build file names
                 subject = file.split('_')[0]
@@ -216,7 +236,8 @@ def main():
                         if task in ['FILES_SEG']:
                             fname_seg = utils.add_suffix(fname, get_suffix(task))
                             shutil.copyfile(fname_seg, fname_label)
-                            correct_segmentation(fname, fname_label)
+                            if not args.add_seg_only:
+                                correct_segmentation(fname, fname_label)
                         elif task == 'FILES_LABEL':
                             if not utils.check_software_installed():
                                 sys.exit("Some required software are not installed. Exit program.")

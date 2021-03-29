@@ -30,6 +30,7 @@ def get_contrast(file):
     """
     return 'anat'
 
+
 class SmartFormatter(argparse.HelpFormatter):
     """
     Custom formatter that inherits from HelpFormatter, which adjusts the default width to the current Terminal size,
@@ -83,21 +84,8 @@ class SmartFormatter(argparse.HelpFormatter):
             return wrapped
         return argparse.HelpFormatter._split_lines(self, text, width)
 
-def add_suffix(fname, suffix):
-    """
-    Add suffix between end of file name and extension.
 
-    :param fname: absolute or relative file name. Example: t2.nii
-    :param suffix: suffix. Example: _mean
-    :return: file name with suffix. Example: t2_mean.nii
-
-    Examples:
-
-    - add_suffix(t2.nii, _mean) -> t2_mean.nii
-    - add_suffix(t2.nii.gz, a) -> t2a.nii.gz
-    """
-
-    def _splitext(fname):
+def splitext(fname):
         """
         Split a fname (folder/file + ext) into a folder/file and extension.
 
@@ -113,8 +101,40 @@ def add_suffix(fname, suffix):
         stem, ext = os.path.splitext(filename)
         return os.path.join(dir, stem), ext
 
-    stem, ext = _splitext(fname)
+
+def add_suffix(fname, suffix):
+    """
+    Add suffix between end of file name and extension.
+
+    :param fname: absolute or relative file name. Example: t2.nii
+    :param suffix: suffix. Example: _mean
+    :return: file name with suffix. Example: t2_mean.nii
+
+    Examples:
+
+    - add_suffix(t2.nii, _mean) -> t2_mean.nii
+    - add_suffix(t2.nii.gz, a) -> t2a.nii.gz
+    """
+    stem, ext = splitext(fname)
     return os.path.join(stem + suffix + ext)
+
+
+def remove_suffix(fname, suffix):
+    """
+    Remove suffix between end of file name and extension.
+
+    :param fname: absolute or relative file name with suffix. Example: t2_mean.nii
+    :param suffix: suffix. Example: _mean
+    :return: file name without suffix. Example: t2.nii
+
+    Examples:
+
+    - remove_suffix(t2_mean.nii, _mean) -> t2.nii
+    - remove_suffix(t2a.nii.gz, a) -> t2.nii.gz
+    """
+    stem, ext = splitext(fname)
+    return os.path.join(stem.replace(suffix, '') + ext)
+
 
 def check_files_exist(dict_files, path_data):
     """

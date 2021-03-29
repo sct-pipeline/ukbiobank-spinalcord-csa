@@ -204,6 +204,13 @@ To create disc labels, click at the posterior tip of the disc for C1-C2, C2-C3 a
 A QC report of the manually corrected files is created in a zip file. To update the dataset, add all manually-corrected files `derivatives/labels/`,  and include the qc zip file in the body of the PR. See our [internal procedure](https://github.com/neuropoly/data-management/blob/master/internal-server.md#upload) for more details.
 **TODO see if it is possible to inlcude the qc zipe file in PR** 
 
+#### Add automatic segmentations to `derivatives/` folder
+After all segmentations are manually QC-ed, you can add them to the `derivatives/` by running again the script `manual_correction.py` and adding the flag `-add-seg-only`:
+~~~
+uk_manual_correction -config <.yml file> -path-in ~/ukbiobank_results/data_processed -path-out <PATH_DATA> -add-seg-only
+~~~
+The automatic segmentations that did not require manual correction (files in .yml file) are added to the `derivatives/` folder. You can upload the folder following the instructions specified in [Upload the manually-corrected files](#upload-the-manually-corrected-files).
+
 #### Re-run the analysis
 After all the necessary segmentation and labels are corrected, re-run the analysis (`sct_run_batch` command in [Processing](#processing)). If manually-corrected files exist, they will be used instead of proceeding to automatic segmentation and labeling. Make sure to put the output results in another folder (flag `-path-output`) if you don't want the previous results to be overwritten. 
 
