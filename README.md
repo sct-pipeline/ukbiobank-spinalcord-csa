@@ -188,8 +188,6 @@ After all corrections are done, you can generate a QC report by adding the flag 
 #### 3. Vertebral labeling
 Note that manual labeling uses SCT and the QC report is generated automatically.
 
-**TODO: add video here**
-
 Run the following line and specify the .yml list for vertebral labeling with the flag `-config`:
 ~~~
 uk_manual_correction -config <.yml file> -path-in ~/ukbiobank_results/data_processed -path-out <PATH_DATA>
