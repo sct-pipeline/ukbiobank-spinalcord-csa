@@ -16,19 +16,16 @@ Measure of the averaged cross-sectional area (CSA) between C2 and C3 of the spin
 - - -
 ## Data collection and organization
 ### Uk Biobank database
-The brain MRI data of UK biobank follows the DICOM convention. The spinal cord of the processed brain MRI images is cut off. Because the purpose of this project is to measure the CSA between C2 and C3 of the spinal cord, the raw MRI images for T1w structural images and for T2w FLAIR are used as an input of the pipeline:
- * `T1_orig_defaced.nii.gz`
- * `T2_FLAIR_orig_defaced.nii.gz`
+The brain MRI data of UK biobank follows the DICOM convention. The spinal cord of the processed brain MRI images is cut off. Because the purpose of this project is to measure the CSA between C2 and C3 of the spinal cord, the raw MRI images for T1w structural images `T1_orig_defaced.nii.gz` are used as an input of the pipeline.
 
-The raw images have gradient distortion, correction will be applied in the preprocessing steps of the analysis pipeline. 
+The raw images present gradient nonlinearities, correction will be applied in the preprocessing steps of the analysis pipeline. 
 
 The DICOM dataset is under: `duke:mri/uk_biobank`
 ### Data conversion: DICOM to BIDS
 For this project, a BIDS standard dataset is used. A conversion of DICOM to BIDS is necessary for the UK Biobank dataset. 
 The data from the DICOM dataset in the BIDS standard for this project have the following correspondance for each subjects:
  * `T1_orig_defaced.nii.gz` in the BIDS standard is `sub-XXXXXXX_T1w.nii.gz`
- * `T2_FLAIR_orig_defaced.nii.gz` in the BIDS standard is`sub-XXXXXXX_T2w.nii.gz`
- 
+
 To convert the DICOM dataset in a BIDS structure for this project, run the following line:
 ~~~
 curate_project.py -path-in <path_DICOM_dataset> -path-output <path_BIDS_dataset>
@@ -76,9 +73,6 @@ uk-biobank-processed
 #### T1-weighted structural imaging
     Resolution: 1x1x1 mm
     Field-of-view: 208x256x256 matrix
-#### T2-weighted FLAIR structural imaging
-    Resolution: 1.05x1x1 mm
-    Field-of-view: 192x256x256 matrix
 - - -
 ## Analysis pipeline
 This repository includes a collection of scripts to analyse a BIDS-structured MRI dataset.
@@ -158,7 +152,7 @@ If segmentation or labeling issues are noticed while checking the quality report
 ~~~
 FILES_SEG:
 - sub-1000032_T1w.nii.gz
-- sub-1000083_T2w.nii.gz
+- sub-1000083_T1w.nii.gz
 ~~~
 *.yml list for correcting vertebral labeling:*
 ~~~
