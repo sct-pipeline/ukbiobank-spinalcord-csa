@@ -70,9 +70,8 @@
 - sub-1123856_T1w.nii.gz  # Motion artefact
 - sub-1125665_T1w.nii.gz  # Motion artefact
 - sub-1127471_T1w.nii.gz  # Motion artefact + poor data quality
-- sub-1132109_T1w.nii.gz  # Poor data quality
 - sub-1132220_T1w.nii.gz  # Motion artefact
-- sub-1133024_T1w.nii.gz  # Poor data quality
+- sub-1133024_T1w.nii.gz  # Poor data quality + motion
 - sub-1133658_T1w.nii.gz  # Motion artefact
 - sub-1136053_T1w.nii.gz  # Motion artefact + poor data quality
 - sub-1139207_T1w.nii.gz  # Poor data quality + FOV cuts just below C2-3
