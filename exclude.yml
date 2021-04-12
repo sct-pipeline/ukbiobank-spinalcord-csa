@@ -51,10 +51,12 @@
 - sub-1047654_T2w.nii.gz  # Shading at C2-C3, don't see SC + disc
 - sub-1048407_T1w.nii.gz  # Poor data quality
 - sub-1048812_T1w.nii.gz  # Motion artefact
+- sub-1052980_T1w.nii.gz  # Poor data quality
 - sub-1052029_T1w.nii.gz  # FOV cuts C2-C3 disc
 - sub-1059011_T1w.nii.gz  # Motion artefact
 - sub-1067736_T1w.nii.gz  # Motion artefact
 - sub-1070818_T1w.nii.gz  # Motion artefact + poor data quality
+- sub-1077193_T1w.nii.gz  # Poor data quality + FOV cuts just below C2-3
 - sub-1078395_T1w.nii.gz  # Motion artefact
 - sub-1080952_T1w.nii.gz  # Motion artefact
 - sub-1081070_T1w.nii.gz  # Motion artefact
@@ -69,6 +71,7 @@
 - sub-1125665_T1w.nii.gz  # Motion artefact
 - sub-1127471_T1w.nii.gz  # Motion artefact + poor data quality
 - sub-1132220_T1w.nii.gz  # Motion artefact
+- sub-1133024_T1w.nii.gz  # Poor data quality + motion
 - sub-1133658_T1w.nii.gz  # Motion artefact
 - sub-1136053_T1w.nii.gz  # Motion artefact + poor data quality
 - sub-1139207_T1w.nii.gz  # Poor data quality + FOV cuts just below C2-3
@@ -76,3 +79,4 @@
 - sub-1139906_T1w.nii.gz  # Poor data quality just bellow C2-3
 - sub-1140969_T1w.nii.gz  # Poor data quality at C2-3 disc
 - sub-1141536_T1w.nii.gz  # FOV cuts C2-C3 disc
+- sub-1117152_T1w.nii.gz  # FOV cuts just below C2-3 + image tilted
