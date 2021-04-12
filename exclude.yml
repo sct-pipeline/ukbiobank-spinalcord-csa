@@ -62,7 +62,6 @@
 - sub-1081070_T1w.nii.gz  # Motion artefact
 - sub-1091250_T1w.nii.gz  # FOV cuts C2-C3 disc
 - sub-1094289_T1w.nii.gz  # FOV cuts C2-C3 disc
-- sub-1097741_T1w.nii.gz  # Poor data quality at C2-3
 - sub-1098459_T1w.nii.gz  # FOV cuts C2-C3 disc
 - sub-1102439_T1w.nii.gz  # Motion artefact  
 - sub-1113753_T1w.nii.gz  # Motion artefact
