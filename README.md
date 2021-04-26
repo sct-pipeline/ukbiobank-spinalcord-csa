@@ -87,7 +87,7 @@ This repository includes a collection of scripts to analyse a BIDS-structured MR
 MANDATORY:
 
 * [SCT 5.3.0](https://github.com/neuropoly/spinalcordtoolbox/releases/tag/5.3.0) for processing
-* [gradunwrap v1.2.0](https://github.com/Washington-University/gradunwarp/tree/v1.2.0) for gradient correction
+* [gradunwarp](gradunwarp_installation.md) for gradient correction
 * [ANTs](https://github.com/ANTsX/ANTs/wiki/Compiling-ANTs-on-Linux-and-Mac-OS) for processing
 * Python 3.7  for statistical analysis
 
@@ -111,7 +111,7 @@ cd ukbiobank-spinalcord-csa
 pip install -e ./
 ~~~
 #### Note on gradient distortion correction
-A `coeff.grad` associated with the MRI scanner used for the data is necessary if it has not been applied yet. In this project, the gradient distortion correction is done in `preprocess_data.sh` with [gradunwrap v1.2.0](https://github.com/Washington-University/gradunwarp/tree/v1.2.0) and Siemens `coeff.grad` file.
+A `coeff.grad` associated with the MRI scanner used for the data is necessary if it has not been applied yet. In this project, the gradient distortion correction is done in `preprocess_data.sh` with `gradunwarp` and Siemens `coeff.grad` file.
 - - -
 ### Preprocessing
 Preprocessing generates a dataset with gradient distortion correction. 
