@@ -151,7 +151,7 @@ If segmentation or labeling issues are noticed while checking the quality report
 
 1. In QC report, search for "deepseg" to only display results of spinal cord segmentation, search for "vertebrae" to only display vertebral labeling.
 2. Review segmentation and spinal cord labeling, note that the segmentation et vertebral labeling need to be accurate only between C2-C3, for cord CSA. 
-3. Click on the `F` key to indicate if the segmentation/label is OK ✅, needs manual correction ❌ or if the data is not usable ⚠️. 
+3. Click on the `F` key to indicate if the segmentation/label is OK ✅, needs manual correction ❌ or if the data is not usable ⚠️ (artifact). Two .yml lists, one for manual corrections and one for the unusable data, will automatically be generated. 
 4. Download the lists by clicking on `Download QC Fails` and on `Download Qc Artifacts`. 
 
 ***Note: Proceed to QC seperatly for cord segmentation and vertebral labeling to generate 2 seperate lists.***
