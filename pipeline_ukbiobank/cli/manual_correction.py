@@ -152,6 +152,18 @@ def create_json(fname_nifti, name_rater):
         json.dump(metadata, outfile, indent=4)
 
 
+def curate_dict_yml(dict_yml):
+    """
+    Curate dict_yml to only have filenames instead of absolute path
+    :param dict_yml: dict: input yml file as dict
+    :return: dict_yml_curate
+    """
+    dict_yml_curate = {}
+    for task, files in dict_yml.items():
+        dict_yml_curate[task] = [os.path.basename(file) for file in files]
+    return dict_yml_curate
+
+
 def main():
 
     # Parse the command line arguments
@@ -176,6 +188,9 @@ def main():
             dict_yml = yaml.safe_load(stream)
         except yaml.YAMLError as exc:
             print(exc)
+    
+    # Curate dict_yml to only have filenames intead of absolute path
+    dict_yml = curate_dict_yml(dict_yml)
 
     # check for missing files before starting the whole process
     utils.check_files_exist(dict_yml, args.path_in)
