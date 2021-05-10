@@ -154,7 +154,7 @@ def create_json(fname_nifti, name_rater):
 
 def curate_dict_yml(dict_yml):
     """
-    Curate the dict_yml to only have the filenames intead of absolute path
+    Curate dict_yml to only have filenames intead of absolute path
     :param dict_yml: dict: input yml file as dict
     :return: dict_yml_curate
     """
@@ -189,7 +189,7 @@ def main():
         except yaml.YAMLError as exc:
             print(exc)
     
-    # Curate the dict_yml to only have the filenames intead of absolute path
+    # Curate dict_yml to only have filenames intead of absolute path
     dict_yml = curate_dict_yml(dict_yml)
 
     # check for missing files before starting the whole process
