@@ -154,7 +154,7 @@ def create_json(fname_nifti, name_rater):
 
 def curate_dict_yml(dict_yml):
     """
-    Curate dict_yml to only have filenames intead of absolute path
+    Curate dict_yml to only have filenames instead of absolute path
     :param dict_yml: dict: input yml file as dict
     :return: dict_yml_curate
     """
