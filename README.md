@@ -154,7 +154,7 @@ If segmentation or labeling issues are noticed while checking the quality report
 3. Click on the `F` key to indicate if the segmentation/label is OK ✅, needs manual correction ❌ or if the data is not usable ⚠️ (artifact). Two .yml lists, one for manual corrections and one for the unusable data, will automatically be generated. 
 4. Download the lists by clicking on `Download QC Fails` and on `Download Qc Artifacts`. 
 
-***Note: Proceed to QC seperatly for cord segmentation and vertebral labeling to generate 2 seperate lists.***
+***Note: Proceed to QC separately for cord segmentation and vertebral labeling to generate 2 separate lists.***
 
 The lists will have the following format:
 
