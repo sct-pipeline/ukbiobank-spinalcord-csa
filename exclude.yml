@@ -71,6 +71,7 @@
 - sub-1113753_T1w.nii.gz  # Motion artefact
 - sub-1114977_T1w.nii.gz  # FOV cuts C2-C3 + poor data quality
 - sub-1115141_T1w.nii.gz  # Poor data quality
+- sub-1117152_T1w.nii.gz  # FOV cuts just below C2-3 + image tilted
 - sub-1122338_T1w.nii.gz  # Motion artefact
 - sub-1123856_T1w.nii.gz  # Motion artefact
 - sub-1125665_T1w.nii.gz  # Motion artefact
@@ -86,4 +87,3 @@
 - sub-1139906_T1w.nii.gz  # Poor data quality just bellow C2-3
 - sub-1140969_T1w.nii.gz  # Poor data quality at C2-3 disc
 - sub-1141536_T1w.nii.gz  # FOV cuts C2-C3 disc
-- sub-1117152_T1w.nii.gz  # FOV cuts just below C2-3 + image tilted
