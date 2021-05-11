@@ -31,12 +31,7 @@ def get_parser():
         description="Gets the subjects parameters from participant.tsv and CSA results from process_data.sh and writes them in data_ukbiobank.csv file in <path-output>/results",
         prog=os.path.basename(__file__).strip('.py')
         )
-    parser.add_argument('-path-data',
-                        required=True, 
-                        type=str,
-                        metavar='<dir_path>',
-                        help="Path to the folder that contains the data to be analyzed.")
-    parser.add_argument('-path-output', 
+    parser.add_argument('-path-results', 
                         required=True,
                         type=str,
                         metavar='<dir_path>',
@@ -135,8 +130,8 @@ def main():
     args = parser.parse_args()
 
     # Open participant.tsv --> get data for subjects and selected predictors, create a dataframe.
-    path_data  = os.path.join(args.path_data, args.datafile)
-    raw_data = tsv2dataFrame(path_data)
+    path_results = os.path.join(args.path_results,'results')
+    raw_data = tsv2dataFrame(os.path.join(path_results, args.datafile))
  
     # Initialize an empty dataframe with the predictors as columns
     df = pd.DataFrame(columns = param_dict.values())
@@ -147,8 +142,7 @@ def main():
     # Compute age and add an 'Age' column to df
     df = compute_age(df)
 
-    # Initialize names of csv files of CSA in results file 
-    path_results = os.path.join(args.path_output,'results')
+    # Initialize name of csv file of CSA in results folder 
     path_csa_t1w = os.path.join(path_results,'csa-SC_T1w.csv')
     
     # Set the index of the dataFrame to 'Subject'
