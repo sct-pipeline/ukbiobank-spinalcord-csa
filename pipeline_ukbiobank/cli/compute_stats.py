@@ -492,9 +492,13 @@ def remove_subjects(df, dict_exclude_subj):
     subjects_removed = df.loc[pd.isnull(df).any(1), :].index.values
     # Remove all subjects passed from the exclude list
     for sub in dict_exclude_subj:
-        sub_id = int(sub[4:])
-        df = df.drop(index = sub_id)
-        subjects_removed = np.append(subjects_removed, sub_id) # add subject to excluded list
+        # Check if contrast is T1w
+        if sub[-10:-7]=='T1w':
+            sub_id = (sub[:-11])
+            # Check if the subjects is in the dataframe
+            if sub_id in df.index:
+                df = df.drop(index = sub_id)
+                subjects_removed = np.append(subjects_removed, sub_id) # add subject to excluded list
     df_updated = df.dropna(0,how = 'any').reset_index(drop=True) # Drops all subjects missing a parameter
     logger.info("Subjects removed: {}".format(subjects_removed))
     return df_updated
