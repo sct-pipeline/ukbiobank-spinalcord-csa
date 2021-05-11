@@ -82,7 +82,7 @@ def get_csa(csa_filename):
     sc_data = csv2dataFrame(csa_filename)
     csa = pd.DataFrame(sc_data[['Filename','MEAN(area)']]).rename(columns={'Filename':'Subject'})
     # Add a columns with subjects eid from Filename column
-    csa.loc[:, 'Subject'] = csa['Subject'].str.slice(-39, -32).astype(int)
+    csa.loc[:, 'Subject'] = csa['Subject'].str.slice(-43, -32)
     # Set index to subject eid
     csa = csa.set_index('Subject')
     return csa
