@@ -75,34 +75,30 @@ def get_parser():
 
 def compute_statistics(df):
     """
-    Computes statistics such as mean, std, COV, etc. of CSA values per contrast type (T1w and T2w)
+    Computes statistics such as mean, std, COV, etc. of CSA values
     Args:
         df (panda.DataFrame): dataframe of all parameters and CSA values
     Returns:
         stats_df (panda.DataFrame): statistics of CSA per contrast type
     """
-    contrasts = ['T1w_CSA', 'T2w_CSA']
+    contrast = ['T1w_CSA']
     metrics = ['n','mean','std','med','95ci', 'COV', 'max', 'min', 'normality_test_p']
     stats = {}
-    # Intitialize stats dictionnary for each metric and contrast
-    for contrast in contrasts:
-        stats[contrast] = {}
-        for metric in metrics:
-            stats[contrast][metric] = {}
+    for metric in metrics:
+        stats[metric] = {}
     # Computes the metrics
-    for contrast in contrasts:
-        stats[contrast]['n'] = len(df[contrast])
-        stats[contrast]['mean'] = np.mean(df[contrast])
-        stats[contrast]['std'] = np.std(df[contrast])
-        stats[contrast]['med']= np.median(df[contrast])
-        stats[contrast]['95ci']= 1.96*np.std(df[contrast])/np.sqrt(len(df[contrast]))
-        stats[contrast]['COV'] = np.std(df[contrast]) / np.mean(df[contrast])
-        stats[contrast]['max'] = np.max(df[contrast])
-        stats[contrast]['min'] = np.min(df[contrast])
-        # Validate normality of CSA with Shapiro-wilik test
-        stats[contrast]['normality_test_p'] = scipy.stats.shapiro(df[contrast])[1]
-        # Writes a text with CSA stats
-        output_text_CSA_stats(stats[contrast], contrast)
+    stats['n'] = len(df[contrast])
+    stats['mean'] = np.mean(df[contrast])
+    stats['std'] = np.std(df[contrast])
+    stats['med']= np.median(df[contrast])
+    stats['95ci']= 1.96*np.std(df[contrast])/np.sqrt(len(df[contrast]))
+    stats['COV'] = np.std(df[contrast]) / np.mean(df[contrast])
+    stats['max'] = np.max(df[contrast])
+    stats['min'] = np.min(df[contrast])
+    # Validate normality of CSA with Shapiro-wilik test
+    stats['normality_test_p'] = scipy.stats.shapiro(df[contrast])[1]
+    # Writes a text with CSA stats
+    output_text_CSA_stats(stats, contrast)
     
     # Convert dict to DataFrame
     stats_df = pd.DataFrame.from_dict(stats)
@@ -562,7 +558,7 @@ def main():
     # Initialize path of statistical results 
     path_metrics, path_model = init_path_results()
 
-    # Compute stats for T1w CSA and T2w CSA
+    # Compute stats for T1w CSA
     stats_csa = compute_statistics(df)
     # Format and save CSA stats as a .png and .csv file
     metric_csa_filename = os.path.join(path_metrics, 'stats_csa')
@@ -582,15 +578,13 @@ def main():
     save_table(corr_table, corr_filename)
 
     # Stepwise linear regression and complete linear regression
-    x = df.drop(columns = ['T1w_CSA', 'T2w_CSA']) # Initialize x to data of predictors
+    x = df.drop(columns = ['T1w_CSA']) # Initialize x to data of predictors
     y_T1w = df['T1w_CSA']
-    y_T2w = df['T2w_CSA']
     # P_values for forward and backward stepwise
     p_in = 0.2 # To change to p_in = 0.01 (p_in<p_out)
     p_out = 0.3 # To change to p_ou = 0.05
     # Computes linear regression with all predictors and stepwise, compares, analyses and saves results
     compute_regression_csa(x, y_T1w, p_in, p_out, "T1w_CSA", path_model)
-    compute_regression_csa(x, y_T2w, p_in, p_out, 'T2w_CSA', path_model)
 
 if __name__ == '__main__':
     main()
