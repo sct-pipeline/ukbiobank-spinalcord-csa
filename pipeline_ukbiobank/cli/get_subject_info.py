@@ -150,18 +150,15 @@ def main():
     # Initialize names of csv files of CSA in results file 
     path_results = os.path.join(args.path_output,'results')
     path_csa_t1w = os.path.join(path_results,'csa-SC_T1w.csv')
-    path_csa_t2w = os.path.join(path_results,'csa-SC_T2w.csv')
     
     # Set the index of the dataFrame to 'Subject'
     df = df.set_index('Subject')
 
-    # Get csa values for T1w and T2w
+    # Get csa values for T1w
     csa_t1w = get_csa(path_csa_t1w)
-    csa_t2w = get_csa(path_csa_t2w)
 
-    # Add column to dataFrame of CSA values for T1w and T2w for each subject
+    # Add column to dataFrame of CSA values for T1w for each subject
     append_csa_to_df(df, csa_t1w, 'T1w_CSA')
-    append_csa_to_df(df, csa_t2w, 'T2w_CSA')
 
     # Write a .csv file in <path_results/results> folder
     filename = 'data_ukbiobank.csv'
