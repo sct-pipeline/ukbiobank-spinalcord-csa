@@ -81,25 +81,26 @@ def compute_statistics(df):
     Returns:
         stats_df (panda.DataFrame): statistics of CSA per contrast type
     """
-    contrast = ['T1w_CSA']
+    contrast = 'T1w_CSA'
     metrics = ['n','mean','std','med','95ci', 'COV', 'max', 'min', 'normality_test_p']
     stats = {}
+    stats[contrast] = {}
     for metric in metrics:
-        stats[metric] = {}
+        stats[contrast][metric] = {}
     # Computes the metrics
-    stats['n'] = len(df[contrast])
-    stats['mean'] = np.mean(df[contrast])
-    stats['std'] = np.std(df[contrast])
-    stats['med']= np.median(df[contrast])
-    stats['95ci']= 1.96*np.std(df[contrast])/np.sqrt(len(df[contrast]))
-    stats['COV'] = np.std(df[contrast]) / np.mean(df[contrast])
-    stats['max'] = np.max(df[contrast])
-    stats['min'] = np.min(df[contrast])
+    stats[contrast]['n'] = len(df[contrast])
+    stats[contrast]['mean'] = np.mean(df[contrast])
+    stats[contrast]['std'] = np.std(df[contrast])
+    stats[contrast]['med']= np.median(df[contrast])
+    stats[contrast]['95ci']= 1.96*np.std(df[contrast])/np.sqrt(len(df[contrast]))
+    stats[contrast]['COV'] = np.std(df[contrast]) / np.mean(df[contrast])
+    stats[contrast]['max'] = np.max(df[contrast])
+    stats[contrast]['min'] = np.min(df[contrast])
     # Validate normality of CSA with Shapiro-wilik test
-    stats['normality_test_p'] = scipy.stats.shapiro(df[contrast])[1]
+    stats[contrast]['normality_test_p'] = scipy.stats.shapiro(df[contrast])[1]
     # Writes a text with CSA stats
     output_text_CSA_stats(stats, contrast)
-    
+
     # Convert dict to DataFrame
     stats_df = pd.DataFrame.from_dict(stats)
     return stats_df
@@ -112,11 +113,11 @@ def output_text_CSA_stats(stats, contrast):
         stats (dict): dictionnary with stats of the predictors for one contrast
     """
     logger.info('Statistics of {}:'.format(contrast))
-    logger.info('   There are {} subjects included in the analysis.'.format(stats['n']))
-    logger.info('   CSA values are between {:.6} and {:.6} mm^2'.format(stats['min'], stats['max']))
-    logger.info('   Mean CSA is {:.6} mm^2, standard deviation CSA is of {:.6}, median value is of {:.6} mm^2.'.format(stats['mean'], stats['std'], stats['med']))
-    logger.info('   The COV is of {:.6} and 95 confidence interval is {:.6}.'.format(stats['COV'], stats['95ci']))
-    logger.info('   The results of Shapiro-wilik test has a p-value of {:.6}.'.format(stats['normality_test_p']))
+    logger.info('   There are {} subjects included in the analysis.'.format(stats[contrast]['n']))
+    logger.info('   CSA values are between {:.6} and {:.6} mm^2'.format(stats[contrast]['min'], stats[contrast]['max']))
+    logger.info('   Mean CSA is {:.6} mm^2, standard deviation CSA is of {:.6}, median value is of {:.6} mm^2.'.format(stats[contrast]['mean'], stats[contrast]['std'], stats[contrast]['med']))
+    logger.info('   The COV is of {:.6} and 95 confidence interval is {:.6}.'.format(stats[contrast]['COV'], stats[contrast]['95ci']))
+    logger.info('   The results of Shapiro-wilik test has a p-value of {:.6}.'.format(stats[contrast]['normality_test_p']))
 
 
 def compute_predictors_statistic(df):
