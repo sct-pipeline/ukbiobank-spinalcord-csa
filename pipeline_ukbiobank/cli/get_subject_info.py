@@ -39,7 +39,7 @@ def get_parser():
     parser.add_argument('-datafile',
                         required=False,
                         type=str,
-                        default='participant.tsv', 
+                        default='participants.tsv', 
                         metavar='<filename>',
                         help="Name of the tsv file of the ukbiobank raw data. Default: participant.tsv")
     return parser
