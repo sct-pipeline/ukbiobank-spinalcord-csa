@@ -102,6 +102,9 @@ def main():
             dict_yml = yaml.safe_load(stream)
         except yaml.YAMLError as exc:
             print(exc)
+    
+    # Curate dict_yml to only have filenames instead of absolute path
+    dict_yml = utils.curate_dict_yml(dict_yml)
 
     # Check for missing files before starting the whole process
     utils.check_files_exist(dict_yml, args.path_in)
