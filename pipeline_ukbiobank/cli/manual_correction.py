@@ -152,18 +152,6 @@ def create_json(fname_nifti, name_rater):
         json.dump(metadata, outfile, indent=4)
 
 
-def curate_dict_yml(dict_yml):
-    """
-    Curate dict_yml to only have filenames instead of absolute path
-    :param dict_yml: dict: input yml file as dict
-    :return: dict_yml_curate
-    """
-    dict_yml_curate = {}
-    for task, files in dict_yml.items():
-        dict_yml_curate[task] = [os.path.basename(file) for file in files]
-    return dict_yml_curate
-
-
 def main():
 
     # Parse the command line arguments
