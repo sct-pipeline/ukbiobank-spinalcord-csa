@@ -2,27 +2,32 @@
 # -*- coding: utf-8
 # Script to get the predictors and CSA for all subjects of the ukbiobank project
 #
-# For usage, type: get_subject_info -h
+# For usage, type: uk_get_subject_info -h
 # Author: Sandrine Bédard
 
 import os
 import argparse
-import csv
-import json
+import csv # To remove
+import json # To remove
 import pandas as pd
-import numpy as np
-from datetime import date
+import numpy as np # TO remove
+from datetime import date # To remove
 
 # Dictionary of the predictors and field number correspondance
 param_dict = {
         'eid':'Subject',
         '31-0.0':'Sex',
-        '52-0.0':'Month of birth',
-        '34-0.0':'Year of birth',
+        '21003-2.0':'Age',
         '12144-2.0':'Height',
         '21002-2.0':'Weight',
-        '25010-2.0':'Intracranial volume',
-        '53-2.0': 'Date'
+        '25000-2.0':'Vscale',
+        '25004-2.0':'Volume ventricular CSF',
+        '25006-2.0':'GM volume',
+        '25008-2.0':'WM volume',
+        '25009-2.0':'Total brain volume norm',
+        '25010-2.0':'Total brain volume',
+        '25011-2.0':'Volume of thalamus (L)',
+        '25012-2.0':'Volume of thalamus (R)'
     }
 
 
@@ -88,27 +93,6 @@ def get_csa(csa_filename):
     return csa
 
 
-def compute_age(df):
-    """
-    With the birth month and year of each subjects, computes age of the subjects at 2nd assessment
-    Args:
-        df (pd.dataFrame): dataframe of parameters for ukbiobank project
-    Returns:
-        df (pd.dataFrame): modified dataFrame with age
-    """
-    # Sperate year, month and day of 2nd assessment date
-    df[['Year', 'Month', 'Day']] = (df['Date'].str.split('-', expand=True)).astype(int)
-    # If the birth month is passed the 2nd assessment month, the age is this 2nd assessment year minus the birth year
-    df.loc[df['Month of birth']<= df['Month'], 'Age'] = df['Year']- df['Year of birth']
-    # If the birth month is not passed, the age is the 2nd assessment minus the birth year minus 1
-    df.loc[df['Month of birth']> df['Month'], 'Age'] = df['Year'] - df['Year of birth'] -1
-    # Delete the columns used to compute age
-    df =  df.drop(columns = ['Year of birth', 'Month of birth', 'Year', 'Date', 'Month', 'Day'])
-    # Format age as integer
-    df['Age'] = df['Age'].astype(int)
-    return df
-
-
 def append_csa_to_df(df, csa, column_name):
     """
     Adds CSA values to dataframe for each subjects.
@@ -131,7 +115,12 @@ def main():
 
     # Open participant.tsv --> get data for subjects and selected predictors, create a dataframe.
     path_results = os.path.join(args.path_results,'results')
-    raw_data = tsv2dataFrame(os.path.join(path_results, args.datafile))
+    
+    path_datafile = os.path.join(path_results, args.datafile)
+    if os.path.splitext(path_datafile)[1]=='.tsv':
+        raw_data = tsv2dataFrame(path_datafile)
+    elif os.path.splitext(path_datafile)[1]=='.csv':
+        raw_data = csv2dataFrame(path_datafile)
  
     # Initialize an empty dataframe with the predictors as columns
     df = pd.DataFrame(columns = param_dict.values())
@@ -140,7 +129,7 @@ def main():
         df[param] = raw_data[key]
     
     # Compute age and add an 'Age' column to df
-    df = compute_age(df)
+    #df = compute_age(df)
 
     # Initialize name of csv file of CSA in results folder 
     path_csa_t1w = os.path.join(path_results,'csa-SC_T1w.csv')
@@ -153,7 +142,7 @@ def main():
 
     # Add column to dataFrame of CSA values for T1w for each subject
     append_csa_to_df(df, csa_t1w, 'T1w_CSA')
-
+    print(df['Age'])
     # Write a .csv file in <path_results/results> folder
     filename = 'data_ukbiobank.csv'
     df.to_csv(os.path.join(path_results,filename))
