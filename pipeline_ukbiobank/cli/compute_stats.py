@@ -280,7 +280,7 @@ def compute_stepwise(x, y, threshold_in, threshold_out):
         y (panda.DataFrame): Candidate predictors with target
         threshold_in: include a predictor if its p-value < threshold_in
         threshold_out: exclude a predictor if its p-value > threshold_out
-        ** threshold_in < threshold_out
+        ** threshold_in > threshold_out
     Returns:
         included: list of selected predictor
     
@@ -582,8 +582,8 @@ def main():
     x = df.drop(columns = ['T1w_CSA']) # Initialize x to data of predictors
     y_T1w = df['T1w_CSA']
     # P_values for forward and backward stepwise
-    p_in = 0.05 # (p_in<p_out)
-    p_out = 0.1
+    p_in = 0.1 # (p_in > p_out)
+    p_out = 0.05
     # Computes linear regression with all predictors and stepwise, compares, analyses and saves results
     compute_regression_csa(x, y_T1w, p_in, p_out, "T1w_CSA", path_model)
 
