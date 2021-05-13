@@ -29,7 +29,7 @@ logger.setLevel(logging.INFO)  # default: logging.DEBUG, logging.INFO
 hdlr = logging.StreamHandler(sys.stdout)
 logging.root.addHandler(hdlr)
 
-PREDICTORS = ['Sex', 'Height', 'Weight', 'Intracranial volume', 'Age'] # Add units of each
+PREDICTORS = ['Sex', 'Height', 'Weight', 'Intracranial volume', 'Age', 'Vscale', 'Volume ventricular CSF', 'GM volume', 'WM volume', 'Total brain volume norm', 'Total brain volume', 'Volume of thalamus (L)', 'Volume of thalamus (R)'] # Add units of each
 
 
 class SmartFormatter(argparse.HelpFormatter):
@@ -144,13 +144,13 @@ def compute_predictors_statistic(df):
     stats['Sex']['%_M'] = 100*(np.count_nonzero(df['Sex']) / len(df['Sex']))
     stats['Sex']['%_F'] = 100 - stats['Sex']['%_M']
     # Writes statistics of predictor into a text
-    output_text_stats(stats)
+    # output_text_stats(stats) ---> uncomment when updated
     stats_df =pd.DataFrame.from_dict(stats) # Converts dict to dataFrame
 
     return stats_df
 
 
-def output_text_stats(stats):
+def output_text_stats(stats): # TODO : add other parameters
     """
     Embed statistical results of predictors into sentences so they can easily be copy/pasted into a manuscript.
     Args: 
@@ -174,11 +174,7 @@ def output_text_stats(stats):
                                                                             stats['Age']['max'],
                                                                             stats['Age']['med'],
                                                                             stats['Age']['mean']))
-    logger.info('Intracranial Volume statistic:')
-    logger.info('   Intracranial volume between {} and {} mm^3, median intracranial volume {} mm^3, mean intracranial volume {} mm^3.'.format(stats['Intracranial volume']['min'],
-                                                                            stats['Intracranial volume']['max'],
-                                                                            stats['Intracranial volume']['med'],
-                                                                            stats['Intracranial volume']['mean']))
+    
 
 
 def config_table(table, filename): 
