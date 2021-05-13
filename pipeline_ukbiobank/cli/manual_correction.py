@@ -89,6 +89,7 @@ def get_parser():
 
     return parser
 
+
 def get_function(task):
     if task == 'FILES_SEG':
         return 'sct_deepseg_sc'
