@@ -29,7 +29,7 @@ logger.setLevel(logging.INFO)  # default: logging.DEBUG, logging.INFO
 hdlr = logging.StreamHandler(sys.stdout)
 logging.root.addHandler(hdlr)
 
-PREDICTORS = ['Sex', 'Height', 'Weight', 'Intracranial volume', 'Age', 'Vscale', 'Volume ventricular CSF', 'GM volume', 'WM volume', 'Total brain volume norm', 'Total brain volume', 'Volume of thalamus (L)', 'Volume of thalamus (R)'] # Add units of each
+PREDICTORS = ['Sex', 'Height', 'Weight', 'Age', 'Vscale', 'Volume ventricular CSF', 'GM volume', 'WM volume', 'Total brain volume norm', 'Total brain volume', 'Volume of thalamus (L)', 'Volume of thalamus (R)'] # Add units of each
 
 
 class SmartFormatter(argparse.HelpFormatter):
@@ -496,7 +496,7 @@ def remove_subjects(df, dict_exclude_subj):
                 df = df.drop(index = sub_id)
                 subjects_removed = np.append(subjects_removed, sub_id) # add subject to excluded list
     df_updated = df.dropna(0,how = 'any').reset_index(drop=True) # Drops all subjects missing a parameter
-    logger.info("Subjects removed: {}".format(subjects_removed))
+    logger.info("{} Subjects removed : {}".format(len(subjects_removed),subjects_removed))
     return df_updated
 
 
@@ -582,8 +582,8 @@ def main():
     x = df.drop(columns = ['T1w_CSA']) # Initialize x to data of predictors
     y_T1w = df['T1w_CSA']
     # P_values for forward and backward stepwise
-    p_in = 0.2 # To change to p_in = 0.01 (p_in<p_out)
-    p_out = 0.3 # To change to p_ou = 0.05
+    p_in = 0.05 # (p_in<p_out)
+    p_out = 0.1
     # Computes linear regression with all predictors and stepwise, compares, analyses and saves results
     compute_regression_csa(x, y_T1w, p_in, p_out, "T1w_CSA", path_model)
 
