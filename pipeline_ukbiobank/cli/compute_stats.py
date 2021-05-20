@@ -144,7 +144,7 @@ def compute_predictors_statistic(df):
     stats['Sex']['%_M'] = 100*(np.count_nonzero(df['Sex']) / len(df['Sex']))
     stats['Sex']['%_F'] = 100 - stats['Sex']['%_M']
     # Writes statistics of predictor into a text
-    # output_text_stats(stats) ---> uncomment when updated
+    # output_text_stats(stats) ---> TODO: uncomment when updated
     stats_df =pd.DataFrame.from_dict(stats) # Converts dict to dataFrame
 
     return stats_df
@@ -175,7 +175,6 @@ def output_text_stats(stats): # TODO : add other parameters
                                                                             stats['Age']['med'],
                                                                             stats['Age']['mean']))
     
-
 
 def config_table(table, filename): 
     """
@@ -217,6 +216,19 @@ def config_table(table, filename):
     logger.info('Created: ' + filename)
 
 
+def scatter_plot(x,y, filename, path):
+    plt.figure()
+    sns.regplot(x=x, y=y, line_kws={"color": "crimson"})
+    #plt.scatter(x, y)
+    #m, b = np.polyfit(x, y, 1)
+    #plt.plot(x, m*x+b, 'b', label='y = {:.2f} + {:.2f}*x'.format(b, m))
+    plt.legend()
+    plt.ylabel('CSA (mm^2)')
+    plt.xlabel(filename)
+    plt.title('Scatter Plot - CSA '+ filename)
+    plt.savefig(os.path.join(path,filename +'.png'))
+
+
 def df_to_csv(df, filename):
     """
     Saves a Dataframe as a .csv file.
@@ -247,7 +259,7 @@ def get_correlation_table(df) :
     Returns:
         corr_table (panda.DataFrame): correlation matrix of df
     """
-    corr_table = df.corr()
+    corr_table = df.corr(method='pearson')
     return corr_table
 
 
@@ -578,9 +590,18 @@ def main():
     # Saves an .png and .csv file of the correlation matrix in the results folder
     save_table(corr_table, corr_filename)
 
+
     # Stepwise linear regression and complete linear regression
     x = df.drop(columns = ['T1w_CSA']) # Initialize x to data of predictors
     y_T1w = df['T1w_CSA']
+
+    # Genereate scatter plot for all predictors and CSA values
+    path_scatter_plots = os.path.join(path_metrics,'scatter_plots')
+    if not os.path.exists(path_scatter_plots):
+        os.mkdir(path_scatter_plots)
+    for column, data in x.iteritems():
+        scatter_plot(data, y_T1w, column, path_scatter_plots)
+
     # P_values for forward and backward stepwise
     p_in = 0.1 # (p_in > p_out)
     p_out = 0.05
