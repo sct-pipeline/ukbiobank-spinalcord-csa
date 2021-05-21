@@ -29,7 +29,7 @@ logger.setLevel(logging.INFO)  # default: logging.DEBUG, logging.INFO
 hdlr = logging.StreamHandler(sys.stdout)
 logging.root.addHandler(hdlr)
 
-PREDICTORS = ['Sex', 'Height', 'Weight', 'Age', 'Vscale', 'Volume ventricular CSF', 'GM volume', 'WM volume', 'Total brain volume norm', 'Total brain volume', 'Volume of thalamus (L)', 'Volume of thalamus (R)'] # Add units of each
+PREDICTORS = ['Gender', 'Height', 'Weight', 'Age', 'Vscale', 'Volume ventricular CSF', 'GM volume', 'WM volume', 'Total brain volume norm', 'Total brain volume', 'Volume of thalamus (L)', 'Volume of thalamus (R)'] # Add units of each
 
 
 class SmartFormatter(argparse.HelpFormatter):
@@ -140,9 +140,9 @@ def compute_predictors_statistic(df):
         stats[predictor]['med'] = np.median(df[predictor])
         stats[predictor]['mean'] = np.mean(df[predictor])
     # Computes male vs female ratio
-    stats['Sex'] = {}
-    stats['Sex']['%_M'] = 100*(np.count_nonzero(df['Sex']) / len(df['Sex']))
-    stats['Sex']['%_F'] = 100 - stats['Sex']['%_M']
+    stats['Gender'] = {}
+    stats['Gender']['%_M'] = 100*(np.count_nonzero(df['Gender']) / len(df['Gender']))
+    stats['Gender']['%_F'] = 100 - stats['Gender']['%_M']
     # Writes statistics of predictor into a text
     # output_text_stats(stats) ---> TODO: uncomment when updated
     stats_df =pd.DataFrame.from_dict(stats) # Converts dict to dataFrame
@@ -156,9 +156,9 @@ def output_text_stats(stats): # TODO : add other parameters
     Args: 
         stats (dict): dictionnary with stats of the predictors
     """
-    logger.info('Sex statistic:')
-    logger.info('   {:.3} % of male  and {:.3} % of female.'.format(stats['Sex']['%_M'],
-                                                                             stats['Sex']['%_F']))
+    logger.info('Gender statistic:')
+    logger.info('   {:.3} % of male  and {:.3} % of female.'.format(stats['Gender']['%_M'],
+                                                                             stats['Gender']['%_F']))
     logger.info('Height statistic:')
     logger.info('   Height between {} and {} cm, median height {} cm, mean height {} cm.'.format(stats['Height']['min'],
                                                                             stats['Height']['max'],
@@ -255,7 +255,7 @@ def save_table(df_table, filename):
 
 def get_correlation_table(df) :
     """
-    Returns the correlation matrix of a DataFrame.
+    Returns the correlation matrix of a DataFrame using Pearson's correlation coefficient.
     Args:
         df (panda.DataFrame)
     Returns:
@@ -269,11 +269,11 @@ def compare_gender(df):
     """
     Calculate the T-test for the means of two independent samples of scores
     Args:
-
+        df (panda.DataFrame)
     """
-    results_t_test = scipy.stats.ttest_ind(df[df['Sex'] == 0]['T1w_CSA'], df[df['Sex'] == 1]['T1w_CSA'])
-    logger.info("T test  - Male/Female CSA : {}".format(results_t_test))
-    return results_t_test
+    results = scipy.stats.ttest_ind(df[df['Gender'] == 0]['T1w_CSA'], df[df['Gender'] == 1]['T1w_CSA'])
+    logger.info("\nT test  - Male/Female CSA : {} \n".format(results[1]))
+
 
 def generate_linear_model(x, y, selected_predictors):
     """
@@ -595,7 +595,7 @@ def main():
     stats_predictors_filename = os.path.join(path_metrics, 'stats_param')
     save_table(stats_predictors, stats_predictors_filename)   
 
-    # Correlation matrix
+    # Correlation matrix (Pearson's correlation coefficients)
     corr_table = get_correlation_table(df)
     logger.info("Correlation matrix: {}".format(corr_table))
     corr_filename = os.path.join(path_metrics,'corr_table')
@@ -617,8 +617,8 @@ def main():
 
     # Analyse CSA - Age
 
-    # Analyse CSA - Sex
-    rsults_t_test_gender = compare_gender(df)
+    # Analyse CSA - Gender
+    compare_gender(df)
     # P_values for forward and backward stepwise
     p_in = 0.1 # (p_in > p_out)
     p_out = 0.05
