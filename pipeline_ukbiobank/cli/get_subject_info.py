@@ -142,7 +142,6 @@ def main():
 
     # Add column to dataFrame of CSA values for T1w for each subject
     append_csa_to_df(df, csa_t1w, 'T1w_CSA')
-    print(df['Age'])
     # Write a .csv file in <path_results/results> folder
     filename = 'data_ukbiobank.csv'
     df.to_csv(os.path.join(path_results,filename))
