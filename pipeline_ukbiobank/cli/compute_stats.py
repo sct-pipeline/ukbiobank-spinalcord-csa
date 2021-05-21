@@ -217,15 +217,17 @@ def config_table(table, filename):
 
 
 def scatter_plot(x,y, filename, path):
+    """
+    Generate and save a scatter plot of y and x.
+    Args:
+        x (panda.DataFrame): predictor
+        y (panda.DataFrame): CSA values
+    """
     plt.figure()
     sns.regplot(x=x, y=y, line_kws={"color": "crimson"})
-    #plt.scatter(x, y)
-    #m, b = np.polyfit(x, y, 1)
-    #plt.plot(x, m*x+b, 'b', label='y = {:.2f} + {:.2f}*x'.format(b, m))
-    plt.legend()
     plt.ylabel('CSA (mm^2)')
     plt.xlabel(filename)
-    plt.title('Scatter Plot - CSA '+ filename)
+    plt.title('Scatter Plot - CSA /'+ filename) # TODO: change name
     plt.savefig(os.path.join(path,filename +'.png'))
 
 
@@ -262,6 +264,16 @@ def get_correlation_table(df) :
     corr_table = df.corr(method='pearson')
     return corr_table
 
+
+def compare_gender(df):
+    """
+    Calculate the T-test for the means of two independent samples of scores
+    Args:
+
+    """
+    results_t_test = scipy.stats.ttest_ind(df[df['Sex'] == 0]['T1w_CSA'], df[df['Sex'] == 1]['T1w_CSA'])
+    logger.info("T test  - Male/Female CSA : {}".format(results_t_test))
+    return results_t_test
 
 def generate_linear_model(x, y, selected_predictors):
     """
@@ -601,7 +613,12 @@ def main():
         os.mkdir(path_scatter_plots)
     for column, data in x.iteritems():
         scatter_plot(data, y_T1w, column, path_scatter_plots)
+    logger.info("Created Scatter Plots - Saved in {}".format(path_scatter_plots))
 
+    # Analyse CSA - Age
+
+    # Analyse CSA - Sex
+    rsults_t_test_gender = compare_gender(df)
     # P_values for forward and backward stepwise
     p_in = 0.1 # (p_in > p_out)
     p_out = 0.05
