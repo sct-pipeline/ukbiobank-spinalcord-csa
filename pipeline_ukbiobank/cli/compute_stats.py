@@ -31,7 +31,7 @@ logger.setLevel(logging.INFO)  # default: logging.DEBUG, logging.INFO
 hdlr = logging.StreamHandler(sys.stdout)
 logging.root.addHandler(hdlr)
 
-PREDICTORS = ['Gender', 'Height', 'Weight', 'Age', 'Vscale', 'Volume ventricular CSF', 'GM volume', 'WM volume', 'Total brain volume norm', 'Total brain volume', 'Volume of thalamus (L)', 'Volume of thalamus (R)'] # Add units of each
+PREDICTORS = ['Gender', 'Height', 'Weight', 'Age', 'Vscale', 'Volume ventricular CSF', 'Brain GM volume', 'Brain WM volume', 'Total brain volume norm', 'Total brain volume', 'Volume of thalamus (L)', 'Volume of thalamus (R)'] # TODO Add units of each
 
 
 class SmartFormatter(argparse.HelpFormatter):
@@ -215,6 +215,7 @@ def config_table(table, filename):
             edgecolor=fig.get_edgecolor(),
             facecolor=fig.get_facecolor(),
             )
+    plt.close()
     logger.info('Created: ' + filename)
 
 
@@ -231,6 +232,7 @@ def scatter_plot(x,y, filename, path):
     plt.xlabel(filename)
     plt.title('Scatter Plot - CSA /'+ filename) # TODO: change name
     plt.savefig(os.path.join(path,filename +'.png'))
+    plt.close()
 
 
 def df_to_csv(df, filename):
@@ -326,6 +328,7 @@ def generate_quadratic_model(x,y, path, degree=2):
     plt.scatter(x,y)
     plt.plot(x,ypred, 'r')
     plt.savefig(os.path.join(path,'quadratic_fit.png'))
+    plt.close()
 
 
 def compute_stepwise(x, y, threshold_in, threshold_out):
@@ -646,26 +649,23 @@ def main():
         os.mkdir(path_scatter_plots)
     for column, data in x.iteritems():
         scatter_plot(data, y_T1w, column, path_scatter_plots)
-    
-    plt.figure
+    # Create pairwise plot between CSA and preditors seprated for each gender
+    plt.figure()
     sns.pairplot(df, x_vars=PREDICTORS.remove('Gender'), y_vars='T1w_CSA', kind='reg', hue='Gender', palette="Set1")
-    plt.savefig(os.path.join(path_scatter_plots, 'pairwise_plot' +'.png'))              
-    
+    plt.savefig(os.path.join(path_scatter_plots, 'pairwise_plot' +'.png'))
+    plt.close()              
     logger.info("Created Scatter Plots - Saved in {}".format(path_scatter_plots))
 
     # Analyse CSA - Age
-    logger.info("\n---------------------------------------------------------------------")
-    logger.info("CSA and Age:")
+    logger.info("\nCSA and Age:")
     path_model_age = os.path.join(path_model,'age')
     if not os.path.exists(path_scatter_plots):
         os.mkdir(path_model_age)
-    
-    save_model(generate_linear_model(df['Age'], y_T1w), 'linear_fit', path_model_age) 
-    generate_quadratic_model(df['Age'], y_T1w, path_model_age)
+    save_model(generate_linear_model(df['Age'], y_T1w), 'linear_fit', path_model_age) # Linear model
+    generate_quadratic_model(df['Age'], y_T1w, path_model_age) # Quadratic model
 
     # Analyse CSA - Gender
-    logger.info("\n---------------------------------------------------------------------")
-    logger.info("CSA and Gender:")
+    logger.info("\nCSA and Gender:")
     compare_gender(df)
 
     # P_values for forward and backward stepwise
@@ -673,8 +673,7 @@ def main():
     p_out = 0.05
 
     # Computes linear regression with all predictors and stepwise, compares, analyses and saves results
-    logger.info("\n---------------------------------------------------------------------")
-    logger.info("Multivariate model:")
+    logger.info("\nMultivariate model:\n")
     compute_regression_csa(x, y_T1w, p_in, p_out, "T1w_CSA", path_model)
 
 if __name__ == '__main__':
