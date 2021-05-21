@@ -15,9 +15,11 @@ import sys
 import yaml
 import scipy
 import statsmodels.api as sm
+import statsmodels.formula.api as smf
 import seaborn as sns
 import matplotlib.pyplot as plt
 from textwrap import dedent
+from sklearn.preprocessing import PolynomialFeatures
 
 FNAME_LOG = 'log_stats.txt'
 
@@ -112,7 +114,7 @@ def output_text_CSA_stats(stats, contrast):
     Args: 
         stats (dict): dictionnary with stats of the predictors for one contrast
     """
-    logger.info('Statistics of {}:'.format(contrast))
+    logger.info('\nStatistics of {}:'.format(contrast))
     logger.info('   There are {} subjects included in the analysis.'.format(stats[contrast]['n']))
     logger.info('   CSA values are between {:.6} and {:.6} mm^2'.format(stats[contrast]['min'], stats[contrast]['max']))
     logger.info('   Mean CSA is {:.6} mm^2, standard deviation CSA is of {:.6}, median value is of {:.6} mm^2.'.format(stats[contrast]['mean'], stats[contrast]['std'], stats[contrast]['med']))
@@ -272,10 +274,10 @@ def compare_gender(df):
         df (panda.DataFrame)
     """
     results = scipy.stats.ttest_ind(df[df['Gender'] == 0]['T1w_CSA'], df[df['Gender'] == 1]['T1w_CSA'])
-    logger.info("\nT test  - Male/Female CSA : {} \n".format(results[1]))
+    logger.info("\nT test p_value : {} ".format(results[1]))
 
 
-def generate_linear_model(x, y, selected_predictors):
+def generate_linear_model(x, y, selected_predictors=None):
     """
     Computes linear regresion with the selected predictors.
     Args:
@@ -286,13 +288,44 @@ def generate_linear_model(x, y, selected_predictors):
         results (statsmodels.regression.linear_model.RegressionResults object): fitted linear model.
     """
     # Updates x to only have the data of the selected predictors.
-    x = x[selected_predictors] 
+    if selected_predictors:
+        x = x[selected_predictors] 
     # Adds a columns of ones to the original DataFrame.
     x = sm.add_constant(x) 
 
     model = sm.OLS(y, x) # Computes linear regression
     results = model.fit() # Fits model
     return results
+
+
+def generate_quadratic_model(x,y, path, degree=2):
+    """
+    Computes quadratic fit, saves the model and plot.
+    Args:
+        x (panda.DataFrame): Data of the predictors
+        y (panda.DataFrame): Data of CSA
+    """
+    x = np.array(x)
+    y = np.array(y)
+    x= x[:,np.newaxis]
+    y= y[:,np.newaxis]
+    inds = x.ravel().argsort()
+    x = x.ravel()[inds].reshape(-1,1)
+    y = y[inds]
+    polynomial_features= PolynomialFeatures(degree)
+    xp = polynomial_features.fit_transform(x)
+    model = sm.OLS(y, xp).fit()
+    ypred = model.predict(xp)
+    logger.info("F pvalue: {}".format(model.f_pvalue))
+    save_model(model,'quadratic_fit', path)
+    # Scatter plot and quadratic fit
+    plt.figure()
+    plt.title("CSA as function of Age and quadratic fit")
+    plt.xlabel('Age')
+    plt.ylabel('CSA (mm^2)')
+    plt.scatter(x,y)
+    plt.plot(x,ypred, 'r')
+    plt.savefig(os.path.join(path,'quadratic_fit.png'))
 
 
 def compute_stepwise(x, y, threshold_in, threshold_out):
@@ -350,14 +383,14 @@ def save_model(model, model_name, path_model_contrast):
     Args:
         model (statsmodels.regression.linear_model.RegressionResults object):  fited linear model.
         model_name (str): Name of the model
-        path_model_contrast (str): Path of the result folder for this model and constrast  
+        path_model_contrast (str): Path of the result folder for this model and contrast  
     """
     logger.info('Saving {} ...'.format(model_name))
     def save_summary():
         summary_path = os.path.join(path_model_contrast,'summary')
         # Creates if doesn't exist a folder for the model summary
         if not os.path.exists(summary_path):
-            os.mkdir(summary_path)
+            os.makedirs(summary_path)
         summary_filename = os.path.join(summary_path, 'summary_'+ model_name +'.txt')
         # Saves the summary of the model in a .txt file
         with open(summary_filename, 'w') as fh:
@@ -368,10 +401,10 @@ def save_model(model, model_name, path_model_contrast):
         coeff_path = os.path.join(path_model_contrast, 'coeff')
         # Creates a folder for results coeff of the model if doesn't exists
         if not os.path.exists(coeff_path):
-            os.mkdir(coeff_path)
+            os.makedirs(coeff_path)
         coeff_filename = os.path.join(coeff_path ,'coeff_'+ model_name +'.csv')
         # Saves the coefficients of the model in .csv file
-        (model.params).to_csv(coeff_filename, header = None)
+        (pd.DataFrame(model.params)).to_csv(coeff_filename, header = None)
         logger.info('Created: ' + coeff_filename)
 
     save_coeff()
@@ -613,16 +646,35 @@ def main():
         os.mkdir(path_scatter_plots)
     for column, data in x.iteritems():
         scatter_plot(data, y_T1w, column, path_scatter_plots)
+    
+    plt.figure
+    sns.pairplot(df, x_vars=PREDICTORS.remove('Gender'), y_vars='T1w_CSA', kind='reg', hue='Gender', palette="Set1")
+    plt.savefig(os.path.join(path_scatter_plots, 'pairwise_plot' +'.png'))              
+    
     logger.info("Created Scatter Plots - Saved in {}".format(path_scatter_plots))
 
     # Analyse CSA - Age
+    logger.info("\n---------------------------------------------------------------------")
+    logger.info("CSA and Age:")
+    path_model_age = os.path.join(path_model,'age')
+    if not os.path.exists(path_scatter_plots):
+        os.mkdir(path_model_age)
+    
+    save_model(generate_linear_model(df['Age'], y_T1w), 'linear_fit', path_model_age) 
+    generate_quadratic_model(df['Age'], y_T1w, path_model_age)
 
     # Analyse CSA - Gender
+    logger.info("\n---------------------------------------------------------------------")
+    logger.info("CSA and Gender:")
     compare_gender(df)
+
     # P_values for forward and backward stepwise
     p_in = 0.1 # (p_in > p_out)
     p_out = 0.05
+
     # Computes linear regression with all predictors and stepwise, compares, analyses and saves results
+    logger.info("\n---------------------------------------------------------------------")
+    logger.info("Multivariate model:")
     compute_regression_csa(x, y_T1w, p_in, p_out, "T1w_CSA", path_model)
 
 if __name__ == '__main__':
