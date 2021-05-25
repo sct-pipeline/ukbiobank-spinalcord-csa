@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8
-# Computes statistical analysis for ukbiobank project
+# Computes statistical analysis for ukbiobank-spinalcord-csa
 #
 # For usage, type: uk_compute_stats -h
 
@@ -230,7 +230,7 @@ def scatter_plot(x,y, filename, path):
     sns.regplot(x=x, y=y, line_kws={"color": "crimson"})
     plt.ylabel('CSA (mm^2)')
     plt.xlabel(filename)
-    plt.title('Scatter Plot - CSA /'+ filename) # TODO: change name
+    plt.title('Scatter Plot - CSA as function of '+ filename) # TODO: change name
     plt.savefig(os.path.join(path,filename +'.png'))
     plt.close()
 
@@ -269,14 +269,20 @@ def get_correlation_table(df) :
     return corr_table
 
 
-def compare_gender(df):
+def compare_gender(df, path):
     """
-    Calculate the T-test for the means of two independent samples of scores
+    Compute T-test for the means of two independent samples of scores and generates violin plots of CSA for gender.
     Args:
         df (panda.DataFrame)
     """
     results = scipy.stats.ttest_ind(df[df['Gender'] == 0]['T1w_CSA'], df[df['Gender'] == 1]['T1w_CSA'])
-    logger.info("\nT test p_value : {} ".format(results[1]))
+    plt.figure()
+    plt.title("Violin plot of CSA and gender")
+    sns.violinplot(y='T1w_CSA', x='Gender', data=df, palette='flare')
+    fname_fig = os.path.join(path,'violin_plot.png')
+    plt.savefig(fname_fig)
+    logger.info('Created: ' + fname_fig)
+    logger.info("T test p_value : {} ".format(results[1]))
 
 
 def generate_linear_model(x, y, selected_predictors=None):
@@ -327,8 +333,10 @@ def generate_quadratic_model(x,y, path, degree=2):
     plt.ylabel('CSA (mm^2)')
     plt.scatter(x,y)
     plt.plot(x,ypred, 'r')
-    plt.savefig(os.path.join(path,'quadratic_fit.png'))
+    fname_fig = os.path.join(path,'quadratic_fit.png')
+    plt.savefig(fname_fig)
     plt.close()
+    logger.info('Created: ' + fname_fig)
 
 
 def compute_stepwise(x, y, threshold_in, threshold_out):
@@ -496,12 +504,13 @@ def analyse_residuals(model, model_name, data, path): # TODO: Add residuals as f
     # Get the residuals from the fitted model
     residual = model.resid
     # Initialize a plot
+    plt.figure()
     fig, axis = plt.subplots(1,2, figsize = (12,4))
     plt.autoscale(1)
     axis[0].title.set_text('Quantile-quantile plot of residuals')
     axis[1].title.set_text('Residuals vs Fitted')
 
-    # Generate graph of QQ plot | Vaidate normality hypothesis of residual
+    # Generate graph of QQ plot | Validate normality hypothesis of residuals
     axis[0] = sm.qqplot(residual, line = 's', ax= axis[0] )
     # Residual vs fitted values plot
     model_fitted_y = model.fittedvalues
@@ -532,6 +541,7 @@ def analyse_residuals(model, model_name, data, path): # TODO: Add residuals as f
         os.mkdir(path)
     fname_fig = os.path.join(path +'/res_plots_' + model_name + '.png')
     plt.savefig(fname_fig) # save plot 
+    plt.close()
     logger.info('Created: ' + fname_fig)
 
 
@@ -643,13 +653,14 @@ def main():
     x = df.drop(columns = ['T1w_CSA']) # Initialize x to data of predictors
     y_T1w = df['T1w_CSA']
 
-    # Genereate scatter plot for all predictors and CSA values
+    # Generate scatter plots for all predictors and CSA
     path_scatter_plots = os.path.join(path_metrics,'scatter_plots')
     if not os.path.exists(path_scatter_plots):
         os.mkdir(path_scatter_plots)
     for column, data in x.iteritems():
         scatter_plot(data, y_T1w, column, path_scatter_plots)
-    # Create pairwise plot between CSA and preditors seprated for each gender
+
+    # Create pairwise plot between CSA and preditors seprated for each gender | Maybe not useful, but nice to see
     plt.figure()
     sns.pairplot(df, x_vars=PREDICTORS.remove('Gender'), y_vars='T1w_CSA', kind='reg', hue='Gender', palette="Set1")
     plt.savefig(os.path.join(path_scatter_plots, 'pairwise_plot' +'.png'))
@@ -666,13 +677,16 @@ def main():
 
     # Analyse CSA - Gender
     logger.info("\nCSA and Gender:")
-    compare_gender(df)
+    path_model_gender = os.path.join(path_model,'gender')
+    if not os.path.exists(path_model_gender):
+        os.mkdir(path_model_gender)
+    compare_gender(df, path_model_gender) # T-Test and violin plots
 
     # P_values for forward and backward stepwise
     p_in = 0.1 # (p_in > p_out)
     p_out = 0.05
 
-    # Computes linear regression with all predictors and stepwise, compares, analyses and saves results
+    # Compute linear regression with all predictors and stepwise, compares, analyses and saves results
     logger.info("\nMultivariate model:\n")
     compute_regression_csa(x, y_T1w, p_in, p_out, "T1w_CSA", path_model)
 
