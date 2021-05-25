@@ -230,7 +230,7 @@ def scatter_plot(x,y, filename, path):
     sns.regplot(x=x, y=y, line_kws={"color": "crimson"})
     plt.ylabel('CSA (mm^2)')
     plt.xlabel(filename)
-    plt.title('Scatter Plot - CSA as function of '+ filename) # TODO: change name
+    plt.title('Scatter Plot - CSA as function of '+ filename)
     plt.savefig(os.path.join(path,filename +'.png'))
     plt.close()
 
@@ -271,17 +271,29 @@ def get_correlation_table(df) :
 
 def compare_gender(df, path):
     """
-    Compute T-test for the means of two independent samples of scores and generates violin plots of CSA for gender.
+    Compute mean CSA and std value for each gender, T-test for the means of two independent samples of scores and generates violin plots of CSA for gender.
     Args:
         df (panda.DataFrame)
     """
+    # Compute mean CSA value
+    mean_csa_F = np.mean(df[df['Gender'] == 0]['T1w_CSA'])
+    std_csa_F = np.std(df[df['Gender'] == 0]['T1w_CSA'])
+    mean_csa_M = np.mean(df[df['Gender'] == 1]['T1w_CSA'])
+    std_csa_M = np.std(df[df['Gender'] == 1]['T1w_CSA'])
+
+    # Compute T-test
     results = scipy.stats.ttest_ind(df[df['Gender'] == 0]['T1w_CSA'], df[df['Gender'] == 1]['T1w_CSA'])
+    # Violin plot
     plt.figure()
     plt.title("Violin plot of CSA and gender")
     sns.violinplot(y='T1w_CSA', x='Gender', data=df, palette='flare')
     fname_fig = os.path.join(path,'violin_plot.png')
     plt.savefig(fname_fig)
+
+    # Write results
     logger.info('Created: ' + fname_fig)
+    logger.info('Mean CSA value for female : {:.4} mm^2, std is {:.4}'.format(mean_csa_F, std_csa_F))
+    logger.info('Mean CSA value for male : {:.4} mm^2, std is {:.4}'.format(mean_csa_M, std_csa_M))
     logger.info("T test p_value : {} ".format(results[1]))
 
 
@@ -324,7 +336,6 @@ def generate_quadratic_model(x,y, path, degree=2):
     xp = polynomial_features.fit_transform(x)
     model = sm.OLS(y, xp).fit()
     ypred = model.predict(xp)
-    logger.info("F pvalue: {}".format(model.f_pvalue))
     save_model(model,'quadratic_fit', path)
     # Scatter plot and quadratic fit
     plt.figure()
