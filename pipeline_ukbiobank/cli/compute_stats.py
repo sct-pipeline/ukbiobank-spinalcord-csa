@@ -178,47 +178,6 @@ def output_text_stats(stats): # TODO : add other parameters
                                                                             stats['Age']['mean']))
     
 
-def config_table(table, filename): 
-    """
-    Configures table and saves a .png file of it.
-    Args:
-        table (panda.DataFrame): table to save as a .png.
-        filename (str): name that the table will be saved as.
-    """
-    plt.figure(linewidth=2,
-           tight_layout={'pad':1},
-           figsize=(15,4)
-          )
-    rcolors = plt.cm.BuPu(np.full(len(table.index), 0.1))
-    ccolors = plt.cm.BuPu(np.full(len(table.columns), 0.1))
-    table = plt.table(np.round((table.values).astype(np.double), 4), 
-            rowLabels = table.index,
-            colLabels = table.columns,
-            rowLoc='center',
-            loc = 'center',
-            cellLoc = 'center',
-            colColours = ccolors,
-            rowColours = rcolors
-            )
-
-    table.scale(1, 1.5)
-    # Hide axes
-    ax = plt.gca()
-    ax.get_xaxis().set_visible(False)
-    ax.get_yaxis().set_visible(False)
-    # Hide axes border
-    plt.box(on=None)
- 
-    plt.draw()
-    fig = plt.gcf()
-    plt.savefig(filename,
-            edgecolor=fig.get_edgecolor(),
-            facecolor=fig.get_facecolor(),
-            )
-    plt.close()
-    logger.info('Created: ' + filename)
-
-
 def scatter_plot(x,y, filename, path):
     """
     Generate and save a scatter plot of y and x.
@@ -244,17 +203,6 @@ def df_to_csv(df, filename):
     """
     df.to_csv(filename)
     logger.info('Created: ' + filename)
-
-
-def save_table(df_table, filename):
-    """
-    Saves a dataframe as a .png  and a .csv file.
-    Args:
-        df (panda.DataFrame)
-        filename (str): Name of the output file (without .csv or .png).
-    """
-    config_table(df_table, filename +'.png') # Saves as a .png
-    df_to_csv(df_table, filename +'.csv') # Saves as a .csv
 
 
 def get_correlation_table(df) :
@@ -469,8 +417,8 @@ def compute_regression_csa(x, y, p_in, p_out, contrast, path_model):
     # Compares full and reduced models with F_value, R^2,...
     compared_models = compare_models(model, model_full, m1_name, m2_name)
     logger.info('Comparing models: {}'.format(compared_models))
-    compared_models_filename = os.path.join(path_model_contrast,'compared_models')
-    save_table(compared_models,compared_models_filename ) # Saves to .png ans .csv
+    compared_models_filename = os.path.join(path_model_contrast,'compared_models') + '.csv'
+    df_to_csv(compared_models,compared_models_filename ) # Saves to .csv
     
     # Residual analysis
     logger.info('Analysing residuals...')
@@ -642,22 +590,22 @@ def main():
 
     # Compute stats for T1w CSA
     stats_csa = compute_statistics(df)
-    # Format and save CSA stats as a .png and .csv file
+    # Format and save CSA stats as a.csv file
     metric_csa_filename = os.path.join(path_metrics, 'stats_csa')
-    save_table(stats_csa, metric_csa_filename)
+    df_to_csv(stats_csa, metric_csa_filename + '.csv')
         
     # Compute stats of the predictors
     stats_predictors = compute_predictors_statistic(df)
-    # Format and save stats of csa as a table png and .csv
+    # Format and save stats of csa as a .csv
     stats_predictors_filename = os.path.join(path_metrics, 'stats_param')
-    save_table(stats_predictors, stats_predictors_filename)   
+    df_to_csv(stats_predictors, stats_predictors_filename + '.csv')   
 
     # Correlation matrix (Pearson's correlation coefficients)
     corr_table = get_correlation_table(df)
     logger.info("Correlation matrix: {}".format(corr_table))
     corr_filename = os.path.join(path_metrics,'corr_table')
-    # Saves an .png and .csv file of the correlation matrix in the results folder
-    save_table(corr_table, corr_filename)
+    # Saves a.csv file of the correlation matrix in the results folder
+    df_to_csv(corr_table, corr_filename + '.csv')
 
 
     # Stepwise linear regression and complete linear regression
