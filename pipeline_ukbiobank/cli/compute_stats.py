@@ -68,8 +68,8 @@ def get_parser():
                         "Below is an example yaml file:\n"
                         + dedent(
                         """
-                        - sub-1000032
-                        - sub-1000498
+                        - sub-1000032_T1w.nii.gz
+                        - sub-1000498_T1w.nii.gz
                         """)
                         )
     return parser
