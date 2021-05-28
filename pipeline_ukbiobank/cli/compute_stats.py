@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8
-# Computes statistical analysis for ukbiobank project
+# Computes statistical analysis for ukbiobank-spinalcord-csa
 #
 # For usage, type: uk_compute_stats -h
 
@@ -15,9 +15,11 @@ import sys
 import yaml
 import scipy
 import statsmodels.api as sm
+import statsmodels.formula.api as smf
 import seaborn as sns
 import matplotlib.pyplot as plt
 from textwrap import dedent
+from sklearn.preprocessing import PolynomialFeatures
 
 FNAME_LOG = 'log_stats.txt'
 
@@ -29,7 +31,7 @@ logger.setLevel(logging.INFO)  # default: logging.DEBUG, logging.INFO
 hdlr = logging.StreamHandler(sys.stdout)
 logging.root.addHandler(hdlr)
 
-PREDICTORS = ['Sex', 'Height', 'Weight', 'Intracranial volume', 'Age'] # Add units of each
+PREDICTORS = ['Sex', 'Height', 'Weight', 'Age', 'Vscale', 'Volume ventricular CSF', 'Brain GM volume', 'Brain WM volume', 'Total brain volume norm', 'Total brain volume', 'Volume of thalamus (L)', 'Volume of thalamus (R)'] # TODO Add units of each
 
 
 class SmartFormatter(argparse.HelpFormatter):
@@ -66,8 +68,8 @@ def get_parser():
                         "Below is an example yaml file:\n"
                         + dedent(
                         """
-                        - sub-1000032
-                        - sub-1000498
+                        - sub-1000032_T1w.nii.gz
+                        - sub-1000498_T1w.nii.gz
                         """)
                         )
     return parser
@@ -75,35 +77,32 @@ def get_parser():
 
 def compute_statistics(df):
     """
-    Computes statistics such as mean, std, COV, etc. of CSA values per contrast type (T1w and T2w)
+    Compute statistics such as mean, std, COV, etc. of CSA values.
     Args:
         df (panda.DataFrame): dataframe of all parameters and CSA values
     Returns:
         stats_df (panda.DataFrame): statistics of CSA per contrast type
     """
-    contrasts = ['T1w_CSA', 'T2w_CSA']
+    contrast = 'T1w_CSA'
     metrics = ['n','mean','std','med','95ci', 'COV', 'max', 'min', 'normality_test_p']
     stats = {}
-    # Intitialize stats dictionnary for each metric and contrast
-    for contrast in contrasts:
-        stats[contrast] = {}
-        for metric in metrics:
-            stats[contrast][metric] = {}
+    stats[contrast] = {}
+    for metric in metrics:
+        stats[contrast][metric] = {}
     # Computes the metrics
-    for contrast in contrasts:
-        stats[contrast]['n'] = len(df[contrast])
-        stats[contrast]['mean'] = np.mean(df[contrast])
-        stats[contrast]['std'] = np.std(df[contrast])
-        stats[contrast]['med']= np.median(df[contrast])
-        stats[contrast]['95ci']= 1.96*np.std(df[contrast])/np.sqrt(len(df[contrast]))
-        stats[contrast]['COV'] = np.std(df[contrast]) / np.mean(df[contrast])
-        stats[contrast]['max'] = np.max(df[contrast])
-        stats[contrast]['min'] = np.min(df[contrast])
-        # Validate normality of CSA with Shapiro-wilik test
-        stats[contrast]['normality_test_p'] = scipy.stats.shapiro(df[contrast])[1]
-        # Writes a text with CSA stats
-        output_text_CSA_stats(stats[contrast], contrast)
-    
+    stats[contrast]['n'] = len(df[contrast])
+    stats[contrast]['mean'] = np.mean(df[contrast])
+    stats[contrast]['std'] = np.std(df[contrast])
+    stats[contrast]['med']= np.median(df[contrast])
+    stats[contrast]['95ci']= 1.96*np.std(df[contrast])/np.sqrt(len(df[contrast]))
+    stats[contrast]['COV'] = np.std(df[contrast]) / np.mean(df[contrast])
+    stats[contrast]['max'] = np.max(df[contrast])
+    stats[contrast]['min'] = np.min(df[contrast])
+    # Validate normality of CSA with Shapiro-wilik test
+    stats[contrast]['normality_test_p'] = scipy.stats.shapiro(df[contrast])[1]
+    # Writes a text with CSA stats
+    output_text_CSA_stats(stats, contrast)
+
     # Convert dict to DataFrame
     stats_df = pd.DataFrame.from_dict(stats)
     return stats_df
@@ -115,17 +114,17 @@ def output_text_CSA_stats(stats, contrast):
     Args: 
         stats (dict): dictionnary with stats of the predictors for one contrast
     """
-    logger.info('Statistics of {}:'.format(contrast))
-    logger.info('   There are {} subjects included in the analysis.'.format(stats['n']))
-    logger.info('   CSA values are between {:.6} and {:.6} mm^2'.format(stats['min'], stats['max']))
-    logger.info('   Mean CSA is {:.6} mm^2, standard deviation CSA is of {:.6}, median value is of {:.6} mm^2.'.format(stats['mean'], stats['std'], stats['med']))
-    logger.info('   The COV is of {:.6} and 95 confidence interval is {:.6}.'.format(stats['COV'], stats['95ci']))
-    logger.info('   The results of Shapiro-wilik test has a p-value of {:.6}.'.format(stats['normality_test_p']))
+    logger.info('\nStatistics of {}:'.format(contrast))
+    logger.info('   There are {} subjects included in the analysis.'.format(stats[contrast]['n']))
+    logger.info('   CSA values are between {:.6} and {:.6} mm^2'.format(stats[contrast]['min'], stats[contrast]['max']))
+    logger.info('   Mean CSA is {:.6} mm^2, standard deviation CSA is of {:.6}, median value is of {:.6} mm^2.'.format(stats[contrast]['mean'], stats[contrast]['std'], stats[contrast]['med']))
+    logger.info('   The COV is of {:.6} and 95 confidence interval is {:.6}.'.format(stats[contrast]['COV'], stats[contrast]['95ci']))
+    logger.info('   The results of Shapiro-wilik test has a p-value of {:.6}.'.format(stats[contrast]['normality_test_p']))
 
 
 def compute_predictors_statistic(df):
     """
-    Computes statistics such as mean, min, max for each predictor and writes it in the log file
+    Compute statistics such as mean, min, max for each predictor and writes it in the log file.
     Args:
         df (panda.DataFrame): Dataframe of all predictor and CSA values
     Returns:
@@ -147,13 +146,13 @@ def compute_predictors_statistic(df):
     stats['Sex']['%_M'] = 100*(np.count_nonzero(df['Sex']) / len(df['Sex']))
     stats['Sex']['%_F'] = 100 - stats['Sex']['%_M']
     # Writes statistics of predictor into a text
-    output_text_stats(stats)
+    # output_text_stats(stats) ---> TODO: uncomment when updated
     stats_df =pd.DataFrame.from_dict(stats) # Converts dict to dataFrame
 
     return stats_df
 
 
-def output_text_stats(stats):
+def output_text_stats(stats): # TODO : add other parameters
     """
     Embed statistical results of predictors into sentences so they can easily be copy/pasted into a manuscript.
     Args: 
@@ -177,56 +176,27 @@ def output_text_stats(stats):
                                                                             stats['Age']['max'],
                                                                             stats['Age']['med'],
                                                                             stats['Age']['mean']))
-    logger.info('Intracranial Volume statistic:')
-    logger.info('   Intracranial volume between {} and {} mm^3, median intracranial volume {} mm^3, mean intracranial volume {} mm^3.'.format(stats['Intracranial volume']['min'],
-                                                                            stats['Intracranial volume']['max'],
-                                                                            stats['Intracranial volume']['med'],
-                                                                            stats['Intracranial volume']['mean']))
+    
 
-
-def config_table(table, filename): 
+def scatter_plot(x,y, filename, path):
     """
-    Configures table and saves a .png file of it.
+    Generate and save a scatter plot of y and x.
     Args:
-        table (panda.DataFrame): table to save as a .png.
-        filename (str): name that the table will be saved as.
+        x (panda.DataFrame): predictor
+        y (panda.DataFrame): CSA values
     """
-    plt.figure(linewidth=2,
-           tight_layout={'pad':1},
-           figsize=(15,4)
-          )
-    rcolors = plt.cm.BuPu(np.full(len(table.index), 0.1))
-    ccolors = plt.cm.BuPu(np.full(len(table.columns), 0.1))
-    table = plt.table(np.round((table.values).astype(np.double), 4), 
-            rowLabels = table.index,
-            colLabels = table.columns,
-            rowLoc='center',
-            loc = 'center',
-            cellLoc = 'center',
-            colColours = ccolors,
-            rowColours = rcolors
-            )
-
-    table.scale(1, 1.5)
-    # Hide axes
-    ax = plt.gca()
-    ax.get_xaxis().set_visible(False)
-    ax.get_yaxis().set_visible(False)
-    # Hide axes border
-    plt.box(on=None)
- 
-    plt.draw()
-    fig = plt.gcf()
-    plt.savefig(filename,
-            edgecolor=fig.get_edgecolor(),
-            facecolor=fig.get_facecolor(),
-            )
-    logger.info('Created: ' + filename)
+    plt.figure()
+    sns.regplot(x=x, y=y, line_kws={"color": "crimson"})
+    plt.ylabel('CSA (mm^2)')
+    plt.xlabel(filename)
+    plt.title('Scatter Plot - CSA as function of '+ filename)
+    plt.savefig(os.path.join(path,filename +'.png'))
+    plt.close()
 
 
 def df_to_csv(df, filename):
     """
-    Saves a Dataframe as a .csv file.
+    Save a Dataframe as a .csv file.
     Args:
         df (panda.DataFrame)
         filename (str): Name of the output .csv file.
@@ -235,32 +205,49 @@ def df_to_csv(df, filename):
     logger.info('Created: ' + filename)
 
 
-def save_table(df_table, filename):
-    """
-    Saves a dataframe as a .png  and a .csv file.
-    Args:
-        df (panda.DataFrame)
-        filename (str): Name of the output file (without .csv or .png).
-    """
-    config_table(df_table, filename +'.png') # Saves as a .png
-    df_to_csv(df_table, filename +'.csv') # Saves as a .csv
-
-
 def get_correlation_table(df) :
     """
-    Returns the correlation matrix of a DataFrame.
+    Return correlation matrix of a DataFrame using Pearson's correlation coefficient.
     Args:
         df (panda.DataFrame)
     Returns:
         corr_table (panda.DataFrame): correlation matrix of df
     """
-    corr_table = df.corr()
+    corr_table = df.corr(method='pearson')
     return corr_table
 
 
-def generate_linear_model(x, y, selected_predictors):
+def compare_sex(df, path):
     """
-    Computes linear regresion with the selected predictors.
+    Compute mean CSA and std value for each sex, T-test for the means of two independent samples of scores and generates violin plots of CSA for sex.
+    Args:
+        df (panda.DataFrame)
+    """
+    # Compute mean CSA value
+    mean_csa_F = np.mean(df[df['Sex'] == 0]['T1w_CSA'])
+    std_csa_F = np.std(df[df['Sex'] == 0]['T1w_CSA'])
+    mean_csa_M = np.mean(df[df['Sex'] == 1]['T1w_CSA'])
+    std_csa_M = np.std(df[df['Sex'] == 1]['T1w_CSA'])
+
+    # Compute T-test
+    results = scipy.stats.ttest_ind(df[df['Sex'] == 0]['T1w_CSA'], df[df['Sex'] == 1]['T1w_CSA'])
+    # Violin plot
+    plt.figure()
+    plt.title("Violin plot of CSA and sex")
+    sns.violinplot(y='T1w_CSA', x='Sex', data=df, palette='flare')
+    fname_fig = os.path.join(path,'violin_plot.png')
+    plt.savefig(fname_fig)
+
+    # Write results
+    logger.info('Created: ' + fname_fig)
+    logger.info('Mean CSA value for female : {:.4} mm^2, std is {:.4}'.format(mean_csa_F, std_csa_F))
+    logger.info('Mean CSA value for male : {:.4} mm^2, std is {:.4}'.format(mean_csa_M, std_csa_M))
+    logger.info("T test p_value : {} ".format(results[1]))
+
+
+def generate_linear_model(x, y, selected_predictors=None):
+    """
+    Compute linear regresion with the selected predictors.
     Args:
         x (panda.DataFrame): Data of the predictors
         y (panda.DataFrame): Data of CSA
@@ -269,7 +256,8 @@ def generate_linear_model(x, y, selected_predictors):
         results (statsmodels.regression.linear_model.RegressionResults object): fitted linear model.
     """
     # Updates x to only have the data of the selected predictors.
-    x = x[selected_predictors] 
+    if selected_predictors:
+        x = x[selected_predictors] 
     # Adds a columns of ones to the original DataFrame.
     x = sm.add_constant(x) 
 
@@ -278,16 +266,48 @@ def generate_linear_model(x, y, selected_predictors):
     return results
 
 
+def generate_quadratic_model(x,y, path, degree=2):
+    """
+    Computes quadratic fit, saves the model and plot.
+    Args:
+        x (panda.DataFrame): Data of the predictors
+        y (panda.DataFrame): Data of CSA
+    """
+    x = np.array(x)
+    y = np.array(y)
+    x= x[:,np.newaxis]
+    y= y[:,np.newaxis]
+    inds = x.ravel().argsort()
+    x = x.ravel()[inds].reshape(-1,1)
+    y = y[inds]
+    polynomial_features= PolynomialFeatures(degree)
+    xp = polynomial_features.fit_transform(x)
+    model = sm.OLS(y, xp).fit()
+    ypred = model.predict(xp)
+    save_model(model,'quadratic_fit', path)
+    # Scatter plot and quadratic fit
+    plt.figure()
+    plt.title("CSA as function of Age and quadratic fit")
+    plt.xlabel('Age')
+    plt.ylabel('CSA (mm^2)')
+    plt.scatter(x,y)
+    plt.plot(x,ypred, 'r')
+    fname_fig = os.path.join(path,'quadratic_fit.png')
+    plt.savefig(fname_fig)
+    plt.close()
+    logger.info('Created: ' + fname_fig)
+
+
 def compute_stepwise(x, y, threshold_in, threshold_out):
     """
-    Performs backward and forward predictor selection based on p-values 
+    Perform backward and forward predictor selection based on p-values.
     
     Args:
         x (panda.DataFrame): Candidate predictors
         y (panda.DataFrame): Candidate predictors with target
         threshold_in: include a predictor if its p-value < threshold_in
         threshold_out: exclude a predictor if its p-value > threshold_out
-        ** threshold_in < threshold_out
+        ** threshold_in > threshold_out
     Returns:
         included: list of selected predictor
     
@@ -328,19 +348,19 @@ def compute_stepwise(x, y, threshold_in, threshold_out):
 
 def save_model(model, model_name, path_model_contrast):
     """
-    Saves summary in .txt file and coeff in a .csv file.
+    Save summary in .txt file and coeff in a .csv file.
 
     Args:
         model (statsmodels.regression.linear_model.RegressionResults object):  fited linear model.
         model_name (str): Name of the model
-        path_model_contrast (str): Path of the result folder for this model and constrast  
+        path_model_contrast (str): Path of the result folder for this model and contrast  
     """
     logger.info('Saving {} ...'.format(model_name))
     def save_summary():
         summary_path = os.path.join(path_model_contrast,'summary')
         # Creates if doesn't exist a folder for the model summary
         if not os.path.exists(summary_path):
-            os.mkdir(summary_path)
+            os.makedirs(summary_path)
         summary_filename = os.path.join(summary_path, 'summary_'+ model_name +'.txt')
         # Saves the summary of the model in a .txt file
         with open(summary_filename, 'w') as fh:
@@ -351,10 +371,10 @@ def save_model(model, model_name, path_model_contrast):
         coeff_path = os.path.join(path_model_contrast, 'coeff')
         # Creates a folder for results coeff of the model if doesn't exists
         if not os.path.exists(coeff_path):
-            os.mkdir(coeff_path)
+            os.makedirs(coeff_path)
         coeff_filename = os.path.join(coeff_path ,'coeff_'+ model_name +'.csv')
         # Saves the coefficients of the model in .csv file
-        (model.params).to_csv(coeff_filename, header = None)
+        (pd.DataFrame(model.params)).to_csv(coeff_filename, header = None)
         logger.info('Created: ' + coeff_filename)
 
     save_coeff()
@@ -363,7 +383,7 @@ def save_model(model, model_name, path_model_contrast):
 
 def compute_regression_csa(x, y, p_in, p_out, contrast, path_model):
     """
-    Computes stepwise model and complete linear model of CSA. Saves both models, compares them and analyses residuals.
+    Compute stepwise model and complete linear model of CSA. Save both models, compare and analyses residuals.
     Args:
         x (panda.DataFrame): Data of predictors
         y (panda.DataFrame): Data of CSA
@@ -397,8 +417,8 @@ def compute_regression_csa(x, y, p_in, p_out, contrast, path_model):
     # Compares full and reduced models with F_value, R^2,...
     compared_models = compare_models(model, model_full, m1_name, m2_name)
     logger.info('Comparing models: {}'.format(compared_models))
-    compared_models_filename = os.path.join(path_model_contrast,'compared_models')
-    save_table(compared_models,compared_models_filename ) # Saves to .png ans .csv
+    compared_models_filename = os.path.join(path_model_contrast,'compared_models') + '.csv'
+    df_to_csv(compared_models,compared_models_filename ) # Saves to .csv
     
     # Residual analysis
     logger.info('Analysing residuals...')
@@ -408,7 +428,7 @@ def compute_regression_csa(x, y, p_in, p_out, contrast, path_model):
 
 def compare_models(model_1, model_2, model_1_name, model_2_name):
     """
-    Creates a dataframe with R^2, R^2 adjusted, F p_value, F_value, AIC and df of residuals for both models
+    Create a dataframe with R^2, R^2 adjusted, F p_value, F_value, AIC and df of residuals for both models.
     Args:
         model_1 (statsmodels.regression.linear_model.RegressionResults object): First fitted model to compare
         model_2 (statsmodels.regression.linear_model.RegressionResults object): Second fitted model to compare
@@ -433,7 +453,7 @@ def compare_models(model_1, model_2, model_1_name, model_2_name):
 
 def analyse_residuals(model, model_name, data, path): # TODO: Add residuals as function of each parameter
     """
-    Generates and saves Residuals vs Fitted values plot and QQ plot.
+    Generate and save Residuals vs Fitted values plot and QQ plot.
     Args:
         model (statsmodels.regression.linear_model.RegressionResults object): fitted model to analyse residuals
         model_name (str): Name of the model
@@ -443,12 +463,13 @@ def analyse_residuals(model, model_name, data, path): # TODO: Add residuals as f
     # Get the residuals from the fitted model
     residual = model.resid
     # Initialize a plot
+    plt.figure()
     fig, axis = plt.subplots(1,2, figsize = (12,4))
     plt.autoscale(1)
     axis[0].title.set_text('Quantile-quantile plot of residuals')
     axis[1].title.set_text('Residuals vs Fitted')
 
-    # Generate graph of QQ plot | Vaidate normality hypothesis of residual
+    # Generate graph of QQ plot | Validate normality hypothesis of residuals
     axis[0] = sm.qqplot(residual, line = 's', ax= axis[0] )
     # Residual vs fitted values plot
     model_fitted_y = model.fittedvalues
@@ -479,12 +500,13 @@ def analyse_residuals(model, model_name, data, path): # TODO: Add residuals as f
         os.mkdir(path)
     fname_fig = os.path.join(path +'/res_plots_' + model_name + '.png')
     plt.savefig(fname_fig) # save plot 
+    plt.close()
     logger.info('Created: ' + fname_fig)
 
 
 def remove_subjects(df, dict_exclude_subj):
     """
-    Removes subjects from exclude list if given and all subjects that are missing a parameter.
+    Remove subjects from exclude list if given and all subjects that are missing a parameter.
     Writes in log the list of removed subjects.
     Args:
         df (panda.DataFrame): Dataframe with all subjects parameters and CSA values.
@@ -495,17 +517,21 @@ def remove_subjects(df, dict_exclude_subj):
     subjects_removed = df.loc[pd.isnull(df).any(1), :].index.values
     # Remove all subjects passed from the exclude list
     for sub in dict_exclude_subj:
-        sub_id = int(sub[4:])
-        df = df.drop(index = sub_id)
-        subjects_removed = np.append(subjects_removed, sub_id) # add subject to excluded list
+        # Check if contrast is T1w
+        if sub[-10:-7]=='T1w':
+            sub_id = (sub[:-11])
+            # Check if the subjects is in the dataframe
+            if sub_id in df.index:
+                df = df.drop(index = sub_id)
+                subjects_removed = np.append(subjects_removed, sub_id) # add subject to excluded list
     df_updated = df.dropna(0,how = 'any').reset_index(drop=True) # Drops all subjects missing a parameter
-    logger.info("Subjects removed: {}".format(subjects_removed))
+    logger.info("{} Subjects removed : {}".format(len(subjects_removed),subjects_removed))
     return df_updated
 
 
 def init_path_results():
     """
-    Creates folders for stats results if does not exists.
+    Create folders for stats results if does not exists.
     Returns:
         path_metric: path to folder of metrics
         path_model: path to folder of stats models
@@ -562,35 +588,65 @@ def main():
     # Initialize path of statistical results 
     path_metrics, path_model = init_path_results()
 
-    # Compute stats for T1w CSA and T2w CSA
+    # Compute stats for T1w CSA
     stats_csa = compute_statistics(df)
-    # Format and save CSA stats as a .png and .csv file
+    # Format and save CSA stats as a.csv file
     metric_csa_filename = os.path.join(path_metrics, 'stats_csa')
-    save_table(stats_csa, metric_csa_filename)
+    df_to_csv(stats_csa, metric_csa_filename + '.csv')
         
     # Compute stats of the predictors
     stats_predictors = compute_predictors_statistic(df)
-    # Format and save stats of csa as a table png and .csv
+    # Format and save stats of csa as a .csv
     stats_predictors_filename = os.path.join(path_metrics, 'stats_param')
-    save_table(stats_predictors, stats_predictors_filename)   
+    df_to_csv(stats_predictors, stats_predictors_filename + '.csv')   
 
-    # Correlation matrix
+    # Correlation matrix (Pearson's correlation coefficients)
     corr_table = get_correlation_table(df)
     logger.info("Correlation matrix: {}".format(corr_table))
     corr_filename = os.path.join(path_metrics,'corr_table')
-    # Saves an .png and .csv file of the correlation matrix in the results folder
-    save_table(corr_table, corr_filename)
+    # Save a.csv file of the correlation matrix in the results folder
+    df_to_csv(corr_table, corr_filename + '.csv')
 
     # Stepwise linear regression and complete linear regression
-    x = df.drop(columns = ['T1w_CSA', 'T2w_CSA']) # Initialize x to data of predictors
+    x = df.drop(columns = ['T1w_CSA']) # Initialize x to data of predictors
     y_T1w = df['T1w_CSA']
-    y_T2w = df['T2w_CSA']
+
+    # Generate scatter plots for all predictors and CSA
+    path_scatter_plots = os.path.join(path_metrics,'scatter_plots')
+    if not os.path.exists(path_scatter_plots):
+        os.mkdir(path_scatter_plots)
+    for column, data in x.iteritems():
+        scatter_plot(data, y_T1w, column, path_scatter_plots)
+
+    # Create pairwise plot between CSA and preditors seprated for sex | Maybe not useful, but nice to see
+    plt.figure()
+    sns.pairplot(df, x_vars=PREDICTORS.remove('Sex'), y_vars='T1w_CSA', kind='reg', hue='Sex', palette="Set1")
+    plt.savefig(os.path.join(path_scatter_plots, 'pairwise_plot' +'.png'))
+    plt.close()              
+    logger.info("Created Scatter Plots - Saved in {}".format(path_scatter_plots))
+
+    # Analyse CSA - Age
+    logger.info("\nCSA and Age:")
+    path_model_age = os.path.join(path_model,'age')
+    if not os.path.exists(path_scatter_plots):
+        os.mkdir(path_model_age)
+    save_model(generate_linear_model(df['Age'], y_T1w), 'linear_fit', path_model_age) # Linear model
+    generate_quadratic_model(df['Age'], y_T1w, path_model_age) # Quadratic model
+
+    # Analyse CSA - Sex
+    logger.info("\nCSA and Sex:")
+    path_model_sex = os.path.join(path_model,'sex')
+    if not os.path.exists(path_model_sex):
+        os.mkdir(path_model_sex)
+    compare_sex(df, path_model_sex) # T-Test and violin plots
+
     # P_values for forward and backward stepwise
-    p_in = 0.2 # To change to p_in = 0.01 (p_in<p_out)
-    p_out = 0.3 # To change to p_ou = 0.05
-    # Computes linear regression with all predictors and stepwise, compares, analyses and saves results
+    p_in = 0.1 # (p_in > p_out)
+    p_out = 0.05
+
+    # Compute linear regression with all predictors and stepwise, compares, analyses and saves results
+    logger.info("\nMultivariate model:\n")
     compute_regression_csa(x, y_T1w, p_in, p_out, "T1w_CSA", path_model)
-    compute_regression_csa(x, y_T2w, p_in, p_out, 'T2w_CSA', path_model)
 
 if __name__ == '__main__':
     main()
