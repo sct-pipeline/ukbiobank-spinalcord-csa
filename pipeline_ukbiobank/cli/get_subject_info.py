@@ -16,7 +16,7 @@ from datetime import date # To remove
 # Dictionary of the predictors and field number correspondance
 param_dict = {
         'eid':'Subject',
-        '31-0.0':'Gender',
+        '31-0.0':'Sex',
         '21003-2.0':'Age',
         '12144-2.0':'Height',
         '21002-2.0':'Weight',

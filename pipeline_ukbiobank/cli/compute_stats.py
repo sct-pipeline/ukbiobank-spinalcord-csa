@@ -31,7 +31,7 @@ logger.setLevel(logging.INFO)  # default: logging.DEBUG, logging.INFO
 hdlr = logging.StreamHandler(sys.stdout)
 logging.root.addHandler(hdlr)
 
-PREDICTORS = ['Gender', 'Height', 'Weight', 'Age', 'Vscale', 'Volume ventricular CSF', 'Brain GM volume', 'Brain WM volume', 'Total brain volume norm', 'Total brain volume', 'Volume of thalamus (L)', 'Volume of thalamus (R)'] # TODO Add units of each
+PREDICTORS = ['Sex', 'Height', 'Weight', 'Age', 'Vscale', 'Volume ventricular CSF', 'Brain GM volume', 'Brain WM volume', 'Total brain volume norm', 'Total brain volume', 'Volume of thalamus (L)', 'Volume of thalamus (R)'] # TODO Add units of each
 
 
 class SmartFormatter(argparse.HelpFormatter):
@@ -142,9 +142,9 @@ def compute_predictors_statistic(df):
         stats[predictor]['med'] = np.median(df[predictor])
         stats[predictor]['mean'] = np.mean(df[predictor])
     # Computes male vs female ratio
-    stats['Gender'] = {}
-    stats['Gender']['%_M'] = 100*(np.count_nonzero(df['Gender']) / len(df['Gender']))
-    stats['Gender']['%_F'] = 100 - stats['Gender']['%_M']
+    stats['Sex'] = {}
+    stats['Sex']['%_M'] = 100*(np.count_nonzero(df['Sex']) / len(df['Sex']))
+    stats['Sex']['%_F'] = 100 - stats['Sex']['%_M']
     # Writes statistics of predictor into a text
     # output_text_stats(stats) ---> TODO: uncomment when updated
     stats_df =pd.DataFrame.from_dict(stats) # Converts dict to dataFrame
@@ -158,9 +158,9 @@ def output_text_stats(stats): # TODO : add other parameters
     Args: 
         stats (dict): dictionnary with stats of the predictors
     """
-    logger.info('Gender statistic:')
-    logger.info('   {:.3} % of male  and {:.3} % of female.'.format(stats['Gender']['%_M'],
-                                                                             stats['Gender']['%_F']))
+    logger.info('Sex statistic:')
+    logger.info('   {:.3} % of male  and {:.3} % of female.'.format(stats['Sex']['%_M'],
+                                                                             stats['Sex']['%_F']))
     logger.info('Height statistic:')
     logger.info('   Height between {} and {} cm, median height {} cm, mean height {} cm.'.format(stats['Height']['min'],
                                                                             stats['Height']['max'],
@@ -217,24 +217,24 @@ def get_correlation_table(df) :
     return corr_table
 
 
-def compare_gender(df, path):
+def compare_sex(df, path):
     """
-    Compute mean CSA and std value for each gender, T-test for the means of two independent samples of scores and generates violin plots of CSA for gender.
+    Compute mean CSA and std value for each sex, T-test for the means of two independent samples of scores and generates violin plots of CSA for sex.
     Args:
         df (panda.DataFrame)
     """
     # Compute mean CSA value
-    mean_csa_F = np.mean(df[df['Gender'] == 0]['T1w_CSA'])
-    std_csa_F = np.std(df[df['Gender'] == 0]['T1w_CSA'])
-    mean_csa_M = np.mean(df[df['Gender'] == 1]['T1w_CSA'])
-    std_csa_M = np.std(df[df['Gender'] == 1]['T1w_CSA'])
+    mean_csa_F = np.mean(df[df['Sex'] == 0]['T1w_CSA'])
+    std_csa_F = np.std(df[df['Sex'] == 0]['T1w_CSA'])
+    mean_csa_M = np.mean(df[df['Sex'] == 1]['T1w_CSA'])
+    std_csa_M = np.std(df[df['Sex'] == 1]['T1w_CSA'])
 
     # Compute T-test
-    results = scipy.stats.ttest_ind(df[df['Gender'] == 0]['T1w_CSA'], df[df['Gender'] == 1]['T1w_CSA'])
+    results = scipy.stats.ttest_ind(df[df['Sex'] == 0]['T1w_CSA'], df[df['Sex'] == 1]['T1w_CSA'])
     # Violin plot
     plt.figure()
-    plt.title("Violin plot of CSA and gender")
-    sns.violinplot(y='T1w_CSA', x='Gender', data=df, palette='flare')
+    plt.title("Violin plot of CSA and sex")
+    sns.violinplot(y='T1w_CSA', x='Sex', data=df, palette='flare')
     fname_fig = os.path.join(path,'violin_plot.png')
     plt.savefig(fname_fig)
 
@@ -618,9 +618,9 @@ def main():
     for column, data in x.iteritems():
         scatter_plot(data, y_T1w, column, path_scatter_plots)
 
-    # Create pairwise plot between CSA and preditors seprated for each gender | Maybe not useful, but nice to see
+    # Create pairwise plot between CSA and preditors seprated for sex | Maybe not useful, but nice to see
     plt.figure()
-    sns.pairplot(df, x_vars=PREDICTORS.remove('Gender'), y_vars='T1w_CSA', kind='reg', hue='Gender', palette="Set1")
+    sns.pairplot(df, x_vars=PREDICTORS.remove('Sex'), y_vars='T1w_CSA', kind='reg', hue='Sex', palette="Set1")
     plt.savefig(os.path.join(path_scatter_plots, 'pairwise_plot' +'.png'))
     plt.close()              
     logger.info("Created Scatter Plots - Saved in {}".format(path_scatter_plots))
@@ -633,12 +633,12 @@ def main():
     save_model(generate_linear_model(df['Age'], y_T1w), 'linear_fit', path_model_age) # Linear model
     generate_quadratic_model(df['Age'], y_T1w, path_model_age) # Quadratic model
 
-    # Analyse CSA - Gender
-    logger.info("\nCSA and Gender:")
-    path_model_gender = os.path.join(path_model,'gender')
-    if not os.path.exists(path_model_gender):
-        os.mkdir(path_model_gender)
-    compare_gender(df, path_model_gender) # T-Test and violin plots
+    # Analyse CSA - Sex
+    logger.info("\nCSA and Sex:")
+    path_model_sex = os.path.join(path_model,'sex')
+    if not os.path.exists(path_model_sex):
+        os.mkdir(path_model_sex)
+    compare_sex(df, path_model_sex) # T-Test and violin plots
 
     # P_values for forward and backward stepwise
     p_in = 0.1 # (p_in > p_out)
