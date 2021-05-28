@@ -77,7 +77,7 @@ def get_parser():
 
 def compute_statistics(df):
     """
-    Computes statistics such as mean, std, COV, etc. of CSA values
+    Compute statistics such as mean, std, COV, etc. of CSA values.
     Args:
         df (panda.DataFrame): dataframe of all parameters and CSA values
     Returns:
@@ -124,7 +124,7 @@ def output_text_CSA_stats(stats, contrast):
 
 def compute_predictors_statistic(df):
     """
-    Computes statistics such as mean, min, max for each predictor and writes it in the log file
+    Compute statistics such as mean, min, max for each predictor and writes it in the log file.
     Args:
         df (panda.DataFrame): Dataframe of all predictor and CSA values
     Returns:
@@ -196,7 +196,7 @@ def scatter_plot(x,y, filename, path):
 
 def df_to_csv(df, filename):
     """
-    Saves a Dataframe as a .csv file.
+    Save a Dataframe as a .csv file.
     Args:
         df (panda.DataFrame)
         filename (str): Name of the output .csv file.
@@ -207,7 +207,7 @@ def df_to_csv(df, filename):
 
 def get_correlation_table(df) :
     """
-    Returns the correlation matrix of a DataFrame using Pearson's correlation coefficient.
+    Return correlation matrix of a DataFrame using Pearson's correlation coefficient.
     Args:
         df (panda.DataFrame)
     Returns:
@@ -247,7 +247,7 @@ def compare_gender(df, path):
 
 def generate_linear_model(x, y, selected_predictors=None):
     """
-    Computes linear regresion with the selected predictors.
+    Compute linear regresion with the selected predictors.
     Args:
         x (panda.DataFrame): Data of the predictors
         y (panda.DataFrame): Data of CSA
@@ -300,7 +300,7 @@ def generate_quadratic_model(x,y, path, degree=2):
 
 def compute_stepwise(x, y, threshold_in, threshold_out):
     """
-    Performs backward and forward predictor selection based on p-values 
+    Perform backward and forward predictor selection based on p-values.
     
     Args:
         x (panda.DataFrame): Candidate predictors
@@ -348,7 +348,7 @@ def compute_stepwise(x, y, threshold_in, threshold_out):
 
 def save_model(model, model_name, path_model_contrast):
     """
-    Saves summary in .txt file and coeff in a .csv file.
+    Save summary in .txt file and coeff in a .csv file.
 
     Args:
         model (statsmodels.regression.linear_model.RegressionResults object):  fited linear model.
@@ -383,7 +383,7 @@ def save_model(model, model_name, path_model_contrast):
 
 def compute_regression_csa(x, y, p_in, p_out, contrast, path_model):
     """
-    Computes stepwise model and complete linear model of CSA. Saves both models, compares them and analyses residuals.
+    Compute stepwise model and complete linear model of CSA. Save both models, compare and analyses residuals.
     Args:
         x (panda.DataFrame): Data of predictors
         y (panda.DataFrame): Data of CSA
@@ -428,7 +428,7 @@ def compute_regression_csa(x, y, p_in, p_out, contrast, path_model):
 
 def compare_models(model_1, model_2, model_1_name, model_2_name):
     """
-    Creates a dataframe with R^2, R^2 adjusted, F p_value, F_value, AIC and df of residuals for both models
+    Create a dataframe with R^2, R^2 adjusted, F p_value, F_value, AIC and df of residuals for both models.
     Args:
         model_1 (statsmodels.regression.linear_model.RegressionResults object): First fitted model to compare
         model_2 (statsmodels.regression.linear_model.RegressionResults object): Second fitted model to compare
@@ -453,7 +453,7 @@ def compare_models(model_1, model_2, model_1_name, model_2_name):
 
 def analyse_residuals(model, model_name, data, path): # TODO: Add residuals as function of each parameter
     """
-    Generates and saves Residuals vs Fitted values plot and QQ plot.
+    Generate and save Residuals vs Fitted values plot and QQ plot.
     Args:
         model (statsmodels.regression.linear_model.RegressionResults object): fitted model to analyse residuals
         model_name (str): Name of the model
@@ -506,7 +506,7 @@ def analyse_residuals(model, model_name, data, path): # TODO: Add residuals as f
 
 def remove_subjects(df, dict_exclude_subj):
     """
-    Removes subjects from exclude list if given and all subjects that are missing a parameter.
+    Remove subjects from exclude list if given and all subjects that are missing a parameter.
     Writes in log the list of removed subjects.
     Args:
         df (panda.DataFrame): Dataframe with all subjects parameters and CSA values.
@@ -531,7 +531,7 @@ def remove_subjects(df, dict_exclude_subj):
 
 def init_path_results():
     """
-    Creates folders for stats results if does not exists.
+    Create folders for stats results if does not exists.
     Returns:
         path_metric: path to folder of metrics
         path_model: path to folder of stats models
@@ -604,9 +604,8 @@ def main():
     corr_table = get_correlation_table(df)
     logger.info("Correlation matrix: {}".format(corr_table))
     corr_filename = os.path.join(path_metrics,'corr_table')
-    # Saves a.csv file of the correlation matrix in the results folder
+    # Save a.csv file of the correlation matrix in the results folder
     df_to_csv(corr_table, corr_filename + '.csv')
-
 
     # Stepwise linear regression and complete linear regression
     x = df.drop(columns = ['T1w_CSA']) # Initialize x to data of predictors
