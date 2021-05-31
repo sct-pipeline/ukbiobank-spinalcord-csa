@@ -97,6 +97,7 @@
 - sub-1106613_T1w.nii.gz  # FOV cuts C2-C3 disc  
 - sub-1107534_T1w.nii.gz  # FOV cuts C2-C3 disc
 - sub-1112791_T1w.nii.gz  # FOV cuts C2-C3 disc
+- sub-1112855_T1w.nii.gz  # Motion artifact
 - sub-1113167_T1w.nii.gz  # FOV cuts C2-C3 disc
 - sub-1113753_T1w.nii.gz  # Motion artifact
 - sub-1114977_T1w.nii.gz  # FOV cuts C2-C3 + poor data quality
