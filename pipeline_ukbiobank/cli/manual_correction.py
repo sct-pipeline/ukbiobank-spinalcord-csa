@@ -215,7 +215,7 @@ def main():
             for file in files:
                 # build file names
                 subject = file.split('_')[0]
-                contrast = 'anat'
+                contrast = utils.get_contrast(file)
                 fname = os.path.join(args.path_in, subject, contrast, file)
                 fname_label = os.path.join(
                     path_out_deriv, subject, contrast, utils.add_suffix(file, get_suffix(task, '-manual')))
