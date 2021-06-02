@@ -144,7 +144,7 @@ sct_run_batch -config config_sct_run_batch.yml
 
 - - -
 ### Quality control
-After running the analysis, check your Quality Control (qc) report by opening the file `~/ukbiobank_results/qc/index.html`. Use the "search" feature of the QC report to quikly jump to segmentations or labeling issues.
+After running the analysis, check your Quality Control (qc) report by opening the file `~/ukbiobank_results/qc/index.html`. Use the "search" feature of the QC report to quickly jump to segmentations or labeling issues.
 
 #### 1. Assess quality of segmentation and vertebral labeling
 If segmentation or labeling issues are noticed while checking the quality report, proceed to manual segmentation correction or manual labeling of C2-C3 intervertebral disc at the posterior tip of the disc using the procedure below:
