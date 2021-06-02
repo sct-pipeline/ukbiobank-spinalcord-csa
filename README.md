@@ -179,7 +179,7 @@ For the next steps, the script `uk_manual_correction` loops through all the file
 #### 2. Correct segmentations
 For manual segmentation, you will need ITK-SNAP and this repository only. See **[installation](#installation)** instructions and **[dependencies](#dependencies)**.
 
-Here is a tutorial for manually correcting segmentations:
+Here is a tutorial for manually correcting segmentations. Note that the new QC report format with interactive features (✅/❌/⚠️) is not included in the tutorial.
 
 [![IMAGE ALT TEXT](http://img.youtube.com/vi/vCVEGmKKY3o/sddefault.jpg)](https://youtu.be/vCVEGmKKY3o "Correcting segmentations across multiple subjects")
 
