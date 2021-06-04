@@ -59,6 +59,16 @@ def get_parser():
                         default='data_ukbiobank.csv',
                         metavar='<file>',
                         help="Filename of the output file of uk_get_subject_info Default: data_ukbiobank.csv  ")
+    parser.add_argument('-predictors',
+                        required=False,
+                        nargs='+',
+                        metavar='[PREDICTORS]',
+                        help="List of predictors to generate model with.")
+    parser.add_argument('-output-name',
+                        required=False,
+                        default='stats_results',
+                        metavar='<folder>',
+                        help="Name of output folder with results of statistics.")
     parser.add_argument('-exclude',
                         metavar='<file>',
                         required=False,
@@ -207,14 +217,20 @@ def df_to_csv(df, filename):
 
 def get_correlation_table(df) :
     """
-    Return correlation matrix of a DataFrame using Pearson's correlation coefficient.
+    Return correlation matrix of a DataFrame using Pearson's correlation coefficient, p-values of correlation coefficients and correlation matrix with level of significance *.
     Args:
         df (panda.DataFrame)
     Returns:
         corr_table (panda.DataFrame): correlation matrix of df
+        corr_table_pvalue (panda.DataFrame): p-values of correlation matrix of df
+        corr_table_and_p_value (panda.DataFrame): correlation matrix of df with level of significance labeled as *, ** or ***
     """
+    # TODO: remove half
     corr_table = df.corr(method='pearson')
-    return corr_table
+    corr_table_pvalue = df.corr(method=lambda x, y: scipy.stats.pearsonr(x, y)[1]) - np.eye(len(df.columns)) 
+    p = corr_table_pvalue.applymap(lambda x: ''.join(['*' for t in [0.001,0.05,0.01] if x<=t and x>0]))
+    corr_table_and_p_value = corr_table.round(2).astype(str) + p
+    return corr_table, corr_table_pvalue, corr_table_and_p_value
 
 
 def compare_sex(df, path):
@@ -392,6 +408,7 @@ def compute_regression_csa(x, y, p_in, p_out, contrast, path_model):
         contrast (str): Contrast of the image that CSA value was computed from
         path_model (str): Path of the result folder of the models
     """
+    predictors = x.index
     # Creates directory for results of CSA model for this contrast if doesn't exists
     path_model_contrast = os.path.join(path_model, contrast)
     if not os.path.exists(path_model_contrast):
@@ -404,13 +421,18 @@ def compute_regression_csa(x, y, p_in, p_out, contrast, path_model):
 
     # Generates model with selected predictors from stepwise
     model = generate_linear_model(x,y, selected_predictors)
+    # Apply normalization method
+    apply_normalization(y, x, model.params)
     m1_name = 'stepwise_'+ contrast
     # Saves summary of the model and the coefficients of the regression
     save_model(model, m1_name, path_model_contrast)
 
     # Generates linear regression with all predictors
-    model_full = generate_linear_model(x,y, PREDICTORS)
+    model_full = generate_linear_model(x,y)
     m2_name = 'fullLin_'+ contrast
+    # Apply normalization method
+    apply_normalization(y, x, model_full.params)
+
     # Saves summary of the model and the coefficients of the regression
     save_model(model_full, m2_name, path_model_contrast)
     
@@ -504,6 +526,29 @@ def analyse_residuals(model, model_name, data, path): # TODO: Add residuals as f
     logger.info('Created: ' + fname_fig)
 
 
+def apply_normalization(csa, data_predictor, coeff):
+    """
+    Normalize CSA values with coeff from multivariate model and computes COV.
+
+    Args:
+        csa (panda.DataFrame): csa values
+        data_predictor (panda.DataFrame): values for all subjects
+        coeff (panda.DataFrame): coefficients from multivariate model
+    Retruns:
+        pred_csa (np.ndarray): predictied CSA values
+    
+    """
+    coeff.drop('const', inplace=True)
+    predictors = list(coeff.index)
+    pred_csa = csa.to_numpy()
+    for predictor in predictors:
+        pred_csa = pred_csa + coeff[predictor]*(data_predictor[predictor] - data_predictor[predictor].mean())
+    COV_pred = np.std(pred_csa) / np.mean(pred_csa)  
+    logger.info('\n COV of normalized CSA: {}'.format(COV_pred))
+
+    return pred_csa
+
+
 def remove_subjects(df, dict_exclude_subj):
     """
     Remove subjects from exclude list if given and all subjects that are missing a parameter.
@@ -529,14 +574,14 @@ def remove_subjects(df, dict_exclude_subj):
     return df_updated
 
 
-def init_path_results():
+def init_path_results(output_name):
     """
     Create folders for stats results if does not exists.
     Returns:
         path_metric: path to folder of metrics
         path_model: path to folder of stats models
     """
-    path_statistics = 'stats_results'
+    path_statistics = output_name
     if not os.path.exists(path_statistics):
         os.mkdir(path_statistics)
     path_metrics = os.path.join(path_statistics,'metrics')
@@ -552,6 +597,8 @@ def main():
 
     parser = get_parser()
     args = parser.parse_args()
+    predictors = list(args.predictors)
+
     # If argument path-ouput included, go to the results folder
     if args.path_output is not None:
         path_results = os.path.join(args.path_output, 'results')
@@ -575,18 +622,19 @@ def main():
     else:
         # Initialize empty dict if no config yml file is passed
         dict_exclude_subj = dict()
+ 
+    # Initialize path of statistical results 
+    path_metrics, path_model = init_path_results(args.output_name)
 
     # Dump log file there
     if os.path.exists(FNAME_LOG):
         os.remove(FNAME_LOG)
-    fh = logging.FileHandler(os.path.join(os.path.abspath(os.curdir), FNAME_LOG))
+    fh = logging.FileHandler(os.path.join(os.path.abspath(os.curdir), args.output_name, FNAME_LOG))
     logging.root.addHandler(fh)
 
     # Remove all subjects that are missing a parameter or CSA value and subjects from exclude list.
     df = remove_subjects(df, dict_exclude_subj) 
 
-    # Initialize path of statistical results 
-    path_metrics, path_model = init_path_results()
 
     # Compute stats for T1w CSA
     stats_csa = compute_statistics(df)
@@ -601,11 +649,14 @@ def main():
     df_to_csv(stats_predictors, stats_predictors_filename + '.csv')   
 
     # Correlation matrix (Pearson's correlation coefficients)
-    corr_table = get_correlation_table(df)
+    corr_table, corr_pvalue, corr_and_pvalue = get_correlation_table(df)
     logger.info("Correlation matrix: {}".format(corr_table))
     corr_filename = os.path.join(path_metrics,'corr_table')
     # Save a.csv file of the correlation matrix in the results folder
     df_to_csv(corr_table, corr_filename + '.csv')
+    df_to_csv(corr_pvalue, corr_filename + '_pvalue.csv')
+    df_to_csv(corr_and_pvalue, corr_filename + '_and_pvalue.csv')
+
 
     # Stepwise linear regression and complete linear regression
     x = df.drop(columns = ['T1w_CSA']) # Initialize x to data of predictors
@@ -641,11 +692,14 @@ def main():
     compare_sex(df, path_model_sex) # T-Test and violin plots
 
     # P_values for forward and backward stepwise
-    p_in = 0.1 # (p_in > p_out)
-    p_out = 0.05
+    p_in = 0.01 # (p_in > p_out)
+    p_out = 0.005
 
     # Compute linear regression with all predictors and stepwise, compares, analyses and saves results
     logger.info("\nMultivariate model:\n")
+    logger.info("Initial predictors are {}".format(predictors))
+    if args.predictors:
+        x = x[predictors]
     compute_regression_csa(x, y_T1w, p_in, p_out, "T1w_CSA", path_model)
 
 if __name__ == '__main__':
