@@ -31,7 +31,7 @@ logger.setLevel(logging.INFO)  # default: logging.DEBUG, logging.INFO
 hdlr = logging.StreamHandler(sys.stdout)
 logging.root.addHandler(hdlr)
 
-PREDICTORS = ['Sex', 'Height', 'Weight', 'Age', 'Vscale', 'Volume ventricular CSF', 'Brain GM volume', 'Brain WM volume', 'Total brain volume norm', 'Total brain volume', 'Volume of thalamus (L)', 'Volume of thalamus (R)'] # TODO Add units of each
+PREDICTORS = [ 'Sex', 'Height', 'Weight', 'Age', 'Vscale', 'Volume ventricular CSF', 'Brain GM volume', 'Brain WM volume', 'Total brain volume norm', 'Total brain volume', 'Volume of thalamus (L)', 'Volume of thalamus (R)' ] # TODO Add units of each
 
 
 class SmartFormatter(argparse.HelpFormatter):
@@ -542,7 +542,7 @@ def apply_normalization(csa, data_predictor, coeff):
     predictors = list(coeff.index)
     pred_csa = csa.to_numpy()
     for predictor in predictors:
-        pred_csa = pred_csa + coeff[predictor]*(data_predictor[predictor] - data_predictor[predictor].mean())
+        pred_csa = pred_csa + coeff[predictor]*(data_predictor[predictor].mean() - data_predictor[predictor])
     COV_pred = np.std(pred_csa) / np.mean(pred_csa)  
     logger.info('\n COV of normalized CSA: {}'.format(COV_pred))
 
@@ -597,7 +597,10 @@ def main():
 
     parser = get_parser()
     args = parser.parse_args()
-    predictors = list(args.predictors)
+    if args.predictors:
+        predictors = list(args.predictors)
+    else:
+        predictors = PREDICTORS
 
     # If argument path-ouput included, go to the results folder
     if args.path_output is not None:
