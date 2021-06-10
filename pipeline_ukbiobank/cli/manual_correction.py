@@ -226,20 +226,23 @@ def main():
                         answer = None
                         while answer not in ("y", "n"):
                             answer = input("WARNING! The file {} already exists. "
-                                           "Would you like to overwrite it? [y/n] ".format(fname_label))
+                                           "Would you like to modify it? [y/n] ".format(fname_label))
                             if answer == "y":
                                 do_labeling = True
+                                overwrite = False
                             elif answer == "n":
                                 do_labeling = False
                             else:
                                 print("Please answer with 'y' or 'n'")
                     else:
                         do_labeling = True
+                        overwrite = True
                     # Perform labeling for the specific task
                     if do_labeling:
                         if task in ['FILES_SEG']:
                             fname_seg = utils.add_suffix(fname, get_suffix(task))
-                            shutil.copyfile(fname_seg, fname_label)
+                            if overwrite:
+                                shutil.copyfile(fname_seg, fname_label)
                             if not args.add_seg_only:
                                 correct_segmentation(fname, fname_label)
                         elif task == 'FILES_LABEL':
