@@ -15,7 +15,6 @@ import sys
 import yaml
 import scipy
 import statsmodels.api as sm
-import statsmodels.formula.api as smf
 import seaborn as sns
 import matplotlib.pyplot as plt
 from textwrap import dedent
@@ -33,6 +32,10 @@ logging.root.addHandler(hdlr)
 
 PREDICTORS = [ 'Sex', 'Height', 'Weight', 'Age', 'Vscale', 'Volume ventricular CSF', 'Brain GM volume', 'Brain WM volume', 'Total brain volume norm', 'Total brain volume', 'Volume of thalamus (L)', 'Volume of thalamus (R)' ] # TODO Add units of each
 
+MODELS = {
+    'model_1': ['Sex', 'Height', 'Weight', 'Age', 'Total brain volume', 'Volume of thalamus (L)', 'Volume of thalamus (R)'],
+    'model_2': ['Sex', 'Height', 'Weight', 'Age','Total brain volume norm', 'Volume of thalamus (L)', 'Volume of thalamus (R)'],
+}
 
 class SmartFormatter(argparse.HelpFormatter):
 
@@ -59,11 +62,6 @@ def get_parser():
                         default='data_ukbiobank.csv',
                         metavar='<file>',
                         help="Filename of the output file of uk_get_subject_info Default: data_ukbiobank.csv  ")
-    parser.add_argument('-predictors',
-                        required=False,
-                        nargs='+',
-                        metavar='[PREDICTORS]',
-                        help="List of predictors to generate model with.")
     parser.add_argument('-output-name',
                         required=False,
                         default='stats_results',
@@ -443,7 +441,7 @@ def compute_regression_csa(x, y, p_in, p_out, contrast, path_model):
     df_to_csv(compared_models,compared_models_filename ) # Saves to .csv
     
     # Residual analysis
-    logger.info('Analysing residuals...')
+    logger.info('\nAnalysing residuals...')
     analyse_residuals(model, m1_name, data = pd.concat([x, y], axis=1), path = os.path.join(path_model_contrast,'residuals'))
     analyse_residuals(model_full, m2_name, data = pd.concat([x, y], axis=1), path = os.path.join(path_model_contrast,'residuals'))
 
@@ -574,14 +572,14 @@ def remove_subjects(df, dict_exclude_subj):
     return df_updated
 
 
-def init_path_results(output_name):
+def init_path_results():
     """
     Create folders for stats results if does not exists.
     Returns:
         path_metric: path to folder of metrics
         path_model: path to folder of stats models
     """
-    path_statistics = output_name
+    path_statistics = 'stats_results'
     if not os.path.exists(path_statistics):
         os.mkdir(path_statistics)
     path_metrics = os.path.join(path_statistics,'metrics')
@@ -597,11 +595,7 @@ def main():
 
     parser = get_parser()
     args = parser.parse_args()
-    if args.predictors:
-        predictors = list(args.predictors)
-    else:
-        predictors = PREDICTORS
-
+    
     # If argument path-ouput included, go to the results folder
     if args.path_output is not None:
         path_results = os.path.join(args.path_output, 'results')
@@ -627,7 +621,7 @@ def main():
         dict_exclude_subj = dict()
  
     # Initialize path of statistical results 
-    path_metrics, path_model = init_path_results(args.output_name)
+    path_metrics, path_model = init_path_results()
 
     # Dump log file there
     if os.path.exists(FNAME_LOG):
@@ -682,7 +676,7 @@ def main():
     # Analyse CSA - Age
     logger.info("\nCSA and Age:")
     path_model_age = os.path.join(path_model,'age')
-    if not os.path.exists(path_scatter_plots):
+    if not os.path.exists(path_model_age):
         os.mkdir(path_model_age)
     save_model(generate_linear_model(df['Age'], y_T1w), 'linear_fit', path_model_age) # Linear model
     generate_quadratic_model(df['Age'], y_T1w, path_model_age) # Quadratic model
@@ -700,10 +694,13 @@ def main():
 
     # Compute linear regression with all predictors and stepwise, compares, analyses and saves results
     logger.info("\nMultivariate model:\n")
-    logger.info("Initial predictors are {}".format(predictors))
-    if args.predictors:
-        x = x[predictors]
-    compute_regression_csa(x, y_T1w, p_in, p_out, "T1w_CSA", path_model)
+    
+    # Loop through models  TODO: add save the new COV normalized
+    for model, predictors in MODELS.items():
+        logger.info("Initial predictors for {} are {}".format(model,predictors))
+        if not os.path.exists(os.path.join(path_model, model)):
+            os.mkdir(os.path.join(path_model, model))
+        compute_regression_csa(x[predictors], y_T1w, p_in, p_out, "T1w_CSA", os.path.join(path_model, model))
 
 if __name__ == '__main__':
     main()
