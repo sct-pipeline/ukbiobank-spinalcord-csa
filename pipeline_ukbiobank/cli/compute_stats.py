@@ -30,7 +30,21 @@ logger.setLevel(logging.INFO)  # default: logging.DEBUG, logging.INFO
 hdlr = logging.StreamHandler(sys.stdout)
 logging.root.addHandler(hdlr)
 
-PREDICTORS = [ 'Sex', 'Height', 'Weight', 'Age', 'Vscale', 'Volume ventricular CSF', 'Brain GM volume', 'Brain WM volume', 'Total brain volume norm', 'Total brain volume', 'Volume of thalamus (L)', 'Volume of thalamus (R)' ] # TODO Add units of each
+# Dictionnary of the predictors with units
+PREDICTORS = {
+    'Sex':'', 
+    'Height':'cm',
+    'Weight':'kg', 
+    'Age':'y.o.', 
+    'Vscale':'', 
+    'Volume ventricular CSF':'mm^2', 
+    'Brain GM volume':'mm^2', 
+    'Brain WM volume':'mm^2', 
+    'Total brain volume norm':'', 
+    'Total brain volume':'mm^2', 
+    'Volume of thalamus (L)':'mm^2', 
+    'Volume of thalamus (R)':'mm^2' 
+    }
 
 MODELS = {
     'model_1': ['Sex', 'Height', 'Weight', 'Age', 'Total brain volume', 'Volume of thalamus (L)', 'Volume of thalamus (R)'],
@@ -140,11 +154,11 @@ def compute_predictors_statistic(df):
     """
     stats={}
     metrics = ['min', 'max', 'med', 'mean']
-    for predictor in PREDICTORS:
+    for predictor in PREDICTORS.keys():
         stats[predictor] = {}
         for metric in metrics:
             stats[predictor][metric] = {}
-    for predictor in PREDICTORS:
+    for predictor in PREDICTORS.keys():
         stats[predictor]['min'] = np.min(df[predictor])
         stats[predictor]['max'] = np.max(df[predictor])
         stats[predictor]['med'] = np.median(df[predictor])
@@ -154,8 +168,8 @@ def compute_predictors_statistic(df):
     stats['Sex']['%_M'] = 100*(np.count_nonzero(df['Sex']) / len(df['Sex']))
     stats['Sex']['%_F'] = 100 - stats['Sex']['%_M']
     # Writes statistics of predictor into a text
-    # output_text_stats(stats) ---> TODO: uncomment when updated
-    stats_df =pd.DataFrame.from_dict(stats) # Converts dict to dataFrame
+    output_text_stats(stats) 
+    stats_df =pd.DataFrame.from_dict(stats)  # Converts dict to dataFrame
 
     return stats_df
 
@@ -169,21 +183,18 @@ def output_text_stats(stats): # TODO : add other parameters
     logger.info('Sex statistic:')
     logger.info('   {:.3} % of male  and {:.3} % of female.'.format(stats['Sex']['%_M'],
                                                                              stats['Sex']['%_F']))
-    logger.info('Height statistic:')
-    logger.info('   Height between {} and {} cm, median height {} cm, mean height {} cm.'.format(stats['Height']['min'],
-                                                                            stats['Height']['max'],
-                                                                            stats['Height']['med'],
-                                                                            stats['Height']['mean']))
-    logger.info('Weight statistic:')
-    logger.info('   Weight between {:.6} and {:.6} kg, median weight {:.6} kg, mean weight {:.6} kg.'.format(stats['Weight']['min'],
-                                                                            stats['Weight']['max'],
-                                                                            stats['Weight']['med'],
-                                                                            stats['Weight']['mean']))
-    logger.info('Age statistic:')
-    logger.info('   Age between {} and {} y.o., median age {} y.o., mean age {:.6} y.o..'.format(stats['Age']['min'],
-                                                                            stats['Age']['max'],
-                                                                            stats['Age']['med'],
-                                                                            stats['Age']['mean']))
+    for predictor in [*PREDICTORS][1:]:                                                                         
+        logger.info('{} statistic:'.format(predictor))
+        logger.info('{} between {} and {} {}, median {} {} {}, mean {} {:.6} {}.'.format(predictor,
+                                                                                stats[predictor]['min'],
+                                                                                stats[predictor]['max'],
+                                                                                PREDICTORS[predictor],
+                                                                                predictor,
+                                                                                stats[predictor]['med'],
+                                                                                PREDICTORS[predictor],
+                                                                                predictor,
+                                                                                stats[predictor]['mean'],
+                                                                                PREDICTORS[predictor]))
     
 
 def scatter_plot(x,y, filename, path):
@@ -397,7 +408,7 @@ def save_model(model, model_name, path_model_contrast):
 
 def compute_regression_csa(x, y, p_in, p_out, contrast, path_model):
     """
-    Compute stepwise model and complete linear model of CSA. Save both models, compare and analyses residuals.
+    Compute stepwise model and complete linear model of CSA. Save both models, compare and analyses residuals. Apply normalizatio method from model and compute COV.
     Args:
         x (panda.DataFrame): Data of predictors
         y (panda.DataFrame): Data of CSA
@@ -405,8 +416,9 @@ def compute_regression_csa(x, y, p_in, p_out, contrast, path_model):
         p_out (float): exclude a predictor if its p-value > p_out for stepwise
         contrast (str): Contrast of the image that CSA value was computed from
         path_model (str): Path of the result folder of the models
+    Return:
+        COV_step, COV_full
     """
-    predictors = x.index
     # Creates directory for results of CSA model for this contrast if doesn't exists
     path_model_contrast = os.path.join(path_model, contrast)
     if not os.path.exists(path_model_contrast):
@@ -420,7 +432,7 @@ def compute_regression_csa(x, y, p_in, p_out, contrast, path_model):
     # Generates model with selected predictors from stepwise
     model = generate_linear_model(x,y, selected_predictors)
     # Apply normalization method
-    apply_normalization(y, x, model.params)
+    COV_step = apply_normalization(y, x, model.params)
     m1_name = 'stepwise_'+ contrast
     # Saves summary of the model and the coefficients of the regression
     save_model(model, m1_name, path_model_contrast)
@@ -429,7 +441,7 @@ def compute_regression_csa(x, y, p_in, p_out, contrast, path_model):
     model_full = generate_linear_model(x,y)
     m2_name = 'fullLin_'+ contrast
     # Apply normalization method
-    apply_normalization(y, x, model_full.params)
+    COV_full = apply_normalization(y, x, model_full.params)
 
     # Saves summary of the model and the coefficients of the regression
     save_model(model_full, m2_name, path_model_contrast)
@@ -444,6 +456,8 @@ def compute_regression_csa(x, y, p_in, p_out, contrast, path_model):
     logger.info('\nAnalysing residuals...')
     analyse_residuals(model, m1_name, data = pd.concat([x, y], axis=1), path = os.path.join(path_model_contrast,'residuals'))
     analyse_residuals(model_full, m2_name, data = pd.concat([x, y], axis=1), path = os.path.join(path_model_contrast,'residuals'))
+
+    return COV_step, COV_full
 
 
 def compare_models(model_1, model_2, model_1_name, model_2_name):
@@ -544,7 +558,7 @@ def apply_normalization(csa, data_predictor, coeff):
     COV_pred = np.std(pred_csa) / np.mean(pred_csa)  
     logger.info('\n COV of normalized CSA: {}'.format(COV_pred))
 
-    return pred_csa
+    return COV_pred
 
 
 def remove_subjects(df, dict_exclude_subj):
@@ -668,7 +682,7 @@ def main():
 
     # Create pairwise plot between CSA and preditors seprated for sex | Maybe not useful, but nice to see
     plt.figure()
-    sns.pairplot(df, x_vars=PREDICTORS.remove('Sex'), y_vars='T1w_CSA', kind='reg', hue='Sex', palette="Set1")
+    sns.pairplot(df, x_vars=([*PREDICTORS]).remove('Sex'), y_vars='T1w_CSA', kind='reg', hue='Sex', palette="Set1")
     plt.savefig(os.path.join(path_scatter_plots, 'pairwise_plot' +'.png'))
     plt.close()              
     logger.info("Created Scatter Plots - Saved in {}".format(path_scatter_plots))
@@ -694,13 +708,18 @@ def main():
 
     # Compute linear regression with all predictors and stepwise, compares, analyses and saves results
     logger.info("\nMultivariate model:\n")
-    
+
+    # Initialize dict for new COV of normalized CSA
+    df_COV = {}
+
     # Loop through models  TODO: add save the new COV normalized
     for model, predictors in MODELS.items():
         logger.info("Initial predictors for {} are {}".format(model,predictors))
         if not os.path.exists(os.path.join(path_model, model)):
             os.mkdir(os.path.join(path_model, model))
-        compute_regression_csa(x[predictors], y_T1w, p_in, p_out, "T1w_CSA", os.path.join(path_model, model))
+        COV_step, COV_full = compute_regression_csa(x[predictors], y_T1w, p_in, p_out, "T1w_CSA", os.path.join(path_model, model))
+        df_COV[model] = [COV_step, COV_full]
+    df_to_csv(pd.DataFrame.from_dict(df_COV, orient='index', columns=['Stepwise', 'Full']), os.path.join(path_model, 'norm_COV.csv'))
 
 if __name__ == '__main__':
     main()
