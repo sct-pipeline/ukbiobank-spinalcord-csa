@@ -37,13 +37,13 @@ PREDICTORS = {
     'Weight':'kg', 
     'Age':'y.o.', 
     'Vscale':'', 
-    'Volume ventricular CSF':'mm^2', 
-    'Brain GM volume':'mm^2', 
-    'Brain WM volume':'mm^2', 
+    'Volume ventricular CSF':'mm$^2$', 
+    'Brain GM volume':'mm$^2$', 
+    'Brain WM volume':'mm$^2$', 
     'Total brain volume norm':'', 
-    'Total brain volume':'mm^2', 
-    'Volume of thalamus (L)':'mm^2', 
-    'Volume of thalamus (R)':'mm^2' 
+    'Total brain volume':'mm$^2$', 
+    'Volume of thalamus (L)':'mm$^2$', 
+    'Volume of thalamus (R)':'mm$^2$' 
     }
 
 MODELS = {
@@ -138,8 +138,8 @@ def output_text_CSA_stats(stats, contrast):
     """
     logger.info('\nStatistics of {}:'.format(contrast))
     logger.info('   There are {} subjects included in the analysis.'.format(stats[contrast]['n']))
-    logger.info('   CSA values are between {:.6} and {:.6} mm^2'.format(stats[contrast]['min'], stats[contrast]['max']))
-    logger.info('   Mean CSA is {:.6} mm^2, standard deviation CSA is of {:.6}, median value is of {:.6} mm^2.'.format(stats[contrast]['mean'], stats[contrast]['std'], stats[contrast]['med']))
+    logger.info('   CSA values are between {:.6} and {:.6} mm$^2$'.format(stats[contrast]['min'], stats[contrast]['max']))
+    logger.info('   Mean CSA is {:.6} mm$^2$, standard deviation CSA is of {:.6}, median value is of {:.6} mm$^2$.'.format(stats[contrast]['mean'], stats[contrast]['std'], stats[contrast]['med']))
     logger.info('   The COV is of {:.6} and 95 confidence interval is {:.6}.'.format(stats[contrast]['COV'], stats[contrast]['95ci']))
     logger.info('   The results of Shapiro-wilik test has a p-value of {:.6}.'.format(stats[contrast]['normality_test_p']))
 
@@ -206,7 +206,7 @@ def scatter_plot(x,y, filename, path):
     """
     plt.figure()
     sns.regplot(x=x, y=y, line_kws={"color": "crimson"})
-    plt.ylabel('CSA (mm^2)')
+    plt.ylabel('CSA (mm$^2$)')
     plt.xlabel(filename)
     plt.title('Scatter Plot - CSA as function of '+ filename)
     plt.savefig(os.path.join(path,filename +'.png'))
@@ -256,17 +256,33 @@ def compare_sex(df, path):
 
     # Compute T-test
     results = scipy.stats.ttest_ind(df[df['Sex'] == 0]['T1w_CSA'], df[df['Sex'] == 1]['T1w_CSA'])
+    df.loc[df['Sex'] == 0, 'Sex'] = 'F'
+    df.loc[df['Sex'] == 1, 'Sex'] = 'M'
     # Violin plot
     plt.figure()
+    fig, ax = plt.subplots()
     plt.title("Violin plot of CSA and sex")
     sns.violinplot(y='T1w_CSA', x='Sex', data=df, palette='flare')
+    # Add mean CSA and std for female
+    textstr_F = '\n'.join((
+    r'$\mu=%.2f$' % (mean_csa_F, ),
+    r'$\sigma=%.2f$' % (std_csa_F, )))
+    ax.text(0.05, 0.92, textstr_F, transform=ax.transAxes, fontsize=14,
+        verticalalignment='top', horizontalalignment='left')
+    # Add mean CSA and std for female
+    textstr_M = '\n'.join((
+    r'$\mu=%.2f$' % (mean_csa_M, ),
+    r'$\sigma=%.2f$' % (std_csa_M, )))
+    ax.text(0.82, 0.92, textstr_M, transform=ax.transAxes, fontsize=14,
+        verticalalignment='top', horizontalalignment='left')
+    plt.ylabel('CSA (mm$^2$)')
     fname_fig = os.path.join(path,'violin_plot.png')
     plt.savefig(fname_fig)
 
     # Write results
     logger.info('Created: ' + fname_fig)
-    logger.info('Mean CSA value for female : {:.4} mm^2, std is {:.4}'.format(mean_csa_F, std_csa_F))
-    logger.info('Mean CSA value for male : {:.4} mm^2, std is {:.4}'.format(mean_csa_M, std_csa_M))
+    logger.info('Mean CSA value for female : {:.4} mm$^2$, std is {:.4}'.format(mean_csa_F, std_csa_F))
+    logger.info('Mean CSA value for male : {:.4} mm$^2$, std is {:.4}'.format(mean_csa_M, std_csa_M))
     logger.info("T test p_value : {} ".format(results[1]))
 
 
@@ -314,7 +330,7 @@ def generate_quadratic_model(x,y, path, degree=2):
     plt.figure()
     plt.title("CSA as function of Age and quadratic fit")
     plt.xlabel('Age')
-    plt.ylabel('CSA (mm^2)')
+    plt.ylabel('CSA (mm$^2$)')
     plt.scatter(x,y)
     plt.plot(x,ypred, 'r')
     fname_fig = os.path.join(path,'quadratic_fit.png')
@@ -692,18 +708,18 @@ def main():
     path_model_age = os.path.join(path_model,'age')
     if not os.path.exists(path_model_age):
         os.mkdir(path_model_age)
-    save_model(generate_linear_model(df['Age'], y_T1w), 'linear_fit', path_model_age) # Linear model
-    generate_quadratic_model(df['Age'], y_T1w, path_model_age) # Quadratic model
+    save_model(generate_linear_model(df['Age'], y_T1w), 'linear_fit', path_model_age)  # Linear model
+    generate_quadratic_model(df['Age'], y_T1w, path_model_age)  # Quadratic model
 
     # Analyse CSA - Sex
     logger.info("\nCSA and Sex:")
     path_model_sex = os.path.join(path_model,'sex')
     if not os.path.exists(path_model_sex):
         os.mkdir(path_model_sex)
-    compare_sex(df, path_model_sex) # T-Test and violin plots
+    compare_sex(df, path_model_sex)  # T-Test and violin plots
 
     # P_values for forward and backward stepwise
-    p_in = 0.01 # (p_in > p_out)
+    p_in = 0.01  # (p_in > p_out)
     p_out = 0.005
 
     # Compute linear regression with all predictors and stepwise, compares, analyses and saves results
@@ -712,13 +728,14 @@ def main():
     # Initialize dict for new COV of normalized CSA
     df_COV = {}
 
-    # Loop through models  TODO: add save the new COV normalized
+    # Loop through models
     for model, predictors in MODELS.items():
         logger.info("Initial predictors for {} are {}".format(model,predictors))
         if not os.path.exists(os.path.join(path_model, model)):
             os.mkdir(os.path.join(path_model, model))
         COV_step, COV_full = compute_regression_csa(x[predictors], y_T1w, p_in, p_out, "T1w_CSA", os.path.join(path_model, model))
         df_COV[model] = [COV_step, COV_full]
+    # Save as .csv COV of normalized CSA
     df_to_csv(pd.DataFrame.from_dict(df_COV, orient='index', columns=['Stepwise', 'Full']), os.path.join(path_model, 'norm_COV.csv'))
 
 if __name__ == '__main__':
