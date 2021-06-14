@@ -37,13 +37,13 @@ PREDICTORS = {
     'Weight':'kg', 
     'Age':'y.o.', 
     'Vscale':'', 
-    'Volume ventricular CSF':'mm$^2$', 
-    'Brain GM volume':'mm$^2$', 
-    'Brain WM volume':'mm$^2$', 
+    'Volume ventricular CSF':'mm\u00b2', 
+    'Brain GM volume':'mm\u00b2', 
+    'Brain WM volume':'mm\u00b2', 
     'Total brain volume norm':'', 
-    'Total brain volume':'mm$^2$', 
-    'Volume of thalamus (L)':'mm$^2$', 
-    'Volume of thalamus (R)':'mm$^2$' 
+    'Total brain volume':'mm\u00b2', 
+    'Volume of thalamus (L)':'mm\u00b2', 
+    'Volume of thalamus (R)':'mm\u00b2' 
     }
 
 MODELS = {
@@ -138,8 +138,8 @@ def output_text_CSA_stats(stats, contrast):
     """
     logger.info('\nStatistics of {}:'.format(contrast))
     logger.info('   There are {} subjects included in the analysis.'.format(stats[contrast]['n']))
-    logger.info('   CSA values are between {:.6} and {:.6} mm$^2$'.format(stats[contrast]['min'], stats[contrast]['max']))
-    logger.info('   Mean CSA is {:.6} mm$^2$, standard deviation CSA is of {:.6}, median value is of {:.6} mm$^2$.'.format(stats[contrast]['mean'], stats[contrast]['std'], stats[contrast]['med']))
+    logger.info('   CSA values are between {:.6} and {:.6} mm\u00b2'.format(stats[contrast]['min'], stats[contrast]['max']))
+    logger.info('   Mean CSA is {:.6} mm\u00b2, standard deviation CSA is of {:.6}, median value is of {:.6} mm\u00b2.'.format(stats[contrast]['mean'], stats[contrast]['std'], stats[contrast]['med']))
     logger.info('   The COV is of {:.6} and 95 confidence interval is {:.6}.'.format(stats[contrast]['COV'], stats[contrast]['95ci']))
     logger.info('   The results of Shapiro-wilik test has a p-value of {:.6}.'.format(stats[contrast]['normality_test_p']))
 
@@ -281,8 +281,8 @@ def compare_sex(df, path):
 
     # Write results
     logger.info('Created: ' + fname_fig)
-    logger.info('Mean CSA value for female : {:.4} mm$^2$, std is {:.4}'.format(mean_csa_F, std_csa_F))
-    logger.info('Mean CSA value for male : {:.4} mm$^2$, std is {:.4}'.format(mean_csa_M, std_csa_M))
+    logger.info('Mean CSA value for female : {:.4} mm\u00b2, std is {:.4}'.format(mean_csa_F, std_csa_F))
+    logger.info('Mean CSA value for male : {:.4} mm\u00b2, std is {:.4}'.format(mean_csa_M, std_csa_M))
     logger.info("T test p_value : {} ".format(results[1]))
 
 
