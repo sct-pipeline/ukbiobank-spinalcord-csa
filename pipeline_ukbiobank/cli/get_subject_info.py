@@ -7,6 +7,7 @@
 
 import os
 import argparse
+import numpy as np
 import pandas as pd
 
 
@@ -117,6 +118,28 @@ def compute_total_thalamus_volume(df):
     df.drop('Volume of thalamus (R)', axis='columns', inplace=True)
 
 
+def check_neuro_disease_history(df_disease, df):
+    """
+    Check if subject has history of nervous system disorders (fields https://biobank.ndph.ox.ac.uk/showcase/label.cgi?id=2406).
+    Add 1 in column neuro_disease if it is the case.
+    Args:
+        df_disease (pandas.DataFrame):; dataframe with all fields.
+        df (pandas.DataFrame): dataframe of parameters for all subjects with subjects' eid as row index.
+    """
+    fields = df_disease.columns.values.tolist()
+    disease = [i for i in fields if i.startswith('13')]
+    disease.append('eid')
+    exclude = (df_disease[disease].set_index('eid')).dropna(0, how='all')
+    for subject in df.index.tolist():
+        # For subjects that have neuro disease,
+        if subject in exclude.index.tolist():
+            # Set 1 value for the subject
+            df.loc[subject, 'neuro_disease'] = 1
+        else:
+            df.loc[subject, 'neuro_disease'] = 0
+    df['neuro_disease'] = df['neuro_disease'].astype(np.int)
+
+
 def main():
     parser = get_parser()
     args = parser.parse_args()
@@ -142,6 +165,8 @@ def main():
     # Set the index of the dataFrame to 'Subject'
     df = df.set_index('Subject')
 
+    # Check if subject has history of neuro disease
+    check_neuro_disease_history(raw_data, df)
     # Sum right and left thalamus volume
     compute_total_thalamus_volume(df)
 

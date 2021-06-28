@@ -185,7 +185,7 @@ def output_text_stats(stats):
                                                                     stats['Sex']['%_F']))
     for predictor in [*PREDICTORS][1:]:
         logger.info('{} statistic:'.format(predictor))
-        logger.info('{} between {} and {} {}, median {} {} {}, mean {} {:.6} {}.'.format(predictor,
+        logger.info('   {} between {} and {} {}, median {} {} {}, mean {} {:.6} {}.'.format(predictor,
                                                                                          stats[predictor]['min'],
                                                                                          stats[predictor]['max'],
                                                                                          PREDICTORS[predictor],
@@ -595,7 +595,11 @@ def remove_subjects(df, dict_exclude_subj):
             if sub_id in df.index:
                 df = df.drop(index=sub_id)
                 subjects_removed = np.append(subjects_removed, sub_id)  # add subject to excluded list
+    # Add subjects with nervous system disorders to list subjects_removed
+    subjects_removed = np.append(subjects_removed, df[df['neuro_disease'] == 1].index.values)
     df_updated = df.dropna(0, how='any').reset_index(drop=True)  # Drops all subjects missing a parameter
+    df_updated = df_updated[df_updated['neuro_disease'] == 0]  # Keep subject without nervous system disorders
+    df_updated.drop('neuro_disease', axis='columns', inplace=True)
     logger.info("{} Subjects removed : {}".format(len(subjects_removed), subjects_removed))
     return df_updated
 
