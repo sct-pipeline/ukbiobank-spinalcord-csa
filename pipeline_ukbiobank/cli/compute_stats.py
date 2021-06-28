@@ -380,6 +380,8 @@ def compute_stepwise(x, y, threshold_in, threshold_out):
             worst_predictor = included[pvalues.argmax()]  # gets the predictor with worst p-value
             included.remove(worst_predictor)  # Removes the worst predictor of included predictor list
             logger.info('Drop {:30} with p-value {:.6}'.format(worst_predictor, worst_pval))
+            if worst_pval == best_pval and worst_predictor == best_predictor:  # If inclusion of a paremeter doesn't change p_value, end stepwise to avoid infinite loop
+                break
         if not changed:
             break
 
