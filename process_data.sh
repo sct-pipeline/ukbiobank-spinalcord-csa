@@ -109,6 +109,7 @@ sct_flatten_sagittal -i ${file_t1}.nii.gz -s ${file_t1_seg}.nii.gz
 # Compute average cord CSA between C2 and C3
 sct_process_segmentation -i ${file_t1_seg}.nii.gz -vert 2:3 -vertfile ${file_t1_seg_labeled}.nii.gz -o ${PATH_RESULTS}/csa-SC_c2c3.csv -append 1
 
+
 # Detect PMJ
 sct_detect_pmj -i ${file_t1}.nii.gz -c t1 -s ${file_t1_seg}.nii.gz -qc ${PATH_QC}
 # Compute average cord CSA from 60 mm of PMJ
