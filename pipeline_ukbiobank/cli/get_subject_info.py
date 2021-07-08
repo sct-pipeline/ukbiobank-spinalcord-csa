@@ -109,9 +109,9 @@ def append_csa_to_df(df, csa, column_name):
 
 def compute_total_thalamus_volume(df):
     """
-    Add a new column with the sum of right and left thalamus volume. Removes columns of right and left thalamus volume.
+    Add a new column with the sum of right and left thalamus volume. Remove columns of right and left thalamus volume in df.
     Args:
-        df (pandas.DataFrame): dataframe of parameters for all subjects with subjects' eid as row index.
+        df (pandas.DataFrame): dataframe of parameters for all subjects.
     """
     df['Thalamus Volume'] = df['Volume of thalamus (L)'] + df['Volume of thalamus (R)']
     df.drop('Volume of thalamus (L)', axis='columns', inplace=True)

@@ -186,15 +186,15 @@ def output_text_stats(stats):
     for predictor in [*PREDICTORS][1:]:
         logger.info('{} statistic:'.format(predictor))
         logger.info('   {} between {} and {} {}, median {} {} {}, mean {} {:.6} {}.'.format(predictor,
-                                                                                         stats[predictor]['min'],
-                                                                                         stats[predictor]['max'],
-                                                                                         PREDICTORS[predictor],
-                                                                                         predictor,
-                                                                                         stats[predictor]['med'],
-                                                                                         PREDICTORS[predictor],
-                                                                                         predictor,
-                                                                                         stats[predictor]['mean'],
-                                                                                         PREDICTORS[predictor]))
+                                                                                            stats[predictor]['min'],
+                                                                                            stats[predictor]['max'],
+                                                                                            PREDICTORS[predictor],
+                                                                                            predictor,
+                                                                                            stats[predictor]['med'],
+                                                                                            PREDICTORS[predictor],
+                                                                                            predictor,
+                                                                                            stats[predictor]['mean'],
+                                                                                            PREDICTORS[predictor]))
 
 
 def scatter_plot(x, y, filename, path):
@@ -426,7 +426,7 @@ def save_model(model, model_name, path_model_contrast):
 
 def compute_regression_csa(x, y, p_in, p_out, contrast, path_model):
     """
-    Compute stepwise model and complete linear model of CSA. Save both models, compare and analyses residuals. Apply normalizatio method from model and compute COV.
+    Compute stepwise model and complete linear model of CSA. Save both models, compare and analyse residuals. Apply normalization method from model and compute COV.
     Args:
         x (panda.DataFrame): Data of predictors
         y (panda.DataFrame): Data of CSA
@@ -663,7 +663,7 @@ def main():
     fh = logging.FileHandler(os.path.join(os.path.abspath(os.curdir), args.output_name, FNAME_LOG))
     logging.root.addHandler(fh)
 
-    # Remove all subjects that are missing a parameter or CSA value and subjects from exclude list.
+    # Remove all subjects that are missing a parameter or CSA value, subjects from exclude list and subjects with nervous system disorders.
     df = remove_subjects(df, dict_exclude_subj)
 
     # Compute stats for T1w CSA
