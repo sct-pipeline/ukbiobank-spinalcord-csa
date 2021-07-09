@@ -70,6 +70,26 @@ segment_if_does_not_exist(){
   fi
 }
 
+# Check if PMJ label exists. If it does not, perform automatic detection.
+detect_pmj_if_does_not_exist(){
+  local file="$1"
+  local file_seg="$2"
+  # Update global variable with segmentation file name
+  FILELABEL="${file}_pmj"  # MAYBE TO CHANGE
+  FILELABELMANUAL="${PATH_DATA}/derivatives/labels/${SUBJECT}/anat/${FILELABEL}-manual.nii.gz"
+  echo "Looking for manual label: $FILELABELMANUAL"
+  if [[ -e $FILELABELMANUAL ]]; then
+    echo "Found! Using manual labels."
+    rsync -avzh $FILELABELMANUAL ${FILELABEL}.nii.gz
+    sct_qc -i ${file}.nii.gz -s ${FILELABEL}.nii.gz -p sct_detect_pmj -qc ${PATH_QC} -qc-subject ${SUBJECT}
+
+  else
+    echo "Not found. Proceeding with automatic labeling."
+    # Detetct PMJ
+    sct_detect_pmj -i ${file}.nii.gz -c t1 -s ${file_seg}.nii.gz -qc ${PATH_QC}
+  fi
+}
+
 # SCRIPT STARTS HERE
 # ==============================================================================
 # Display useful info for the log, such as SCT version, RAM and CPU cores available
@@ -110,7 +130,7 @@ sct_flatten_sagittal -i ${file_t1}.nii.gz -s ${file_t1_seg}.nii.gz
 sct_process_segmentation -i ${file_t1_seg}.nii.gz -vert 2:3 -vertfile ${file_t1_seg_labeled}.nii.gz -o ${PATH_RESULTS}/csa-SC_c2c3.csv -append 1
 
 # Detect PMJ
-sct_detect_pmj -i ${file_t1}.nii.gz -c t1 -s ${file_t1_seg}.nii.gz -qc ${PATH_QC}
+detect_pmj_if_does_not_exist $file_t1 $file_t1_seg
 # Compute average cord CSA 60 mm of PMJ
 sct_process_segmentation -i ${file_t1_seg}.nii.gz -pmj ${file_t1}_pmj.nii.gz -distance 60 -o ${PATH_RESULTS}/csa-SC_pmj.csv -append 1
 
@@ -122,6 +142,7 @@ sct_maths -i ${file_t1_seg}_centerline_extrapolated.nii.gz -smooth 10,1,1 -o ${f
 FILES_TO_CHECK=(
   "${SUBJECT}_T1w_seg.nii.gz" 
   "${SUBJECT}_T1w_seg_labeled.nii.gz"
+  "${SUBJECT}_T1w_pmj.nii.gz"
 )
 pwd
 for file in ${FILES_TO_CHECK[@]}; do
