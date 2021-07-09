@@ -52,6 +52,9 @@ def get_parser():
             - sub-1000083_T2w.nii.gz
             FILES_LABEL:
             - sub-1000032_T1w.nii.gz
+            - sub-1000710_T1w.nii.gz
+            FILES_PMJ:
+            - sub-1000032_T1w.nii.gz
             - sub-1000710_T1w.nii.gz\n
             """)
     )
@@ -95,6 +98,8 @@ def get_function(task):
         return 'sct_deepseg_sc'
     elif task == 'FILES_LABEL':
         return 'sct_label_utils'
+    elif task == 'FILES_PMJ':
+        return 'sct_detect_pmj'
     else:
         raise ValueError("This task is not recognized: {}".format(task))
 
@@ -104,6 +109,9 @@ def get_suffix(task, suffix=''):
         return '_seg'+suffix
     elif task == 'FILES_LABEL':
         return '_labels'+suffix
+    elif task == 'FILES_PMJ':
+        return '_pmj'+suffix
+
     else:
         raise ValueError("This task is not recognized: {}".format(task))
 
