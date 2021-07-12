@@ -14,7 +14,6 @@ import json
 import os
 import sys
 import shutil
-import subprocess
 from textwrap import dedent
 import time
 import yaml
@@ -129,10 +128,10 @@ def correct_segmentation(fname, fname_seg_out):
     # launch ITK-SNAP
     # Note: command line differs for macOs/Linux and Windows
     print("In ITK-SNAP, correct the segmentation, then save it with the same name (overwrite).")
-    if shutil.which('itksnap') != None: # Check if command 'itksnap' exists
-        os.system('itksnap -g ' + fname + ' -s ' + fname_seg_out) # for macOS and Linux
-    elif shutil.which('ITK-SNAP') != None: # Check if command 'ITK-SNAP' exists
-        os.system('ITK-SNAP -g ' + fname + ' -s ' + fname_seg_out) # For windows
+    if shutil.which('itksnap') is not None:  # Check if command 'itksnap' exists
+        os.system('itksnap -g ' + fname + ' -s ' + fname_seg_out)  # for macOS and Linux
+    elif shutil.which('ITK-SNAP') is not None:  # Check if command 'ITK-SNAP' exists
+        os.system('ITK-SNAP -g ' + fname + ' -s ' + fname_seg_out)  # For windows
     else:
         sys.exit("ITK-SNAP not found. Please install it before using this program or check if it was added to PATH variable. Exit program.")
 
@@ -198,7 +197,7 @@ def main():
             dict_yml = yaml.safe_load(stream)
         except yaml.YAMLError as exc:
             print(exc)
-    
+
     # Curate dict_yml to only have filenames instead of absolute path
     dict_yml = utils.curate_dict_yml(dict_yml)
 
@@ -218,7 +217,7 @@ def main():
 
     # Get list of segmentations files for all subjects in -path-in (if -add-seg-only)
     if args.add_seg_only:
-        path_list = glob.glob(args.path_in + "/**/*_seg.nii.gz", recursive=True) # TODO: add other extension
+        path_list = glob.glob(args.path_in + "/**/*_seg.nii.gz", recursive=True)  # TODO: add other extension
         # Get only filenames without suffix _seg  to match files in -config .yml list
         file_list = [utils.remove_suffix(os.path.split(path)[-1], '_seg') for path in path_list]
 
@@ -226,13 +225,13 @@ def main():
     # Perform manual corrections
     for task, files in dict_yml.items():
         # Get the list of segmentation files to add to derivatives, excluding the manually corrrected files in -config.
-        if args.add_seg_only and task=='FILES_SEG':
+        if args.add_seg_only and task == 'FILES_SEG':
             # Remove the files in the -config list
             for file in files:
                 if file in file_list:
                     file_list.remove(file)
-            files = file_list # Rename to use those files instead of the ones to exclude
-        if files is not None: 
+            files = file_list  # Rename to use those files instead of the ones to exclude
+        if files is not None:
             for file in files:
                 # build file names
                 subject = file.split('_')[0]
@@ -282,11 +281,12 @@ def main():
                 # generate QC report (only for vertebral labeling or for qc only)
                 if args.qc_only or task == 'FILES_LABEL':
                     os.system('sct_qc -i {} -s {} -p {} -qc {} -qc-subject {}'.format(
-                        fname, fname_label, get_function(task) , fname_qc, subject))
+                        fname, fname_label, get_function(task), fname_qc, subject))
                     # Archive QC folder
                     shutil.copy(fname_yml, fname_qc)
                     shutil.make_archive(fname_qc, 'zip', fname_qc)
                     print("Archive created:\n--> {}".format(fname_qc+'.zip'))
+
 
 if __name__ == '__main__':
     main()
