@@ -279,7 +279,7 @@ def main():
                         create_json(fname_label, name_rater)
 
                 # generate QC report (only for vertebral labeling or for qc only)
-                if args.qc_only or task == 'FILES_LABEL':
+                if args.qc_only or task != 'FILES_SEG':
                     os.system('sct_qc -i {} -s {} -p {} -qc {} -qc-subject {}'.format(
                         fname, fname_label, get_function(task), fname_qc, subject))
                     # Archive QC folder
