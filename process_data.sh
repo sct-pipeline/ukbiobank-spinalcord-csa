@@ -85,7 +85,7 @@ detect_pmj_if_does_not_exist(){
 
   else
     echo "Not found. Proceeding with automatic labeling."
-    # Detetct PMJ
+    # Detect PMJ
     sct_detect_pmj -i ${file}.nii.gz -c t1 -s ${file_seg}.nii.gz -qc ${PATH_QC}
   fi
 }
