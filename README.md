@@ -66,7 +66,9 @@ uk-biobank-processed
                 ├── sub-1000710_T1w_seg-manual.json  <------------ information about origin of segmentation
                 ├── sub-1000710_T1w_labels-manual.nii.gz  <------- manual vertebral labels
                 ├── sub-1000710_T1w_labels-manual.json
-                ├── sub-10007106_T2w_seg-manual.nii.gz  <---------- manually-corrected spinal cord segmentation
+                ├── sub-1000710_T1w_pmj-manual.nii.gz  <------- manual pmj label
+                ├── sub-1000710_T1w_pmj-manual.json
+                ├── sub-1000710_T2w_seg-manual.nii.gz  <---------- manually-corrected spinal cord segmentation
                 └── sub-1000710_T2w_seg-manual.json
  
 ~~~
@@ -146,11 +148,11 @@ sct_run_batch -config config_sct_run_batch.yml
 ### Quality control
 After running the analysis, check your Quality Control (qc) report by opening the file `~/ukbiobank_results/qc/index.html`. Use the "search" feature of the QC report to quickly jump to segmentations or labeling issues.
 
-#### 1. Assess quality of segmentation and vertebral labeling
-If segmentation or labeling issues are noticed while checking the quality report, proceed to manual segmentation correction or manual labeling of C2-C3 intervertebral disc at the posterior tip of the disc using the procedure below:
+#### 1. Assess quality of segmentation, vertebral and pontomedullary junction (PMJ) labeling
+If segmentation or labeling issues are noticed while checking the quality report, proceed to manual correction using the procedure below:
 
-1. In QC report, search for "deepseg" to only display results of spinal cord segmentation, search for "vertebrae" to only display vertebral labeling.
-2. Review segmentation and spinal cord labeling, note that the segmentation et vertebral labeling need to be accurate only between C2-C3, for cord CSA. 
+1. In QC report, search for "deepseg" to only display results of spinal cord segmentation, search for "vertebrae" to only display vertebral labeling and "pmj" to only display PMJ labeling.
+2. Review segmentation and spinal cord and PMJ labeling, note that the segmentation et vertebral labeling need to be accurate only between C2-C3, for cord CSA. 
 3. Click on the `F` key to indicate if the segmentation/label is OK ✅, needs manual correction ❌ or if the data is not usable ⚠️ (artifact). Two .yml lists, one for manual corrections and one for the unusable data, will automatically be generated. 
 4. Download the lists by clicking on `Download QC Fails` and on `Download Qc Artifacts`. 
 
@@ -170,11 +172,18 @@ FILES_LABEL:
 - sub-1000032_T1w.nii.gz
 - sub-1000710_T1w.nii.gz
 ~~~
+*.yml list for correcting pontomedullary junction (PMJ) labeling:*
+~~~
+FILES_PMJ:
+ - sub-1000032_T1w.nii.gz
+ - sub-1000710_T1w.nii.gz
+ ~~~
 
 * `FILES_SEG`: Images associated with spinal cord segmentation
-* `FILES_LABEL` Images associated with vertebral labeling (T1w images only)
+* `FILES_LABEL` Images associated with vertebral labeling
+* `FILES_PMJ` Images associated with PMJ labeling
 
-For the next steps, the script `uk_manual_correction` loops through all the files listed in .yml file and opens an interactive window to either manually correct segmentation or vertebral labeling. Each manually-corrected label is saved under `derivatives/labels/` folder at the root of `PATH_DATA` according to the BIDS convention. Each manually-corrected file has the suffix `-manual`. The procedure is described bellow for cord segmentation and for vertebral labeling.
+For the next steps, the script `uk_manual_correction` loops through all the files listed in .yml file and opens an interactive window to either manually correct segmentation, vertebral or PMJ labeling. Each manually-corrected label is saved under `derivatives/labels/` folder at the root of `PATH_DATA` according to the BIDS convention. Each manually-corrected file has the suffix `-manual`. The procedure is described bellow for cord segmentation and for vertebral labeling.
 
 #### 2. Correct segmentations
 For manual segmentation, you will need ITK-SNAP and this repository only. See **[installation](#installation)** instructions and **[dependencies](#dependencies)**.
@@ -204,6 +213,19 @@ uk_manual_correction -config <.yml file> -path-in ~/ukbiobank_results/data_proce
 To create disc labels, click at the posterior tip of the disc for C1-C2, C2-C3 and C3-C4 as shown in the following image: 
 
 ![readme_labels](https://user-images.githubusercontent.com/71230552/111220077-18fdf680-85af-11eb-8ec4-4774db842a27.PNG)
+
+#### 4. PMJ labeling
+Note that manual PMJ labeling uses SCT and the QC report is generated automatically.
+
+Run the following line and specify the .yml list for PMJ labeling with the flag `-config`:
+~~~
+uk_manual_correction -config <.yml file> -path-in ~/ukbiobank_results/data_processed -path-out <PATH_DATA>
+~~~
+To create PMJ label, click at the posterior tip of the pontomedullary junction (PMJ) as shown in the following image:
+
+![image](https://user-images.githubusercontent.com/71230552/125302462-f6c87b00-e2f9-11eb-9f78-79a4462a9aaa.png)
+
+See [this figure](https://pubmed.ncbi.nlm.nih.gov/25523587/#&gid=article-figures&pid=fig-2-uid-1) for more specifications.
 
 #### Upload the manually-corrected files
 
