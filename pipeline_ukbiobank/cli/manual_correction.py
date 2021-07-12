@@ -30,7 +30,7 @@ def get_parser():
     parser function
     """
     parser = argparse.ArgumentParser(
-        description='Manual correction of spinal cord segmentation and vertebral labeling. '
+        description='Manual correction of spinal cord segmentation, vertebral and pontomedullary junction labeling. '
                     'Manually corrected files are saved under derivatives/ folder (BIDS standard).',
         formatter_class=utils.SmartFormatter,
         prog=os.path.basename(__file__).strip('.py')
@@ -42,7 +42,8 @@ def get_parser():
         help=
         "R|Config yaml file listing images that require manual corrections for segmentation and vertebral "
         "labeling. 'FILES_SEG' lists images associated with spinal cord segmentation "
-        "and 'FILES_LABEL' lists images associated with vertebral labeling. "
+        ",'FILES_LABEL' lists images associated with vertebral labeling "
+        "and 'FILES_PMJ' lists images associated with pontomedullary junction labeling"
         "You can validate your .yml file at this website: http://www.yamllint.com/."
         " If you want to correct segmentation only, ommit 'FILES_LABEL' in the list. Below is an example .yml file:\n"
         + dedent(
@@ -146,6 +147,18 @@ def correct_vertebral_labeling(fname, fname_label):
     """
     message = "Click at the posterior tip of the disc between C1-C2, C2-C3 and C3-C4 vertebral levels, then click 'Save and Quit'."
     os.system('sct_label_utils -i {} -create-viewer 2,3,4 -o {} -msg "{}"'.format(fname, fname_label, message))
+
+
+def correct_pmj_label(fname, fname_label):
+    """
+    Open sct_label_utils to manually label PMJ.
+    :param fname:
+    :param fname_label:
+    :param name_rater:
+    :return:
+    """
+    message = "Click at the posterior tip of the pontomedullary junction (PMJ) then click 'Save and Quit'."
+    os.system('sct_label_utils -i {} -create-viewer 50 -o {} -msg "{}"'.format(fname, fname_label, message))
 
 
 def create_json(fname_nifti, name_rater):
@@ -257,6 +270,10 @@ def main():
                             if not utils.check_software_installed():
                                 sys.exit("Some required software are not installed. Exit program.")
                             correct_vertebral_labeling(fname, fname_label)
+                        elif task == 'FILES_PMJ':
+                            if not utils.check_software_installed():
+                                sys.exit("Some required software are not installed. Exit program.")
+                            correct_pmj_label(fname, fname_label)
                         else:
                             sys.exit('Task not recognized from yml file: {}'.format(task))
                         # create json sidecar with the name of the expert rater
