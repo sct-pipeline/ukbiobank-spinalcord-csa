@@ -77,7 +77,7 @@ def main():
 
     fname_out = args.o
     if not os.path.isfile(fname_out):
-        with open(fname_out, '') as csvfile:
+        with open(fname_out, 'w') as csvfile:
             header = ['Subject', 'C2C3_distance_PMJ']
             writer = csv.DictWriter(csvfile, fieldnames=header)
             writer.writeheader()
