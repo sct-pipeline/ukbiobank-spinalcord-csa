@@ -225,7 +225,7 @@ To create PMJ label, click at the posterior tip of the pontomedullary junction (
 
 ![image](https://user-images.githubusercontent.com/71230552/125302462-f6c87b00-e2f9-11eb-9f78-79a4462a9aaa.png)
 
-See [this figure](https://pubmed.ncbi.nlm.nih.gov/25523587/#&gid=article-figures&pid=fig-2-uid-1) for more specifications.
+See [here](https://github.com/spinalcordtoolbox/spinalcordtoolbox/issues/3457) for more examples.
 
 #### Upload the manually-corrected files
 
