@@ -120,6 +120,8 @@ def main():
                 suffix_label = '_seg'
             elif task == 'FILES_LABEL':
                 suffix_label = None
+            elif task == 'FILES_PMJ':
+                suffix_label = None
             else:
                 sys.exit('Task not recognized from yml file: {}'.format(task))
             # Copy image
