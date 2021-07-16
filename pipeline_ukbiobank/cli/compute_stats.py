@@ -35,7 +35,7 @@ PREDICTORS = {
     'Sex': '',
     'Height': 'cm',
     'Weight': 'kg',
-    'Age': 'y.o.',
+    'Age': 'year',
     'Vscale': '',
     'Volume ventricular CSF': 'mm\u00b2',
     'Brain GM volume': 'mm\u00b2',
