@@ -161,6 +161,7 @@ def main():
 
     # Initialize name of csv file of CSA in results folder
     path_csa_c2c3 = os.path.join(path_results, 'csa-SC_c2c3.csv')
+    path_csa_pmj = os.path.join(path_results, 'csa-SC_pmj.csv')
 
     # Set the index of the dataFrame to 'Subject'
     df = df.set_index('Subject')
@@ -170,11 +171,14 @@ def main():
     # Sum right and left thalamus volume
     compute_total_thalamus_volume(df)
 
-    # Get csa values for T1w
+    # Get csa values for T1w at C2-C3 and PMJ-based
     csa_c2c3 = get_csa(path_csa_c2c3)
+    csa_pmj = get_csa(path_csa_pmj)
 
     # Add column to dataFrame of CSA values for T1w for each subject
     append_csa_to_df(df, csa_c2c3, 'CSA_c2c3')
+    append_csa_to_df(df, csa_pmj, 'CSA_pmj')
+
     # Write a .csv file in <path_results/results> folder
     filename = 'data_ukbiobank.csv'
     df.to_csv(os.path.join(path_results, filename))
