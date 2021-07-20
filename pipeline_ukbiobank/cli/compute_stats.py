@@ -105,25 +105,27 @@ def compute_statistics(df):
     Returns:
         stats_df (panda.DataFrame): statistics of CSA per contrast type
     """
-    contrast = 'T1w_CSA'
+    contrasts = ['CSA_c2c3', 'CSA_pmj']
     metrics = ['n', 'mean', 'std', 'med', '95ci', 'COV', 'max', 'min', 'normality_test_p']
     stats = {}
-    stats[contrast] = {}
-    for metric in metrics:
-        stats[contrast][metric] = {}
+    for contrast in contrasts:
+        stats[contrast] = {}
+        for metric in metrics:
+            stats[contrast][metric] = {}
     # Computes the metrics
-    stats[contrast]['n'] = len(df[contrast])
-    stats[contrast]['mean'] = np.mean(df[contrast])
-    stats[contrast]['std'] = np.std(df[contrast])
-    stats[contrast]['med'] = np.median(df[contrast])
-    stats[contrast]['95ci'] = 1.96*np.std(df[contrast])/np.sqrt(len(df[contrast]))
-    stats[contrast]['COV'] = np.std(df[contrast]) / np.mean(df[contrast])
-    stats[contrast]['max'] = np.max(df[contrast])
-    stats[contrast]['min'] = np.min(df[contrast])
-    # Validate normality of CSA with Shapiro-wilik test
-    stats[contrast]['normality_test_p'] = scipy.stats.shapiro(df[contrast])[1]
-    # Writes a text with CSA stats
-    output_text_CSA_stats(stats, contrast)
+    for contrast in contrasts:
+        stats[contrast]['n'] = len(df[contrast])
+        stats[contrast]['mean'] = np.mean(df[contrast])
+        stats[contrast]['std'] = np.std(df[contrast])
+        stats[contrast]['med'] = np.median(df[contrast])
+        stats[contrast]['95ci'] = 1.96*np.std(df[contrast])/np.sqrt(len(df[contrast]))
+        stats[contrast]['COV'] = np.std(df[contrast]) / np.mean(df[contrast])
+        stats[contrast]['max'] = np.max(df[contrast])
+        stats[contrast]['min'] = np.min(df[contrast])
+        # Validate normality of CSA with Shapiro-wilik test
+        stats[contrast]['normality_test_p'] = scipy.stats.shapiro(df[contrast])[1]
+        # Writes a text with CSA stats
+        output_text_CSA_stats(stats, contrast)
 
     # Convert dict to DataFrame
     stats_df = pd.DataFrame.from_dict(stats)
@@ -249,20 +251,20 @@ def compare_sex(df, path):
         df (panda.DataFrame)
     """
     # Compute mean CSA value
-    mean_csa_F = np.mean(df[df['Sex'] == 0]['T1w_CSA'])
-    std_csa_F = np.std(df[df['Sex'] == 0]['T1w_CSA'])
-    mean_csa_M = np.mean(df[df['Sex'] == 1]['T1w_CSA'])
-    std_csa_M = np.std(df[df['Sex'] == 1]['T1w_CSA'])
+    mean_csa_F = np.mean(df[df['Sex'] == 0]['CSA_pmj'])
+    std_csa_F = np.std(df[df['Sex'] == 0]['CSA_pmj'])
+    mean_csa_M = np.mean(df[df['Sex'] == 1]['CSA_pmj'])
+    std_csa_M = np.std(df[df['Sex'] == 1]['CSA_pmj'])
 
     # Compute T-test
-    results = scipy.stats.ttest_ind(df[df['Sex'] == 0]['T1w_CSA'], df[df['Sex'] == 1]['T1w_CSA'])
+    results = scipy.stats.ttest_ind(df[df['Sex'] == 0]['CSA_pmj'], df[df['Sex'] == 1]['CSA_pmj'])
     df.loc[df['Sex'] == 0, 'Sex'] = 'F'
     df.loc[df['Sex'] == 1, 'Sex'] = 'M'
     # Violin plot
     plt.figure()
     fig, ax = plt.subplots()
     plt.title("Violin plot of CSA and sex")
-    sns.violinplot(y='T1w_CSA', x='Sex', data=df, palette='flare')
+    sns.violinplot(y='CSA_pmj', x='Sex', data=df, palette='flare')
     # Add mean CSA and std for female
     textstr_F = '\n'.join((
                            r'$\mu=%.2f$' % (mean_csa_F, ),
@@ -687,20 +689,20 @@ def main():
     df_to_csv(corr_pvalue, corr_filename + '_pvalue.csv')
     df_to_csv(corr_and_pvalue, corr_filename + '_and_pvalue.csv')
 
-    # Stepwise linear regression and complete linear regression
-    x = df.drop(columns=['T1w_CSA'])  # Initialize x to data of predictors
-    y_T1w = df['T1w_CSA']
+    # Stepwise linear regression and complete linear regression for PMJ-based CSA
+    x = df.drop(columns=['CSA_c2c3', 'CSA_pmj'])  # Initialize x to data of predictors
+    y = df['CSA_pmj']
 
     # Generate scatter plots for all predictors and CSA
     path_scatter_plots = os.path.join(path_metrics, 'scatter_plots')
     if not os.path.exists(path_scatter_plots):
         os.mkdir(path_scatter_plots)
     for column, data in x.iteritems():
-        scatter_plot(data, y_T1w, column, path_scatter_plots)
+        scatter_plot(data, y, column, path_scatter_plots)
 
     # Create pairwise plot between CSA and preditors seprated for sex | Maybe not useful, but nice to see
     plt.figure()
-    sns.pairplot(df, x_vars=([*PREDICTORS]).remove('Sex'), y_vars='T1w_CSA', kind='reg', hue='Sex', palette="Set1")
+    sns.pairplot(df, x_vars=([*PREDICTORS]).remove('Sex'), y_vars='CSA_pmj', kind='reg', hue='Sex', palette="Set1")
     plt.savefig(os.path.join(path_scatter_plots, 'pairwise_plot' + '.png'))
     plt.close()
     logger.info("Created Scatter Plots - Saved in {}".format(path_scatter_plots))
@@ -710,8 +712,8 @@ def main():
     path_model_age = os.path.join(path_model, 'age')
     if not os.path.exists(path_model_age):
         os.mkdir(path_model_age)
-    save_model(generate_linear_model(df['Age'], y_T1w), 'linear_fit', path_model_age)  # Linear model
-    generate_quadratic_model(df['Age'], y_T1w, path_model_age)  # Quadratic model
+    save_model(generate_linear_model(df['Age'], y), 'linear_fit', path_model_age)  # Linear model
+    generate_quadratic_model(df['Age'], y, path_model_age)  # Quadratic model
 
     # Analyse CSA - Sex
     logger.info("\nCSA and Sex:")
@@ -735,7 +737,7 @@ def main():
         logger.info("Initial predictors for {} are {}".format(model, predictors))
         if not os.path.exists(os.path.join(path_model, model)):
             os.mkdir(os.path.join(path_model, model))
-        COV_step, COV_full = compute_regression_csa(x[predictors], y_T1w, p_in, p_out, "T1w_CSA", os.path.join(path_model, model))
+        COV_step, COV_full = compute_regression_csa(x[predictors], y, p_in, p_out, "CSA_PMJ", os.path.join(path_model, model))
         df_COV[model] = [COV_step, COV_full]
     # Save as .csv COV of normalized CSA
     df_to_csv(pd.DataFrame.from_dict(df_COV, orient='index', columns=['Stepwise', 'Full']), os.path.join(path_model, 'norm_COV.csv'))
