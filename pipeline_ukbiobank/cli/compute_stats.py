@@ -248,7 +248,7 @@ def scatter_plot_pmj_c2c3(x, y, path):
              ha='left', va='center', color='crimson', transform=ax.transAxes,
              fontsize=12,
              bbox=dict(boxstyle='round', facecolor='white', alpha=1))  # box around equation
-    # PLot linear regression
+    # Plot linear regression
     axes = plt.gca()
     x_vals = np.array(axes.get_xlim())
     y_vals = model.params[0] + model.params[1] * x_vals
@@ -259,6 +259,26 @@ def scatter_plot_pmj_c2c3(x, y, path):
     plt.savefig(os.path.join(path, filename))
     logger.info('Created: ' + filename)
     plt.close()
+
+
+def analyse_distance_c2c3_pmj(distance, path):
+    """
+    Generate and save a scatter plot of distance, compute mean and std.
+    """
+    mean = np.mean(distance)
+    std = np.std(distance)
+    plt.figure()
+    fig, ax = plt.subplots()
+    sns.scatterplot(data=distance, alpha=0.7, edgecolors=None, linewidth=0)
+    plt.axhline(y=mean, linewidth=2, color='k', ls="--")
+    plt.ylabel('Distance from PMJ and C2-C3 disc (mm)')
+    plt.title('Distance from PMJ and C2-C3')
+    filename = 'scatterplot_c2c3_pmj_distance.png'
+    plt.savefig(os.path.join(path, filename))
+    logger.info('Created: ' + filename)
+    plt.close()
+
+    logger.info('Mean distance from PMJ to C2-C3 disc is {} mm and standard deviation is {} mm'.format(format_number(mean), format_number(std)))
 
 
 def df_to_csv(df, filename):
@@ -739,6 +759,9 @@ def main():
     if not os.path.exists(path_scatter_plot_c2c3_pmj):
         os.mkdir(path_scatter_plot_c2c3_pmj)
     scatter_plot_pmj_c2c3(df['CSA_pmj'], df['CSA_c2c3'], path_scatter_plot_c2c3_pmj)
+
+    # Generate scatter plot of distance between PMJ and C2-C3 disc
+    analyse_distance_c2c3_pmj(df['distance_c2c3_pmj'], path_scatter_plot_c2c3_pmj)
 
     # Stepwise linear regression and complete linear regression for PMJ-based CSA
     x = df.drop(columns=['CSA_c2c3', 'CSA_pmj'])  # Initialize x to data of predictors
