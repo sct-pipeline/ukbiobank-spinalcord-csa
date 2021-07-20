@@ -160,7 +160,7 @@ def main():
         df[param] = raw_data[key]
 
     # Initialize name of csv file of CSA in results folder
-    path_csa_t1w = os.path.join(path_results, 'csa-SC_T1w.csv')
+    path_csa_c2c3 = os.path.join(path_results, 'csa-SC_c2c3.csv')
 
     # Set the index of the dataFrame to 'Subject'
     df = df.set_index('Subject')
@@ -171,10 +171,10 @@ def main():
     compute_total_thalamus_volume(df)
 
     # Get csa values for T1w
-    csa_t1w = get_csa(path_csa_t1w)
+    csa_c2c3 = get_csa(path_csa_c2c3)
 
     # Add column to dataFrame of CSA values for T1w for each subject
-    append_csa_to_df(df, csa_t1w, 'T1w_CSA')
+    append_csa_to_df(df, csa_c2c3, 'CSA_c2c3')
     # Write a .csv file in <path_results/results> folder
     filename = 'data_ukbiobank.csv'
     df.to_csv(os.path.join(path_results, filename))
