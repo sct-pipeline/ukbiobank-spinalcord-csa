@@ -40,7 +40,7 @@ def get_distance_from_pmj(centerline_points, z_index, px, py, pz):
     """
     Compute distance from projected PMJ on centerline and cord centerline.
     :param centerline_points: 3xn array: Centerline in continuous coordinate (float) for each slice in RPI orientation.
-    :param z_index: z index of projected PMJ on the centerline.
+    :param z_index: z index PMJ on the centerline.
     :param px: x pixel size.
     :param py: y pixel size.
     :param pz: z pixel size.
@@ -68,11 +68,15 @@ def main():
     px = dim[0]
     py = dim[1]
     pz = dim[2]
+    # Create an array with centerline coordinates
     centerline = np.genfromtxt(args.centerline, delimiter=',')
+    # Get C2-C3 disc coordinate
     c2_c3_disc = np.argwhere(disc_label.get_fdata() == 3)[0]
-    arr_distance = get_distance_from_pmj(centerline, int(centerline[2].max()), px, py, pz)
-
-    distance_disc_pmj = arr_distance[:, c2_c3_disc[-1]][0]
+    # Compute distance from PMJ of the centerline
+    arr_distance = get_distance_from_pmj(centerline, centerline[2].argmax(), px, py, pz)
+    # Get the index of centerline array of c2c3 disc
+    c2c3_index = np.abs(centerline[2] - c2_c3_disc[-1]).argmin()  # centerline doesn't necessarly start at the index 0 if the segmentation is incomplete
+    distance_disc_pmj = arr_distance[:, c2c3_index][0]
     subject = os.path.basename(args.disclabel).split('_')[0]
 
     fname_out = args.o
