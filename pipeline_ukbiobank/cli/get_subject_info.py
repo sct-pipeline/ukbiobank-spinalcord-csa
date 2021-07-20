@@ -162,6 +162,7 @@ def main():
     # Initialize name of csv file of CSA in results folder
     path_csa_c2c3 = os.path.join(path_results, 'csa-SC_c2c3.csv')
     path_csa_pmj = os.path.join(path_results, 'csa-SC_pmj.csv')
+    path_distance_c2c3_pmj = os.path.join(path_results, 'c2c3_pmj_distance.csv')
 
     # Set the index of the dataFrame to 'Subject'
     df = df.set_index('Subject')
@@ -175,7 +176,11 @@ def main():
     csa_c2c3 = get_csa(path_csa_c2c3)
     csa_pmj = get_csa(path_csa_pmj)
 
+    # Get distance of C2-C2 from PMJ
+    distance_c2c3_pmj = csv2dataFrame(path_distance_c2c3_pmj)
+
     # Add column to dataFrame of CSA values for T1w for each subject
+    append_csa_to_df(df, distance_c2c3_pmj, 'distance_c2c3_pmj')
     append_csa_to_df(df, csa_c2c3, 'CSA_c2c3')
     append_csa_to_df(df, csa_pmj, 'CSA_pmj')
 
