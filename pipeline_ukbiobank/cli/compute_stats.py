@@ -199,6 +199,15 @@ def output_text_stats(stats):
                                                                                             PREDICTORS[predictor]))
 
 
+def format_number(number):
+    """
+    Round number to two decimals
+    :param number: input number
+    :return: number rounded to two decimals
+    """
+    return format(float(number), '.2f')
+
+
 def scatter_plot(x, y, filename, path):
     """
     Generate and save a scatter plot of y and x.
@@ -210,8 +219,45 @@ def scatter_plot(x, y, filename, path):
     sns.regplot(x=x, y=y, line_kws={"color": "crimson"})
     plt.ylabel('CSA (mm$^2$)')
     plt.xlabel(filename)
-    plt.title('Scatter Plot - CSA as function of ' + filename)
+    plt.title('CSA as a function of ' + filename)
     plt.savefig(os.path.join(path, filename + '.png'))
+    plt.close()
+
+
+def scatter_plot_pmj_c2c3(x, y, path):
+    """
+    Generate and save a scatter plot of y and x, for CSA_pmj and CSA_c2c3
+        x (panda.DataFrame): C2-C3 CSA
+        y (panda.DataFrame): PMJ CSA
+    """
+    plt.figure()
+    fig, ax = plt.subplots()
+    sns.scatterplot(x=x, y=y, alpha=0.7, edgecolors=None, linewidth=0)
+    plt.xlim(45, 100)
+    plt.ylim(45, 100)
+    plt.gca().set_aspect('equal', adjustable='box')
+    plt.ylabel('PMJ CSA (mm$^2$)')
+    plt.xlabel('C2-C3 CSA (mm$^2$)')
+    plt.title('CSA agreement between PMJ and C2-C3')
+    # Compute linear fit
+    model = generate_linear_model(x, y)
+    # Place regression equation to upper-left corner
+    plt.text(0.1, 0.9, 'y = {}x + {}\nR\u00b2 = {}'.format(format_number(model.params[1]),
+                                                           format_number(model.params[0]),
+                                                           format_number(model.rsquared)),
+             ha='left', va='center', color='crimson', transform=ax.transAxes,
+             fontsize=12,
+             bbox=dict(boxstyle='round', facecolor='white', alpha=1))  # box around equation
+    # PLot linear regression
+    axes = plt.gca()
+    x_vals = np.array(axes.get_xlim())
+    y_vals = model.params[0] + model.params[1] * x_vals
+    y_vals = np.squeeze(y_vals)  # change shape from (1,N) to (N,)
+    plt.plot(x_vals, y_vals, color='crimson', alpha=0.9)
+    plt.plot([45, 100], [45, 100], ls="--", c="k")  # add diagonal line
+    filename = 'scatterplot_c2c3_pmj_csa.png'
+    plt.savefig(os.path.join(path, filename))
+    logger.info('Created: ' + filename)
     plt.close()
 
 
@@ -639,7 +685,6 @@ def main():
 
     # Create a panda dataFrame from datafile input arg .csv
     df = (pd.read_csv(args.dataFile)).set_index('Subject')
-
     # Create a dict with subjects to exclude if input .yml config file is passed
     if args.exclude is not None:
         # Check if input yml file exists
@@ -668,7 +713,7 @@ def main():
     # Remove all subjects that are missing a parameter or CSA value, subjects from exclude list and subjects with nervous system disorders.
     df = remove_subjects(df, dict_exclude_subj)
 
-    # Compute stats for T1w CSA
+    # Compute stats for CSA_c2c3 and CSA_pmj
     stats_csa = compute_statistics(df)
     # Format and save CSA stats as a.csv file
     metric_csa_filename = os.path.join(path_metrics, 'stats_csa')
@@ -688,6 +733,12 @@ def main():
     df_to_csv(corr_table, corr_filename + '.csv')
     df_to_csv(corr_pvalue, corr_filename + '_pvalue.csv')
     df_to_csv(corr_and_pvalue, corr_filename + '_and_pvalue.csv')
+
+    # Generate scatter plot of CSA_pmj and CSA_c2c3
+    path_scatter_plot_c2c3_pmj = os.path.join(path_metrics, 'comparison_c2c3_pmj')
+    if not os.path.exists(path_scatter_plot_c2c3_pmj):
+        os.mkdir(path_scatter_plot_c2c3_pmj)
+    scatter_plot_pmj_c2c3(df['CSA_pmj'], df['CSA_c2c3'], path_scatter_plot_c2c3_pmj)
 
     # Stepwise linear regression and complete linear regression for PMJ-based CSA
     x = df.drop(columns=['CSA_c2c3', 'CSA_pmj'])  # Initialize x to data of predictors
