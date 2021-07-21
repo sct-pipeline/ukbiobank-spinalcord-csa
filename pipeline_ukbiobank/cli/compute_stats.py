@@ -272,26 +272,6 @@ def scatter_plot_pmj_c2c3(x, y, distance, path):
     plt.close()
 
 
-def analyse_distance_c2c3_pmj(distance, path):
-    """
-    Generate and save a scatter plot of distance, compute mean and std.
-    """
-    mean = np.mean(distance)
-    std = np.std(distance)
-    plt.figure()
-    fig, ax = plt.subplots()
-    sns.scatterplot(data=distance, alpha=0.7, edgecolors=None, linewidth=0)
-    plt.axhline(y=mean, linewidth=2, color='k', ls="--")
-    plt.ylabel('Distance from PMJ and C2-C3 disc (mm)')
-    plt.title('Distance from PMJ and C2-C3')
-    filename = 'scatterplot_c2c3_pmj_distance.png'
-    plt.savefig(os.path.join(path, filename))
-    logger.info('Created: ' + filename)
-    plt.close()
-
-    logger.info('Mean distance from PMJ to C2-C3 disc is {} mm and standard deviation is {} mm'.format(format_number(mean), format_number(std)))
-
-
 def df_to_csv(df, filename):
     """
     Save a Dataframe as a .csv file.
