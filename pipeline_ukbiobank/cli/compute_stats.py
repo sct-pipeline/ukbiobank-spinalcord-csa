@@ -224,38 +224,49 @@ def scatter_plot(x, y, filename, path):
     plt.close()
 
 
-def scatter_plot_pmj_c2c3(x, y, path):
+def scatter_plot_pmj_c2c3(x, y, distance, path):
     """
-    Generate and save a scatter plot of y and x, for CSA_pmj and CSA_c2c3
+    Generate and save a scatter plots of y and x, for CSA_pmj and CSA_c2c3 and for distance between C2-C3 and PMJ
         x (panda.DataFrame): C2-C3 CSA
         y (panda.DataFrame): PMJ CSA
+        distance (panda.DataFrame): Distance bewteen C2-C3 disc and PMJ
     """
     plt.figure()
-    fig, ax = plt.subplots()
-    sns.scatterplot(x=x, y=y, alpha=0.7, edgecolors=None, linewidth=0)
-    plt.xlim(45, 100)
-    plt.ylim(45, 100)
-    plt.gca().set_aspect('equal', adjustable='box')
-    plt.ylabel('PMJ CSA (mm$^2$)')
-    plt.xlabel('C2-C3 CSA (mm$^2$)')
-    plt.title('CSA agreement between PMJ and C2-C3')
+    fig, ax = plt.subplots(1, 2)
+    sns.scatterplot(ax=ax[0], x=x, y=y, alpha=0.7, edgecolors=None, linewidth=0)
+    ax[0].set_xlim(45, 100)
+    ax[0].set_ylim(45, 100)
+    ax[0].set_aspect('equal', adjustable='box')
+    ax[0].set_ylabel('PMJ CSA (mm$^2$)')
+    ax[0].set_xlabel('C2-C3 CSA (mm$^2$)')
+    ax[0].set_title('a) CSA agreement between PMJ and C2-C3', pad=15)
     # Compute linear fit
     model = generate_linear_model(x, y)
     # Place regression equation to upper-left corner
-    plt.text(0.1, 0.9, 'y = {}x + {}\nR\u00b2 = {}'.format(format_number(model.params[1]),
-                                                           format_number(model.params[0]),
-                                                           format_number(model.rsquared)),
-             ha='left', va='center', color='crimson', transform=ax.transAxes,
-             fontsize=12,
-             bbox=dict(boxstyle='round', facecolor='white', alpha=1))  # box around equation
+    ax[0].text(0.1, 0.9, 'y = {}x + {}\nR\u00b2 = {}'.format(format_number(model.params[1]),
+                                                             format_number(model.params[0]),
+                                                             format_number(model.rsquared)),
+               ha='left', va='center', color='crimson', transform=ax[0].transAxes,
+               fontsize=12,
+               bbox=dict(boxstyle='round', facecolor='white', alpha=1))  # box around equation
     # Plot linear regression
-    axes = plt.gca()
-    x_vals = np.array(axes.get_xlim())
+    x_vals = np.array(ax[0].get_xlim())
     y_vals = model.params[0] + model.params[1] * x_vals
     y_vals = np.squeeze(y_vals)  # change shape from (1,N) to (N,)
-    plt.plot(x_vals, y_vals, color='crimson', alpha=0.9)
-    plt.plot([45, 100], [45, 100], ls="--", c="k")  # add diagonal line
-    filename = 'scatterplot_c2c3_pmj_csa.png'
+    ax[0].plot(x_vals, y_vals, color='crimson', alpha=0.9)
+    ax[0].plot([45, 100], [45, 100], ls="--", c="k")  # add diagonal line
+    
+    # Scatterplot of distance between PMJ and C2-C3 disc
+    mean = np.mean(distance)
+    std = np.std(distance)
+    sns.scatterplot(ax=ax[1], data=distance, alpha=0.7, edgecolors=None, linewidth=0)
+    ax[1].axhline(y=mean, linewidth=2, color='k', ls="--")
+    ax[1].set_ylabel('Distance (mm)')
+    ax[1].set_title('b) Distance from PMJ and C2-C3', pad=15)
+    ax[1].set_box_aspect(1)
+    plt.tight_layout()
+    logger.info('Mean distance from PMJ to C2-C3 disc is {} mm and standard deviation is {} mm'.format(format_number(mean), format_number(std)))
+    filename = 'scatterplots_c2c3_pmj_csa.png'
     plt.savefig(os.path.join(path, filename))
     logger.info('Created: ' + filename)
     plt.close()
@@ -754,14 +765,11 @@ def main():
     df_to_csv(corr_pvalue, corr_filename + '_pvalue.csv')
     df_to_csv(corr_and_pvalue, corr_filename + '_and_pvalue.csv')
 
-    # Generate scatter plot of CSA_pmj and CSA_c2c3
+    # Generate scatter plot of CSA_pmj and CSA_c2c3 and of distance between C2-C3 disc and PMJ
     path_scatter_plot_c2c3_pmj = os.path.join(path_metrics, 'comparison_c2c3_pmj')
     if not os.path.exists(path_scatter_plot_c2c3_pmj):
         os.mkdir(path_scatter_plot_c2c3_pmj)
-    scatter_plot_pmj_c2c3(df['CSA_pmj'], df['CSA_c2c3'], path_scatter_plot_c2c3_pmj)
-
-    # Generate scatter plot of distance between PMJ and C2-C3 disc
-    analyse_distance_c2c3_pmj(df['distance_c2c3_pmj'], path_scatter_plot_c2c3_pmj)
+    scatter_plot_pmj_c2c3(df['CSA_pmj'], df['CSA_c2c3'], df['distance_c2c3_pmj'], path_scatter_plot_c2c3_pmj)
 
     # Stepwise linear regression and complete linear regression for PMJ-based CSA
     x = df.drop(columns=['CSA_c2c3', 'CSA_pmj'])  # Initialize x to data of predictors
