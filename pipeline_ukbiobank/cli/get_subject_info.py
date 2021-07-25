@@ -91,7 +91,7 @@ def get_csa(csa_filename):
     return csa
 
 
-def append_csa_to_df(df, csa, column_name):
+def append_csa_to_df(df, csa, new_column_name, old_column_name):
     """
     Adds CSA values to dataframe for each subjects.
     Args:
@@ -104,7 +104,7 @@ def append_csa_to_df(df, csa, column_name):
         # For subjects that have csa values,
         if subject in csa.index:
             # Set csa value for the subject
-            df.loc[subject, column_name] = csa.loc[subject, 'MEAN(area)']
+            df.loc[subject, new_column_name] = csa.loc[subject, old_column_name]
 
 
 def compute_total_thalamus_volume(df):
@@ -160,7 +160,9 @@ def main():
         df[param] = raw_data[key]
 
     # Initialize name of csv file of CSA in results folder
-    path_csa_t1w = os.path.join(path_results, 'csa-SC_T1w.csv')
+    path_csa_c2c3 = os.path.join(path_results, 'csa-SC_c2c3.csv')
+    path_csa_pmj = os.path.join(path_results, 'csa-SC_pmj.csv')
+    path_distance_c2c3_pmj = os.path.join(path_results, 'c2c3_pmj_distance.csv')
 
     # Set the index of the dataFrame to 'Subject'
     df = df.set_index('Subject')
@@ -170,11 +172,18 @@ def main():
     # Sum right and left thalamus volume
     compute_total_thalamus_volume(df)
 
-    # Get csa values for T1w
-    csa_t1w = get_csa(path_csa_t1w)
+    # Get csa values for T1w at C2-C3 and PMJ-based
+    csa_c2c3 = get_csa(path_csa_c2c3)
+    csa_pmj = get_csa(path_csa_pmj)
+
+    # Get distance of C2-C2 from PMJ
+    distance_c2c3_pmj = (csv2dataFrame(path_distance_c2c3_pmj)).set_index('Subject')
 
     # Add column to dataFrame of CSA values for T1w for each subject
-    append_csa_to_df(df, csa_t1w, 'T1w_CSA')
+    append_csa_to_df(df, distance_c2c3_pmj, 'distance_c2c3_pmj', 'C2C3_distance_PMJ')
+    append_csa_to_df(df, csa_c2c3, 'CSA_c2c3', 'MEAN(area)')
+    append_csa_to_df(df, csa_pmj, 'CSA_pmj', 'MEAN(area)')
+
     # Write a .csv file in <path_results/results> folder
     filename = 'data_ukbiobank.csv'
     df.to_csv(os.path.join(path_results, filename))
