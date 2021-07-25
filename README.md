@@ -73,8 +73,8 @@ uk-biobank-processed
  
 ~~~
 
-### Acquisition parameters |TODO to complete
---> add scanner
+### Acquisition parameters
+Scanner: Siemens Skyra 3T running VD13A SP4 with a standard Siemens 32-channel RF receive head coil
 #### T1-weighted structural imaging
     Resolution: 1x1x1 mm
     Field-of-view: 208x256x256 matrix
@@ -130,7 +130,7 @@ sct_run_batch -jobs -1 -path-data <PATH-DATA> -path-output ~/ukbiobank_preproces
 The results to use as the new dataset wil be in `~/ukbiobank_preprocess/data_processed/`.
 
 ### Processing
-Processing will generate spinal cord segmentation, vertebral labels and compute cord CSA. Specify the path of preprocessed dataset with the flag `path-data`.
+Processing will generate spinal cord segmentation, vertebral labels, pmj label and compute cord CSA. Specify the path of preprocessed dataset with the flag `path-data`.
 
 Launch processing:
 ~~~
@@ -266,25 +266,48 @@ ukbiobank_results
 ├── log
 ├── qc
 └── results
-    ├── csa-SC_T1w.csv
-    ├── csa-SC_T2w.csv
+    ├── csa-SC_c2c3.csv
+    ├── csa-SC_pmj.csv
     ├── data_ukbiobank.csv
-    ├── log_stats
     └── stats_results
         ├── metrics
+        |   ├── comparasion_c2c3_pmj
+        |   |   └── scatterplots_c2c3_pmj_csa.png
+        |   ├── scatter_plots
+        |   |   ├── Age.jpeg
+        |   |   ├── Brain GM volume.png
+        |   |   ├── Brain WM volume.png
+        |   |   ...
         |   ├── corr_table.csv
+        |   ├── corr_table_and_pvalue.csv
+        |   ├── corr_table_pvalue.csv        
         |   ├── stats_csa.csv
         |   └── stats_param.csv
         └── models
-            ├── T1w_CSA
-            └── T2w_CSA
-                ├── coeff
-                |   ├── coeff_fullLin_T2w_CSA.csv
-                |   └── coeff_stepwise_T2w.CSA
-                ├── residuals
-                |    ├── res_plots_fullLin_T2w_CSA
-                |    └── res_plots_stepwise_T2w_CSA
-                ├── summary
-                |   ├── summary_fullLin_T2w_CSA
-                |   └── summary_stepwise_T2w_CSA
-                └── compared_models.csv
+            ├── age
+            |   ├── coeff
+            |   |  ├── coeff_linear_fit.csv
+            |   |  └── coeff_quadratic_fit.csv
+            |   ├── summary
+            |   |   ├── summary_linear_fit.txt
+            |   |   └── summary_quadratic_fit.txt
+            |   └── quadratic_fit.png
+            ├── model_1
+            |   └── CSA_PMJ
+            |      ├── coeff
+            |      |   ├── coeff_fullLin_CSA_PMJ.csv
+            |      |   └── coeff_stepwise_CSA_PMJ.csv
+            |      ├── residuals
+            |      |    ├── res_plots_fullLin_CSA_PMJ.png
+            |      |    └── res_plots_stepwise_CSA_PMJ.png
+            |      ├── summary
+            |      |   ├── summary_fullLin_CSA_PMJ.txt
+            |      |   └── summary_stepwise_CSA_PMJ.txt
+            |      └── compared_models.csv
+            ├── model_2
+            |  └── ...
+            ├── sex
+            |   └── violin_plot.csv
+            └──norm_COV.csv
+            
+
