@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8
-# Add padding to an image by mirroring the image
+# Compute distance between PMJ and C2-C3 disc along centerline
 #
 # For usage, type: python get_distance_pmj_dics -h
 
