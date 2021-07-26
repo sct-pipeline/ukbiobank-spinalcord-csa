@@ -1,20 +1,31 @@
-- sub-1000394_T1w.nii.gz  # FOV cuts at C2-C3
+- sub-1000252_T1w.nii.gz  # Motion artifact
+- sub-1002033_T1w.nii.gz  # Motion artifact
+- sub-1002191_T1w.nii.gz  # Motion artifact
+- sub-1002702_T1w.nii.gz  # Motion artifact
 - sub-1005491_T2w.nii.gz  # Don't see C2-3 disc, image tilted
 - sub-1006023_T2w.nii.gz  # Shading at C2-C3, don't see SC + disc 
 - sub-1006510_T1w.nii.gz  # Motion artifact
+- sub-1006591_T1w.nii.gz  # Motion artifact
 - sub-1007450_T2w.nii.gz  # Shading at C2-C3, don't see SC + disc
 - sub-1007915_T1w.nii.gz  # FOV cuts at C2-C
 - sub-1007915_T2w.nii.gz  # Shading at C2-C3, don't see SC + disc
-- sub-1010982_T2w.nii.gz  # Shading at C2-C3, don't see SC + disc --> automatic defacing problem
+- sub-1010210_T1w.nii.gz  # Motion artifact
+- sub-1010982_T2w.nii.gz  # Shading at C2-C3, don't see SC + disc
+- sub-1011717_T1w.nii.gz  # Motion artifact
 - sub-1011687_T2w.nii.gz  # Shading at C2-C3, don't see SC + disc
 - sub-1012113_T1w.nii.gz  # FOV cuts before C2-C3 disc
 - sub-1012113_T2w.nii.gz  # Shading at C2-C3, don't see SC + disc
+- sub-1014124_T1w.nii.gz  # Motion artifact
+- sub-1014662_T1w.nii.gz  # Motion artifact
 - sub-1015206_T1w.nii.gz  # Motion artifact
 - sub-1015344_T2w.nii.gz  # Shading at C2-C3, don't see SC + disc
+- sub-1015849_T1w.nii.gz  # Motion artifact
 - sub-1016730_T1w.nii.gz  # Image tilted + poor contrast at C2-C3 of SC
 - sub-1016730_T2w.nii.gz  # Shading arround C2-C3, can't see SC
+- sub-1017465_T1w.nii.gz	# Motion artifact
 - sub-1017582_T2w.nii.gz  # Shading at C2-C3, don't see SC + disc
 - sub-1017825_T2w.nii.gz  # Shading at C2-C3, don't see SC + disc
+- sub-1018268_T1w.nii.gz  # Motion artifact
 - sub-1018786_T2w.nii.gz  # Shading at C2-C3, don't see SC + disc
 - sub-1018932_T1w.nii.gz  # Poor contrast of SC arround C2-C3 + image tilted
 - sub-1018932_T2w.nii.gz  # Shading at C2-C3, don't see SC + disc
@@ -26,32 +37,37 @@
 - sub-1021716_T1w.nii.gz  # Motion artefact
 - sub-1022232_T2w.nii.gz  # Shading at C2-C3, don't see SC + disc
 - sub-1023062_T2w.nii.gz  # Shading at C2-C3, don't see SC + disc
+- sub-1023193_T1w.nii.gz  # Motion artifact
 - sub-1024269_T1w.nii.gz  # Motion artifact
 - sub-1024305_T1w.nii.gz  # Motion artifact
 - sub-1024889_T2w.nii.gz  # Shading at C2-C3, don't see SC + disc
-- sub-1024269_T1w.nii.gz  # SC is blured and FOV cuts at C2-C3 disc
+- sub-1024269_T1w.nii.gz  # Motion artifact and FOV cuts at C2-C3 disc
+- sub-1026414_T1w.nii.gz  # Motion artifact
 - sub-1026594_T2w.nii.gz  # No contrast arround SC at C2-C3
 - sub-1026648_T1w_nii.gz  # Motion artifact
 - sub-1027132_T2w.nii.gz  # Shading at C2-C3, don't see SC + disc
 - sub-1027567_T2w.nii.gz  # Shading at C2-C3, don't see SC + disc
 - sub-1028228_T1w.nii.gz  # FOV cuts at C2-C3
+- sub-1028973_T1w.nii.gz  # Motion artifact
 - sub-1029324_T2w.nii.gz  # Shading at C2-C3, don't see SC + disc
 - sub-1029729_T2w.nii.gz  # Shading at C2-C3, don't see SC + disc
 - sub-1029993_T1w.nii.gz  # FOV cuts before C2-C3 disc
 - sub-1029993_T2w.nii.gz  # Image tilted + shading, don't see SC + disc
 - sub-1030519_T2w.nii.gz  # Shading at C2-C3, don't see SC + disc
+- sub-1030536_T1w.nii.gz  # Motion artifact
 - sub-1031426_T1w.nii.gz  # Motion artifact
 - sub-1031426_T2w.nii.gz  # Shading at C2-C3, don't see SC + disc
 - sub-1031952_T1w.nii.gz  # FOV cuts just below C2-C3
 - sub-1031952_T2w.nii.gz  # Image tilted + shading, don't see SC + disc
+- sub-1033265_T1w.nii.gz  # Motion artifact
+- sub-1034726_T1w.nii.gz  # Motion artifact
 - sub-1035680_T1w.nii.gz  # Bad data quality arround C2-3 + FOV cuts at C2-3
 - sub-1035680_T2w.nii.gz  # Shading at C2-C3
 - sub-1035863_T2w.nii.gz  # Shading at C2-C3, don't see SC + disc
-- sub-1036209_T1w.nii.gz  # FOV cuts at C2-C3
 - sub-1036337_T1w.nii.gz  # FOV cuts C2-C3 disc
 - sub-1036337_T2w.nii.gz  # FOV cuts SC
-- sub-1036523_T1w.nii.gz  # FOV cuts at C2-C3
 - sub-1036523_T2w.nii.gz  # Shading at C2-C3, don't see SC + disc
+- sub-1036748_T1w.nii.gz  # Motion artifact
 - sub-1036748_T2w.nii.gz  # Shading at C2-C3, don't see SC + disc
 - sub-1038735_T1w.nii.gz  # FOV cuts at C2-C3
 - sub-1038735_T2w.nii.gz  # Shading at C2-C3, don't see SC + disc
@@ -64,40 +80,52 @@
 - sub-1042975_T1w.nii.gz  # Motion artifact
 - sub-1043645_T1w.nii.gz  # Motion artifact
 - sub-1045181_T2w.nii.gz  # Shading + poor data quality
+- sub-1046499_T1w.nii.gz  # Motion artifact
 - sub-1046534_T2w.nii.gz  # Shading at C2-C3, don't see SC + disc
 - sub-1047359_T1w.nii.gz  # Motion artifact
 - sub-1047654_T2w.nii.gz  # Shading at C2-C3, don't see SC + disc
 - sub-1048407_T1w.nii.gz  # Poor data quality
 - sub-1048637_T1w.nii.gz  # Motion artifact
 - sub-1048812_T1w.nii.gz  # Motion artifact
+- sub-1049063_T1w.nii.gz  # FOV cuts C2-C3
 - sub-1050042_T1w.nii.gz  # Motion artifact
 - sub-1050166_T1w.nii.gz  # FOV cuts at C2-C3
 - sub-1052980_T1w.nii.gz  # Poor data quality
 - sub-1052029_T1w.nii.gz  # FOV cuts C2-C3 disc
+- sub-1054623_T1w.nii.gz  # Poor data quality at C2-C3
+- sub-1055910_T1w.nii.gz	# Motion artifact
+- sub-1058251_T1w.nii.gz  # Motion artifact
 - sub-1058390_T1w.nii.gz  # FOV cuts at C2-C3
+- sub-1058928_T1w.nii.gz  # Motion artifact
 - sub-1059011_T1w.nii.gz  # Motion artifact
+- sub-1060663_T1w.nii.gz  # Motion artifact
 - sub-1064870_T1w.nii.gz  # FOV cuts at C2-C3
+- sub-1065820_T1w.nii.gz	# Motion artifact
 - sub-1065847_T1w.nii.gz  # FOV cuts C2-C3 disc
+- sub-1066509_T1w.nii.gz  # Motion artifact
 - sub-1067736_T1w.nii.gz  # Motion artifact
-- sub-1070750_T1w.nii.gz  # FOV cuts just below C2-C3
+- sub-1067939_T1w.nii.gz  # Poor data quality around C2-C3
+- sub-1069272_T1w.nii.gz	# FOV cuts C2-C3 disc
+- sub-1069584_T1w.nii.gz  # Motion artifact
 - sub-1070818_T1w.nii.gz  # Motion artifact + poor data quality
-- sub-1070924_T1w.nii.gz  # FOV cuts just below C2-C3
+- sub-1072537_T1w.nii.gz	# Motion artifact
 - sub-1073057_T1w.nii.gz  # Motion artifact
+- sub-1074916_T1w.nii.gz  # Motion artifact
 - sub-1077193_T1w.nii.gz  # Poor data quality + FOV cuts just below C2-3
 - sub-1077469_T1w.nii.gz  # Motion artifact
 - sub-1078395_T1w.nii.gz  # Motion artifact
 - sub-1078726_T1w.nii.gz  # Motion artifact
-- sub-1079946_T1w.nii.gz  # FOV cuts just below C2-C3
+- sub-1078986_T1w.nii.gz  # Motion artifact
+- sub-1079946_T1w.nii.gz  # FOV cuts just below C2-C3 + motion artifact
 - sub-1080952_T1w.nii.gz  # Motion artifact
 - sub-1081070_T1w.nii.gz  # Motion artifact
-- sub-1082019_T1w.nii.gz  # FOV cuts just below C2-C3
 - sub-1082225_T1w.nii.gz  # Motion artifact
 - sub-1083077_T1w.nii.gz  # FOV cuts C2-C3 disc
 - sub-1085173_T1w.nii.gz  # Motion artifact
 - sub-1087397_T1w.nii.gz  # Motion artifact
 - sub-1089301_T1w.nii.gz  # FOV cuts C2-C3 disc
-- sub-1089378_T1w.nii.gz  # FOV just below C2-C3
-- sub-1089633_T1w.nii.gz  # FOV cuts just below C2-C3
+- sub-1089892_T1w.nii.gz  # Motion artifact
+- sub-1090501_T1w.nii.gz  # Motion artifact
 - sub-1090864_T1w.nii.gz  # FOV cuts C2-C3 disc
 - sub-1091250_T1w.nii.gz  # FOV cuts C2-C3 disc
 - sub-1094289_T1w.nii.gz  # FOV cuts C2-C3 disc
@@ -111,37 +139,45 @@
 - sub-1102364_T1w.nii.gz  # Motion artifact
 - sub-1102439_T1w.nii.gz  # Motion artifact
 - sub-1103629_T1w.nii.gz  # FOV cuts just below C2-C3
-- sub-1106613_T1w.nii.gz  # FOV cuts C2-C3 disc  
+- sub-1106703_T1w.nii.gz  # Motion artifact
 - sub-1107534_T1w.nii.gz  # FOV cuts C2-C3 disc
-- sub-1112791_T1w.nii.gz  # FOV cuts C2-C3 disc
+- sub-1110047_T1w.nii.gz  # Motion artifact
+- sub-1111448_T1w.nii.gz  # Poor data quality at C2-C3
+- sub-1112308_T1w.nii.gz  # Motion artifact
 - sub-1112855_T1w.nii.gz  # Motion artifact
+- sub-1112881_T1w.nii.gz  # Motion artifact
 - sub-1113167_T1w.nii.gz  # FOV cuts C2-C3 disc
+- sub-1113460_T1w.nii.gz  # Motion artifact
 - sub-1113753_T1w.nii.gz  # Motion artifact
 - sub-1114977_T1w.nii.gz  # FOV cuts C2-C3 + poor data quality
 - sub-1115141_T1w.nii.gz  # Poor data quality
+- sub-1115549_T1w.nii.gz  # Motion artifact
+- sub-1116123_T1w.nii.gz  # Motion artifact
+- sub-1117018_T1w.nii.gz  # Motion artifact
 - sub-1117152_T1w.nii.gz  # FOV cuts just below C2-3 + image tilted
-- sub-1118280_T1w.nii.gz  # FOV cuts just below C2-C3
+- sub-1119733_T1w.nii.gz  # Motion artifact
 - sub-1120512_T1w.nii.gz  # FOV cuts C2-C3 disc
+- sub-1121238_T1w.nii.gz  # Motion artifact
 - sub-1122338_T1w.nii.gz  # Motion artifact
 - sub-1123222_T1w.nii.gz  # FOV cuts C2-C3 disc
 - sub-1123453_T1w.nii.gz  # Motion artifact
-- sub-1123520_T1w.nii.gz  # FOV cuts just below C2-C3
 - sub-1123856_T1w.nii.gz  # Motion artifact
+- sub-1123891_T1w.nii.gz  # Motion artifact
 - sub-1124777_T1w.nii.gz  # FOV cuts just below C2-C3 + motion
 - sub-1125665_T1w.nii.gz  # Motion artifact
 - sub-1127471_T1w.nii.gz  # Motion artifact + poor data quality
-- sub-1128336_T1w.nii.gz  # FOV cuts just below C2-C3
+- sub-1129904_T1w.nii.gz  # Motion artifact
+- sub-1130339_T1w.nii.gz  # Motion artifact
 - sub-1130923_T1w.nii.gz  # FOV cuts C2-C3 disc
 - sub-1132220_T1w.nii.gz  # Motion artifact
 - sub-1133024_T1w.nii.gz  # Poor data quality + motion
 - sub-1133658_T1w.nii.gz  # Motion artifact
-- sub-1134671_T1w.nii.gz  # FOV cuts just below C2-C3
+- sub-1134469_T1w.nii.gz  # Poor data quality around C2-C3
 - sub-1135218_T1w.nii.gz  # Motion artifact
 - sub-1135714_T1w.nii.gz  # Motion artifact
 - sub-1136053_T1w.nii.gz  # Motion artifact + poor data quality
 - sub-1136342_T1w.nii.gz  # Motion artifact
-- sub-1137171_T1w.nii.gz  # FOV cuts just below C2-C3
-- sub-1138467_T1w.nii.gz  # FOV cuts just below C2-C3
+- sub-1136618_T1w.nii.gz  # Motion artifact
 - sub-1139207_T1w.nii.gz  # Poor data quality + FOV cuts just below C2-3
 - sub-1139656_T1w.nii.gz  # Poor data quality arround C2-C3
 - sub-1139906_T1w.nii.gz  # Poor data quality just bellow C2-3
