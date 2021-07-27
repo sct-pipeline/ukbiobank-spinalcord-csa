@@ -2,6 +2,7 @@
 - sub-1002033_T1w.nii.gz  # Motion artifact
 - sub-1002191_T1w.nii.gz  # Motion artifact
 - sub-1002702_T1w.nii.gz  # Motion artifact
+- sub-1005975_T1w.nii.gz  # Poor data quality around C2-C3
 - sub-1005491_T2w.nii.gz  # Don't see C2-3 disc, image tilted
 - sub-1006023_T2w.nii.gz  # Shading at C2-C3, don't see SC + disc 
 - sub-1006510_T1w.nii.gz  # Motion artifact
@@ -22,7 +23,7 @@
 - sub-1015849_T1w.nii.gz  # Motion artifact
 - sub-1016730_T1w.nii.gz  # Image tilted + poor contrast at C2-C3 of SC
 - sub-1016730_T2w.nii.gz  # Shading arround C2-C3, can't see SC
-- sub-1017465_T1w.nii.gz	# Motion artifact
+- sub-1017465_T1w.nii.gz  # Motion artifact
 - sub-1017582_T2w.nii.gz  # Shading at C2-C3, don't see SC + disc
 - sub-1017825_T2w.nii.gz  # Shading at C2-C3, don't see SC + disc
 - sub-1018268_T1w.nii.gz  # Motion artifact
@@ -93,22 +94,22 @@
 - sub-1052980_T1w.nii.gz  # Poor data quality
 - sub-1052029_T1w.nii.gz  # FOV cuts C2-C3 disc
 - sub-1054623_T1w.nii.gz  # Poor data quality at C2-C3
-- sub-1055910_T1w.nii.gz	# Motion artifact
+- sub-1055910_T1w.nii.gz  # Motion artifact
 - sub-1058251_T1w.nii.gz  # Motion artifact
 - sub-1058390_T1w.nii.gz  # FOV cuts at C2-C3
 - sub-1058928_T1w.nii.gz  # Motion artifact
 - sub-1059011_T1w.nii.gz  # Motion artifact
 - sub-1060663_T1w.nii.gz  # Motion artifact
 - sub-1064870_T1w.nii.gz  # FOV cuts at C2-C3
-- sub-1065820_T1w.nii.gz	# Motion artifact
+- sub-1065820_T1w.nii.gz  # Motion artifact
 - sub-1065847_T1w.nii.gz  # FOV cuts C2-C3 disc
 - sub-1066509_T1w.nii.gz  # Motion artifact
 - sub-1067736_T1w.nii.gz  # Motion artifact
 - sub-1067939_T1w.nii.gz  # Poor data quality around C2-C3
-- sub-1069272_T1w.nii.gz	# FOV cuts C2-C3 disc
+- sub-1069272_T1w.nii.gz  # FOV cuts C2-C3 disc
 - sub-1069584_T1w.nii.gz  # Motion artifact
 - sub-1070818_T1w.nii.gz  # Motion artifact + poor data quality
-- sub-1072537_T1w.nii.gz	# Motion artifact
+- sub-1072537_T1w.nii.gz  # Motion artifact
 - sub-1073057_T1w.nii.gz  # Motion artifact
 - sub-1074916_T1w.nii.gz  # Motion artifact
 - sub-1077193_T1w.nii.gz  # Poor data quality + FOV cuts just below C2-3
