@@ -262,6 +262,7 @@ def scatter_plot_pmj_c2c3(x, y, distance, path):
     sns.scatterplot(ax=ax[1], data=distance, alpha=0.7, edgecolors=None, linewidth=0)
     ax[1].axhline(y=mean, linewidth=2, color='k', ls="--")
     ax[1].set_ylabel('Distance (mm)')
+    ax[1].set_xlabel('Participants')
     ax[1].set_title('b) Distance from PMJ and C2-C3', pad=15)
     ax[1].set_box_aspect(1)
     plt.tight_layout()
