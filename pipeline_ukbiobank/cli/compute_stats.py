@@ -46,8 +46,8 @@ PREDICTORS = {
     }
 
 MODELS = {
-    'model_1': ['Sex', 'Height', 'Weight', 'Age', 'Total brain volume', 'Thalamus Volume'],
-    'model_2': ['Sex', 'Height', 'Weight', 'Age', 'Total brain volume norm', 'Thalamus Volume'],
+    'model_1': ['Sex', 'Height', 'Weight', 'Age', 'Total brain volume', 'Vscale', 'Volume ventricular CSF', 'Thalamus Volume'],
+    'model_2': ['Sex', 'Height', 'Weight', 'Age', 'Total brain volume norm', 'Volume ventricular CSF', 'Thalamus Volume'],
 }
 
 
