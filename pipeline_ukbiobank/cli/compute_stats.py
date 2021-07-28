@@ -46,7 +46,7 @@ PREDICTORS = {
     }
 
 MODELS = {
-    'model_1': ['Sex', 'Height', 'Weight', 'Age', 'Total brain volume', 'Vscale', 'Volume ventricular CSF', 'Thalamus Volume'],
+    'model_1': ['Sex', 'Height', 'Weight', 'Age', 'Total brain volume', 'Volume ventricular CSF', 'Thalamus Volume'],
     'model_2': ['Sex', 'Height', 'Weight', 'Age', 'Total brain volume norm', 'Volume ventricular CSF', 'Thalamus Volume'],
 }
 
@@ -255,7 +255,7 @@ def scatter_plot_pmj_c2c3(x, y, distance, path):
     y_vals = np.squeeze(y_vals)  # change shape from (1,N) to (N,)
     ax[0].plot(x_vals, y_vals, color='crimson', alpha=0.9)
     ax[0].plot([45, 100], [45, 100], ls="--", c="k")  # add diagonal line
-    
+
     # Scatterplot of distance between PMJ and C2-C3 disc
     mean = np.mean(distance)
     std = np.std(distance)
