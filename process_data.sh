@@ -137,9 +137,6 @@ detect_pmj_if_does_not_exist $file_t1 $file_t1_seg
 # Compute average cord CSA 64 mm of PMJ
 sct_process_segmentation -i ${file_t1_seg}.nii.gz -pmj ${file_t1}_pmj.nii.gz -distance 64 -o ${PATH_RESULTS}/csa-SC_pmj.csv -append 1 -qc ${PATH_QC} -qc-subject ${SUBJECT} -qc-image ${file_t1}.nii.gz
 
-# Smooth extrapolated centerline in R-L direction (for visualization)
-sct_maths -i ${file_t1_seg}_centerline_extrapolated.nii.gz -smooth 10,1,1 -o ${file_t1_seg}_centerline_extrapolated_s.nii.gz
-
 # Compute distance between PMJ and C2-C3 intervertebral disc
 python $PATH_SCRIPT/get_distance_pmj_disc.py -centerline centerline.csv -disclabel ${file_t1_seg}_labeled_discs.nii.gz -o ${PATH_RESULTS}/c2c3_pmj_distance.csv
 
