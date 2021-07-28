@@ -18,7 +18,7 @@ NEAR_ZERO_THRESHOLD = 1e-6
 
 def get_parser():
     parser = argparse.ArgumentParser(
-        description="Compute distance between C2-C3 intervertebral disc and PMJ. Outputs .csv file with results. | Orientation needs to be RPI" )
+        description="Compute distance between C2-C3 intervertebral disc and PMJ. Outputs .csv file with results. | Orientation needs to be RPI")
     parser.add_argument('-centerline', required=True, type=str,
                         help="Input image.")
     parser.add_argument('-disclabel', required=True, type=str,
