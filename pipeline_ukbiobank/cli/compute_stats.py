@@ -15,8 +15,10 @@ import sys
 import yaml
 import scipy
 import statsmodels.api as sm
+from statsmodels.stats.outliers_influence import variance_inflation_factor
 import seaborn as sns
 import matplotlib.pyplot as plt
+from patsy import dmatrices
 from textwrap import dedent
 from sklearn.preprocessing import PolynomialFeatures
 
@@ -47,7 +49,7 @@ PREDICTORS = {
 
 MODELS = {
     'model_1': ['Sex', 'Height', 'Weight', 'Age', 'Total brain volume', 'Volume ventricular CSF', 'Thalamus Volume'],
-    'model_2': ['Sex', 'Height', 'Weight', 'Age', 'Total brain volume norm', 'Volume ventricular CSF', 'Thalamus Volume'],
+    'model_2': ['Sex', 'Height', 'Weight', 'Age', 'Brain GM volume', 'Brain WM volume', 'Volume ventricular CSF', 'Thalamus Volume'],
 }
 
 
@@ -509,6 +511,14 @@ def compute_regression_csa(x, y, p_in, p_out, contrast, path_model):
 
     # Generates model with selected predictors from stepwise
     model = generate_linear_model(x, y, selected_predictors)
+
+    # Compute VIF
+    vif_data = pd.DataFrame()
+    vif_data['predictor'] = selected_predictors
+    vif_data["VIF"] = [variance_inflation_factor(x.values, i)
+                       for i in range(len(selected_predictors))]
+    logger.info('VIF of predictors: \n{}'.format(vif_data))
+
     # Apply normalization method
     COV_step = apply_normalization(y, x, model.params)
     m1_name = 'stepwise_' + contrast
@@ -518,6 +528,14 @@ def compute_regression_csa(x, y, p_in, p_out, contrast, path_model):
     # Generates linear regression with all predictors
     model_full = generate_linear_model(x, y)
     m2_name = 'fullLin_' + contrast
+
+    # Compute VIF
+    vif_data_full = pd.DataFrame()
+    vif_data_full['predictor'] = x.columns
+    vif_data_full["VIF"] = [variance_inflation_factor(x.values, i)
+                            for i in range(len(x.columns))]
+    logger.info('VIF of predictors: \n{}'.format(vif_data_full))
+
     # Apply normalization method
     COV_full = apply_normalization(y, x, model_full.params)
 
@@ -786,8 +804,8 @@ def main():
     compare_sex(df, path_model_sex)  # T-Test and violin plots
 
     # P_values for forward and backward stepwise
-    p_in = 0.01  # (p_in > p_out)
-    p_out = 0.005
+    p_in = 0.5  # (p_in > p_out)
+    p_out = 0.1
 
     # Compute linear regression with all predictors and stepwise, compares, analyses and saves results
     logger.info("\nMultivariate model:\n")
