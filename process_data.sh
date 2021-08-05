@@ -138,7 +138,7 @@ detect_pmj_if_does_not_exist $file_t1 $file_t1_seg
 sct_process_segmentation -i ${file_t1_seg}.nii.gz -pmj ${file_t1}_pmj.nii.gz -pmj-distance 64 -o ${PATH_RESULTS}/csa-SC_pmj.csv -append 1 -qc ${PATH_QC} -qc-subject ${SUBJECT} -qc-image ${file_t1}.nii.gz -v 2
 
 # Compute distance between PMJ and C2-C3 intervertebral disc
-python $PATH_SCRIPT/get_distance_pmj_disc.py -centerline centerline.csv -disclabel ${file_t1_seg}_labeled_discs.nii.gz -o ${PATH_RESULTS}/c2c3_pmj_distance.csv
+python $PATH_SCRIPT/get_distance_pmj_disc.py -centerline  ${file_t1_seg}_centerline_extrapolated.csv -disclabel ${file_t1_seg}_labeled_discs.nii.gz -o ${PATH_RESULTS}/c2c3_pmj_distance.csv
 
 # Verify presence of output files and write log file if error
 # ------------------------------------------------------------------------------
