@@ -49,7 +49,8 @@ PREDICTORS = {
 
 MODELS = {
     'model_1': ['Sex', 'Height', 'Weight', 'Age', 'Total brain volume', 'Volume ventricular CSF', 'Thalamus Volume'],
-    'model_2': ['Sex', 'Height', 'Weight', 'Age', 'Brain GM volume', 'Brain WM volume', 'Volume ventricular CSF', 'Thalamus Volume'],
+    'model_BV_sex': ['Total brain volume', 'Sex', 'inter BV_sex'],
+    'model_BV_TV_sex': ['Sex', 'Total brain volume', 'Thalamus Volume', 'inter BV_sex'],
 }
 
 
@@ -210,18 +211,21 @@ def format_number(number):
     return format(float(number), '.2f')
 
 
-def scatter_plot(x, y, filename, path):
+def scatter_plot(x, y, filename, path, xlabel, ylabel='CSA (mm$^2$)', title=None):
     """
     Generate and save a scatter plot of y and x.
     Args:
-        x (panda.DataFrame): predictor
-        y (panda.DataFrame): CSA values
+        x (panda.DataFrame):
+        y (panda.DataFrame):
     """
     plt.figure()
     sns.regplot(x=x, y=y, line_kws={"color": "crimson"})
-    plt.ylabel('CSA (mm$^2$)')
-    plt.xlabel(filename)
-    plt.title('CSA as a function of ' + filename)
+    plt.ylabel(ylabel)
+    plt.xlabel(xlabel)
+    if title is not None:
+        plt.title(title)
+    else:
+        plt.title('CSA as a function of ' + filename)
     plt.savefig(os.path.join(path, filename + '.png'))
     plt.close()
 
@@ -299,6 +303,11 @@ def get_correlation_table(df):
     # TODO: remove half
     corr_table = df.corr(method='pearson')
     corr_table_pvalue = df.corr(method=lambda x, y: scipy.stats.pearsonr(x, y)[1]) - np.eye(len(df.columns))
+    # Overcome smallest possible 64bit floating point
+    for column in corr_table_pvalue.columns:
+        for index in corr_table_pvalue.index:
+            if column != index and corr_table_pvalue.loc[index, column] == 0:
+                corr_table_pvalue.loc[index, column] = 1e-30
     p = corr_table_pvalue.applymap(lambda x: ''.join(['*' for t in [0.001, 0.05, 0.01] if x <= t and x > 0]))
     corr_table_and_p_value = corr_table.round(2).astype(str) + p
     return corr_table, corr_table_pvalue, corr_table_and_p_value
@@ -344,7 +353,7 @@ def compare_sex(df, path):
     logger.info('Created: ' + fname_fig)
     logger.info('Mean CSA value for female : {:.4} mm^2, std is {:.4}'.format(mean_csa_F, std_csa_F))
     logger.info('Mean CSA value for male : {:.4} mm^2, std is {:.4}'.format(mean_csa_M, std_csa_M))
-    logger.info("T test p_value : {} ".format(results[1]))
+    logger.info("T test p_value : {} , t value {}".format(results[1], results[0]))
 
 
 def generate_linear_model(x, y, selected_predictors=None):
@@ -368,7 +377,7 @@ def generate_linear_model(x, y, selected_predictors=None):
     return results
 
 
-def generate_quadratic_model(x, y, path, degree=2):
+def analyse_age(x, y, path, lin_model, degree=2):
     """
     Computes quadratic fit, saves the model and plot.
     Args:
@@ -389,12 +398,41 @@ def generate_quadratic_model(x, y, path, degree=2):
     save_model(model, 'quadratic_fit', path)
     # Scatter plot and quadratic fit
     plt.figure()
-    plt.title("CSA as function of Age and quadratic fit")
+    fig, ax = plt.subplots()
+    plt.title("CSA as function of age and quadratic fit")
     plt.xlabel('Age')
     plt.ylabel('CSA (mm$^2$)')
     plt.scatter(x, y)
-    plt.plot(x, ypred, 'r')
+    plt.plot(x, ypred, color='crimson')
+    plt.text(0.95, 0.9, 'y = {} - {:.2e}x - {:.2e}x$^2$\nR\u00b2 = {:.2}'.format(format_number(model.params[0]),
+                                                                     model.params[1]*-1,
+                                                                     model.params[2]*-1,
+                                                                     model.rsquared),
+             ha='right', va='center', color='crimson', transform=ax.transAxes,
+             fontsize=12,
+             bbox=dict(boxstyle='round', facecolor='white', alpha=1))  # box around equation
     fname_fig = os.path.join(path, 'quadratic_fit.png')
+    plt.savefig(fname_fig)
+    plt.close()
+    logger.info('Created: ' + fname_fig)
+
+    # Scatterplot and linear model
+    plt.figure()
+    fig, ax = plt.subplots()
+    plt.title("CSA as function of age and linear fit")
+    plt.xlabel('Age')
+    plt.ylabel('CSA (mm$^2$)')
+    plt.scatter(x, y)
+    y_vals = lin_model.params[0] + lin_model.params[1] * x
+    y_vals = np.squeeze(y_vals)  # change shape from (1,N) to (N,)
+    plt.plot(x, y_vals, color='crimson', alpha=0.9)
+    plt.text(0.95, 0.9, 'y = {} - {:.2e}x\nR\u00b2 = {:.2}'.format(format_number(model.params[0]),
+                                                                   model.params[1]*-1,
+                                                                   model.rsquared),
+             ha='right', va='center', color='crimson', transform=ax.transAxes,
+             fontsize=12,
+             bbox=dict(boxstyle='round', facecolor='white', alpha=1))  # box around equation
+    fname_fig = os.path.join(path, 'linear_fit.png')
     plt.savefig(fname_fig)
     plt.close()
     logger.info('Created: ' + fname_fig)
@@ -513,10 +551,10 @@ def compute_regression_csa(x, y, p_in, p_out, contrast, path_model):
     model = generate_linear_model(x, y, selected_predictors)
 
     # Compute VIF
-    vif_data = pd.DataFrame()
-    vif_data['predictor'] = selected_predictors
-    vif_data["VIF"] = [variance_inflation_factor(x.values, i)
-                       for i in range(len(selected_predictors))]
+    X = sm.add_constant(x[selected_predictors])
+    vif_data = pd.Series([variance_inflation_factor(X.values, i)
+                         for i in range(X.shape[1])],
+                         index=X.columns)
     logger.info('VIF of predictors: \n{}'.format(vif_data))
 
     # Apply normalization method
@@ -530,10 +568,10 @@ def compute_regression_csa(x, y, p_in, p_out, contrast, path_model):
     m2_name = 'fullLin_' + contrast
 
     # Compute VIF
-    vif_data_full = pd.DataFrame()
-    vif_data_full['predictor'] = x.columns
-    vif_data_full["VIF"] = [variance_inflation_factor(x.values, i)
-                            for i in range(len(x.columns))]
+    X = sm.add_constant(x)
+    vif_data_full = pd.Series([variance_inflation_factor(X.values, i)
+                               for i in range(X.shape[1])],
+                              index=X.columns)
     logger.info('VIF of predictors: \n{}'.format(vif_data_full))
 
     # Apply normalization method
@@ -684,14 +722,13 @@ def remove_subjects(df, dict_exclude_subj):
     return df_updated
 
 
-def init_path_results():
+def init_path_results(path_statistics):
     """
     Create folders for stats results if does not exists.
     Returns:
         path_metric: path to folder of metrics
         path_model: path to folder of stats models
-    """
-    path_statistics = 'stats_results'
+    """   
     if not os.path.exists(path_statistics):
         os.mkdir(path_statistics)
     path_metrics = os.path.join(path_statistics, 'metrics')
@@ -732,7 +769,7 @@ def main():
         dict_exclude_subj = dict()
 
     # Initialize path of statistical results
-    path_metrics, path_model = init_path_results()
+    path_metrics, path_model = init_path_results(args.output_name)
 
     # Dump log file there
     if os.path.exists(FNAME_LOG):
@@ -779,11 +816,24 @@ def main():
     if not os.path.exists(path_scatter_plots):
         os.mkdir(path_scatter_plots)
     for column, data in x.iteritems():
-        scatter_plot(data, y, column, path_scatter_plots)
+        scatter_plot(data, y, column, path_scatter_plots, xlabel=column)
+
+    # Generate scatterplot total brain volume vs age
+    scatter_plot(x['Age'], x['Total brain volume'], 'scatter_plot_age_brain_vol', path_metrics, xlabel='Age', ylabel='Total Brain Volume (mm$^3$)', title='Total Brain Volume as a function of age')
+    scatter_plot(x['Age'], x['Thalamus Volume'], 'scatter_plot_age_thalamus_vol', path_metrics, xlabel='Age', ylabel='Thalamus Volume (mm$^3$)', title='Thalamus Volume as a function of age')
 
     # Create pairwise plot between CSA and preditors seprated for sex | Maybe not useful, but nice to see
     plt.figure()
-    sns.pairplot(df, x_vars=([*PREDICTORS]).remove('Sex'), y_vars='CSA_pmj', kind='reg', hue='Sex', palette="Set1")
+    #sns.pairplot(df, x_vars=([*PREDICTORS]).remove('Sex'), y_vars='CSA_pmj', kind='reg', hue='Sex', palette="Set1")
+    g = sns.pairplot(df, x_vars=['Total brain volume','Thalamus Volume'], y_vars='CSA_pmj', kind='reg', hue='Sex', 
+                 palette="Set1",  height = 4, plot_kws={'scatter_kws': {'alpha': 0.6}, 'line_kws':{'lw':4}})
+    g.axes[0,0].yaxis.set_label_text('CSA (mm$^2$)')
+    g.fig.suptitle('Scatterplot of CSA as a function of brain volume and thalamus volume')
+    g._legend.remove()
+    #new_labels = ['F', 'M']
+    #for t, l in zip(g._legend.texts, new_labels): t.set_text(l)
+    plt.legend(title='Sex', loc='lower right', labels=['F', 'M'])
+    plt.tight_layout()
     plt.savefig(os.path.join(path_scatter_plots, 'pairwise_plot' + '.png'))
     plt.close()
     logger.info("Created Scatter Plots - Saved in {}".format(path_scatter_plots))
@@ -793,8 +843,9 @@ def main():
     path_model_age = os.path.join(path_model, 'age')
     if not os.path.exists(path_model_age):
         os.mkdir(path_model_age)
-    save_model(generate_linear_model(df['Age'], y), 'linear_fit', path_model_age)  # Linear model
-    generate_quadratic_model(df['Age'], y, path_model_age)  # Quadratic model
+    lin_model = generate_linear_model(df['Age'], y)
+    save_model(lin_model, 'linear_fit', path_model_age )  # Linear model
+    analyse_age(df['Age'], y, path_model_age, lin_model)  # Quadratic model
 
     # Analyse CSA - Sex
     logger.info("\nCSA and Sex:")
@@ -804,14 +855,18 @@ def main():
     compare_sex(df, path_model_sex)  # T-Test and violin plots
 
     # P_values for forward and backward stepwise
-    p_in = 0.5  # (p_in > p_out)
-    p_out = 0.1
+    p_in = 0.1  # (p_in > p_out)
+    p_out = 0.05
 
     # Compute linear regression with all predictors and stepwise, compares, analyses and saves results
     logger.info("\nMultivariate model:\n")
 
     # Initialize dict for new COV of normalized CSA
     df_COV = {}
+
+    # Create interaction variables
+    x['inter BV_sex'] = x['Total brain volume']*x['Sex']
+    x['inter TV_sex'] = x['Thalamus Volume']*x['Sex']
 
     # Loop through models
     for model, predictors in MODELS.items():
@@ -823,6 +878,11 @@ def main():
     # Save as .csv COV of normalized CSA
     df_to_csv(pd.DataFrame.from_dict(df_COV, orient='index', columns=['Stepwise', 'Full']), os.path.join(path_model, 'norm_COV.csv'))
 
+    # Check interaction sex and total brain volume and sex and thalamus volume
+    results_BV = generate_linear_model(x[['Total brain volume', 'Sex', 'inter BV_sex']], y)
+    logger.info(results_BV.summary())
+    results_TV = generate_linear_model(x[['Thalamus Volume', 'Sex', 'inter TV_sex']], y)
+    logger.info(results_TV.summary())
 
 if __name__ == '__main__':
     main()
