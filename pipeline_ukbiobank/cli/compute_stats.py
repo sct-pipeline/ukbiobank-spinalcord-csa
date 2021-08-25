@@ -828,7 +828,7 @@ def main():
     g = sns.pairplot(df, x_vars=['Total brain volume','Thalamus Volume'], y_vars='CSA_pmj', kind='reg', hue='Sex', 
                  palette="Set1",  height = 4, plot_kws={'scatter_kws': {'alpha': 0.6}, 'line_kws':{'lw':4}})
     g.axes[0,0].yaxis.set_label_text('CSA (mm$^2$)')
-    g.fig.suptitle('Scatterplot of CSA as a function of brain volume and thalamus volume')
+    g.fig.suptitle('Scatterplots of CSA as a function of brain volume and thalamus volume')
     g._legend.remove()
     #new_labels = ['F', 'M']
     #for t, l in zip(g._legend.texts, new_labels): t.set_text(l)
