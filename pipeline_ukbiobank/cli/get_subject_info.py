@@ -14,16 +14,16 @@ import pandas as pd
 # Dictionary of the predictors and field number correspondance
 param_dict = {
         'eid': 'Subject',
-        '31-0.0': 'Sex',
-        '21003-2.0': 'Age',
-        '12144-2.0': 'Height',
-        '21002-2.0': 'Weight',
+        '31-0.0': 'sex',
+        '21003-2.0': 'age',
+        '12144-2.0': 'height',
+        '21002-2.0': 'weight',
         '25000-2.0': 'Vscale',
-        '25004-2.0': 'Volume ventricular CSF',
-        '25006-2.0': 'Brain GM volume',
-        '25008-2.0': 'Brain WM volume',
-        '25009-2.0': 'Total brain volume norm',
-        '25010-2.0': 'Total brain volume',
+        '25004-2.0': 'ventricular CSF volume',
+        '25006-2.0': 'brain GM volume',
+        '25008-2.0': 'brain WM volume',
+        '25009-2.0': 'brain volume norm',
+        '25010-2.0': 'brain volume',
         '25011-2.0': 'Volume of thalamus (L)',
         '25012-2.0': 'Volume of thalamus (R)'
     }
@@ -113,7 +113,7 @@ def compute_total_thalamus_volume(df):
     Args:
         df (pandas.DataFrame): dataframe of parameters for all subjects.
     """
-    df['Thalamus Volume'] = df['Volume of thalamus (L)'] + df['Volume of thalamus (R)']
+    df['thalamus volume'] = df['Volume of thalamus (L)'] + df['Volume of thalamus (R)']
     df.drop('Volume of thalamus (L)', axis='columns', inplace=True)
     df.drop('Volume of thalamus (R)', axis='columns', inplace=True)
 
