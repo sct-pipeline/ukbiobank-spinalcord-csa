@@ -427,7 +427,7 @@ def analyse_age(x, y, path, lin_model, degree=2):
     y_vals = lin_model.params[0] + lin_model.params[1] * x
     y_vals = np.squeeze(y_vals)  # change shape from (1,N) to (N,)
     plt.plot(x, y_vals, color='crimson', alpha=0.9)
-    plt.text(0.95, 0.9, 'y = {} - {:.2e}x\nR\u00b2 = {:.2}'.format(format_number(model.params[0]),
+    plt.text(0.95, 0.9, 'y = {} - {:.3}x\nR\u00b2 = {:.2}'.format(format_number(model.params[0]),
                                                                    model.params[1]*-1,
                                                                    model.rsquared),
              ha='right', va='center', color='crimson', transform=ax.transAxes,
@@ -518,6 +518,7 @@ def save_model(model, model_name, path_model_contrast, x=None):
             os.makedirs(coeff_path)
         coeff_filename = os.path.join(coeff_path, 'coeff_' + model_name + '.csv')
         # Saves the coefficients of the model in .csv file
+        logger.info('P_values are : {}'.format(model.pvalues))
         df = pd.DataFrame(model.params, columns=['coeff'])
         if x is not None:
             df.loc[x.columns, 'mean'] = np.mean(x, axis=0)
