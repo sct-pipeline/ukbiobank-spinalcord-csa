@@ -1,4 +1,8 @@
 # Cord CSA on UK biobank brain MRI database
+This repository contains the analysis pipeline to normalize spinal cord cross-sectional area (CSA). 
+
+Spinal cord CSA was computed on T1w MRI scans for 804 participants from the UK Biobank database. In addition to computing cross-sectional at the C2-C3 vertebral disc, it was also measured at 64 mm caudal from the pontomedullary junction (PMJ). The effect of various biological, demographic and anatomical factors was explored by computing Pearson’s correlation coefficients. A stepwise linear regression found significant predictors; the coefficients of the best fit model were used to normalize CSA.
+
 Measure of the averaged cross-sectional area (CSA) between C2 and C3 of the spinal cord with UK Biobank Brain MRI dataset.
 # Table of contents 
 * [Data collection and organization](#data-collection-and-organization)
@@ -20,6 +24,7 @@ The brain MRI data of UK biobank follows the DICOM convention. The spinal cord o
  * `T1_orig_defaced.nii.gz`
  * `T2_FLAIR_orig_defaced.nii.gz`
 
+*The analysis pipeline was applied on T1w images only.*
 The raw images have gradient distortion, correction will be applied in the preprocessing steps of the analysis pipeline. 
 
 The DICOM dataset is under: `duke:mri/uk_biobank`
@@ -229,8 +234,7 @@ See [here](https://github.com/spinalcordtoolbox/spinalcordtoolbox/issues/3457) f
 
 #### Upload the manually-corrected files
 
-A QC report of the manually corrected files is created in a zip file. To update the dataset, add all manually-corrected files `derivatives/labels/`,  and include the qc zip file in the body of the PR. See our [internal procedure](https://github.com/neuropoly/data-management/blob/master/internal-server.md#upload) for more details.
-**TODO see if it is possible to inlcude the qc zipe file in PR** 
+A QC report of the manually corrected files is created in a zip file. To update the dataset, add all manually-corrected files `derivatives/labels/`,  and include the qc zip file in the body of the PR. See our [internal procedure](https://github.com/neuropoly/data-management/blob/master/internal-server.md#upload) for more details. 
 
 #### Add automatic segmentations to `derivatives/` folder
 After all segmentations are manually QC-ed, you can add them to the `derivatives/` by running again the script `manual_correction.py` and adding the flag `-add-seg-only`:
@@ -246,10 +250,10 @@ After all the necessary segmentation and labels are corrected, re-run the analys
 
 ### Statistical analysis
 #### Generate datafile:
-To generate a data file with the CSA results from `process_data.sh` and fields from `participant.tsv`, run the follwing line:
+To generate a data file with the CSA results from `process_data.sh` and a .csv file including the fields from the UK Biobank dataset, run the follwing line:
 
 ~~~
-uk_get_subject_info -path-data <PATH_DATA> -path-output ~/ukbiobank_results/ 
+uk_get_subject_info -path-data <PATH_DATA> -path-output ~/ukbiobank_results/ -datafile <FILENAME>
 ~~~
 
 #### Compute statistical analysis
@@ -282,6 +286,8 @@ ukbiobank_results
         |   ├── corr_table_and_pvalue.csv
         |   ├── corr_table_pvalue.csv        
         |   ├── stats_csa.csv
+        |   ├── scatter_plot_age_brain_vol.png
+        |   ├── scatter_plot_age_thalamus_vol.png
         |   └── stats_param.csv
         └── models
             ├── age
