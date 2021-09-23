@@ -25,6 +25,7 @@ The brain MRI data of UK biobank follows the DICOM convention. The spinal cord o
  * `T2_FLAIR_orig_defaced.nii.gz`
 
 *The analysis pipeline was applied on T1w images only.*
+
 The raw images have gradient distortion, correction will be applied in the preprocessing steps of the analysis pipeline. 
 
 The DICOM dataset is under: `duke:mri/uk_biobank`
