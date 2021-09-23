@@ -494,7 +494,7 @@ def save_model(model, model_name, path_model_contrast, x=None):
     Save summary in .txt file and coeff in a .csv file.
 
     Args:
-        model (statsmodels.regression.linear_model.RegressionResults object):  fited linear model.
+        model (statsmodels.regression.linear_model.RegressionResults object): fited linear model.
         model_name (str): Name of the model
         path_model_contrast (str): Path of the result folder for this model and contrast
     """
@@ -511,7 +511,7 @@ def save_model(model, model_name, path_model_contrast, x=None):
             fh.write(model.summary(title=model_name).as_text())
         logger.info('Created: ' + summary_filename)
 
-    def save_coeff():
+    def save_coeff():  # TODO: remove const and change variable for thalamus-volume
         coeff_path = os.path.join(path_model_contrast, 'coeff')
         # Creates a folder for results coeff of the model if doesn't exists
         if not os.path.exists(coeff_path):
@@ -519,9 +519,16 @@ def save_model(model, model_name, path_model_contrast, x=None):
         coeff_filename = os.path.join(coeff_path, 'coeff_' + model_name + '.csv')
         # Saves the coefficients of the model in .csv file
         logger.info('P_values are : {}'.format(model.pvalues))
+        logger.info('coefficients : \n{}'.format(model.params))
         df = pd.DataFrame(model.params, columns=['coeff'])
         if x is not None:
             df.loc[x.columns, 'mean'] = np.mean(x, axis=0)
+        # Remove constant since not relevant for normalization equation
+        if 'const' in df.index:
+            df.drop(index='const', inplace=True)
+            # Rename to be compatible with SCT input
+            new_index = [index.replace(" ", "_") for index in df.index.values]
+            df.index = new_index
         df.to_csv(coeff_filename)
         logger.info('Created: ' + coeff_filename)
 
