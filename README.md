@@ -317,4 +317,5 @@ ukbiobank_results
             |   └── violin_plot.csv
             └──norm_COV.csv
             
-
+~~~
+The coefficient files (`coeff_*.csv`) are included in [SCT](https://spinalcordtoolbox.com/) to normalize CSA.
