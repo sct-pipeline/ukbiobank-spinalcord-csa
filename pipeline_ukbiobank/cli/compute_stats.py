@@ -237,6 +237,10 @@ def scatter_plot_pmj_c2c3(x, y, distance, path):
         y (panda.DataFrame): PMJ CSA
         distance (panda.DataFrame): Distance bewteen C2-C3 disc and PMJ
     """
+    # Compute T-test for related groups
+    results = scipy.stats.ttest_rel(x, y)
+    logger.info("T test of PMJ vs C2-C3 CSA p_value : {} , t value {}".format(results[1], results[0]))
+
     plt.figure()
     fig, ax = plt.subplots(1, 2)
     sns.scatterplot(ax=ax[0], x=x, y=y, alpha=0.7, edgecolors=None, linewidth=0)
@@ -313,41 +317,56 @@ def get_correlation_table(df):
     return corr_table, corr_table_pvalue, corr_table_and_p_value
 
 
-def compare_sex(df, path):
+def compare_sex(df, path, csa_type):
     """
     Compute mean CSA and std value for each sex, T-test for the means of two independent samples of scores and generates violin plots of CSA for sex.
     Args:
         df (panda.DataFrame)
     """
     # Compute mean CSA value
-    mean_csa_F = np.mean(df[df['sex'] == 0]['CSA_pmj'])
-    std_csa_F = np.std(df[df['sex'] == 0]['CSA_pmj'])
-    mean_csa_M = np.mean(df[df['sex'] == 1]['CSA_pmj'])
-    std_csa_M = np.std(df[df['sex'] == 1]['CSA_pmj'])
+    mean_csa_F = np.mean(df[df['sex'] == 0][csa_type])
+    std_csa_F = np.std(df[df['sex'] == 0][csa_type])
+    mean_csa_M = np.mean(df[df['sex'] == 1][csa_type])
+    std_csa_M = np.std(df[df['sex'] == 1][csa_type])
 
     # Compute T-test
-    results = scipy.stats.ttest_ind(df[df['sex'] == 0]['CSA_pmj'], df[df['sex'] == 1]['CSA_pmj'])
+    results = scipy.stats.ttest_ind(df[df['sex'] == 0][csa_type], df[df['sex'] == 1][csa_type])
     df_copy = df.copy()
     df_copy.loc[df_copy['sex'] == 0, 'sex'] = 'F'
     df_copy.loc[df_copy['sex'] == 1, 'sex'] = 'M'
     # Violin plot
     plt.figure()
     fig, ax = plt.subplots()
-    plt.title("Violin plot of CSA and sex")
-    sns.violinplot(y='CSA_pmj', x='sex', data=df_copy, palette='flare')
+    if csa_type == "CSA_c2c3":
+        title = "B) Violin plot of CSA(C2-C3) and sex"
+    else:
+        title = "A) Violin plot of CSA(PMJ) and sex"
+    plt.title(title, fontsize=15)
+    sns.violinplot(y=csa_type, x='sex', data=df_copy, palette='flare')
     # Add mean CSA and std for female
     textstr_F = '\n'.join((
                            r'$\mu=%.2f$' % (mean_csa_F, ),
                            r'$\sigma=%.2f$' % (std_csa_F, )))
-    ax.text(0.05, 0.92, textstr_F, transform=ax.transAxes, fontsize=14,
+    ax.text(0.04, 0.90, textstr_F, transform=ax.transAxes, fontsize=13,
             verticalalignment='top', horizontalalignment='left')
     # Add mean CSA and std for female
     textstr_M = '\n'.join((r'$\mu=%.2f$' % (mean_csa_M, ),
                            r'$\sigma=%.2f$' % (std_csa_M, )))
-    ax.text(0.82, 0.92, textstr_M, transform=ax.transAxes, fontsize=14,
+    ax.text(0.79, 0.90, textstr_M, transform=ax.transAxes, fontsize=13,
             verticalalignment='top', horizontalalignment='left')
-    plt.ylabel('CSA (mm$^2$)')
+    plt.yticks(fontsize=13)
+    plt.xticks(fontsize=13)
+    plt.text(0.32, 0.08,
+             "p-value: {:.2e} \nt: {:.2f}".format(results[1], results[0]),
+             horizontalalignment='left', fontsize=13,
+             verticalalignment='center',
+             bbox=dict(boxstyle='round', facecolor='white', alpha=1),
+             transform=ax.transAxes)
+    ax.set_box_aspect(1)
+    plt.ylabel('CSA (mm$^2$)', fontsize=14)
+    plt.xlabel('Sex', fontsize=14)
     fname_fig = os.path.join(path, 'violin_plot.png')
+    plt.tight_layout()
     plt.savefig(fname_fig)
 
     # Write results
@@ -357,7 +376,7 @@ def compare_sex(df, path):
     logger.info("T test p_value : {} , t value {}".format(results[1], results[0]))
 
 
-def generate_linear_model(x, y, selected_predictors=None):
+def generate_linear_model(x, y, selected_predictors=None, path=None):
     """
     Compute linear regresion with the selected predictors.
     Args:
@@ -372,13 +391,22 @@ def generate_linear_model(x, y, selected_predictors=None):
         x = x[selected_predictors]
     # Adds a columns of ones to the original DataFrame.
     x = sm.add_constant(x)
-
     model = sm.OLS(y, x)  # Computes linear regression
     results = model.fit()  # Fits model
+    pred_values = results.predict(x)
+    #print('mean and std predicted CSA', np.mean(pred_values), np.std(pred_values))
+    #z_score = (pred_values - y)/np.std(y)
+    #if path:
+    #    figname = os.path.join(path, 'z_score.png')
+    #    plt.figure()
+    #    plt.title("hello world")
+    #    sns.kdeplot(z_score)
+    #    plt.savefig(figname)
+
     return results
 
 
-def analyse_age(x, y, path, lin_model, degree=2):
+def analyse_age(x, y, path, lin_model, csa_type, degree=2):
     """
     Computes quadratic fit, saves the model and plot.
     Args:
@@ -406,9 +434,9 @@ def analyse_age(x, y, path, lin_model, degree=2):
     plt.scatter(x, y)
     plt.plot(x, ypred, color='crimson')
     plt.text(0.95, 0.9, 'y = {} - {:.2e}x - {:.2e}x$^2$\nR\u00b2 = {:.2}'.format(format_number(model.params[0]),
-                                                                     model.params[1]*-1,
-                                                                     model.params[2]*-1,
-                                                                     model.rsquared),
+                                                                                 model.params[1]*-1,
+                                                                                 model.params[2]*-1,
+                                                                                 model.rsquared),
              ha='right', va='center', color='crimson', transform=ax.transAxes,
              fontsize=12,
              bbox=dict(boxstyle='round', facecolor='white', alpha=1))  # box around equation
@@ -420,19 +448,28 @@ def analyse_age(x, y, path, lin_model, degree=2):
     # Scatterplot and linear model
     plt.figure()
     fig, ax = plt.subplots()
-    plt.title("CSA as function of age and linear fit")
-    plt.xlabel('age')
-    plt.ylabel('CSA (mm$^2$)')
+    if csa_type == "CSA_c2c3":
+        title = "B) CSA(C2-C3) as function of age and linear fit"
+    else:
+        title = "A) CSA(PMJ) as function of age and linear fit"
+
+    plt.title(title, fontsize=15)
+    plt.xlabel('Age', fontsize=14)
+    plt.ylabel('CSA (mm$^2$)', fontsize=14)
+    plt.yticks(fontsize=13)
+    plt.xticks(fontsize=13)
+
     plt.scatter(x, y)
     y_vals = lin_model.params[0] + lin_model.params[1] * x
     y_vals = np.squeeze(y_vals)  # change shape from (1,N) to (N,)
     plt.plot(x, y_vals, color='crimson', alpha=0.9)
-    plt.text(0.95, 0.9, 'y = {} - {:.3}x\nR\u00b2 = {:.2}'.format(format_number(model.params[0]),
-                                                                   model.params[1]*-1,
-                                                                   model.rsquared),
+    plt.text(0.95, 0.92, 'y = {} - {:.3}x\nR\u00b2 = {:.2}'.format(format_number(model.params[0]),
+                                                                  model.params[1]*-1,
+                                                                  model.rsquared),
              ha='right', va='center', color='crimson', transform=ax.transAxes,
              fontsize=12,
              bbox=dict(boxstyle='round', facecolor='white', alpha=1))  # box around equation
+    ax.set_box_aspect(1)
     fname_fig = os.path.join(path, 'linear_fit.png')
     plt.savefig(fname_fig)
     plt.close()
@@ -560,7 +597,7 @@ def compute_regression_csa(x, y, p_in, p_out, contrast, path_model):
     logger.info('For ' + contrast + ' selected predictors are : {}'.format(selected_predictors))
 
     # Generates model with selected predictors from stepwise
-    model = generate_linear_model(x, y, selected_predictors)
+    model = generate_linear_model(x, y, selected_predictors, path=path_model)
 
     # Compute VIF
     X = sm.add_constant(x[selected_predictors])
@@ -576,7 +613,7 @@ def compute_regression_csa(x, y, p_in, p_out, contrast, path_model):
     save_model(model, m1_name, path_model_contrast, x=x[selected_predictors])
 
     # Generates linear regression with all predictors
-    model_full = generate_linear_model(x, y)
+    model_full = generate_linear_model(x, y, path=path_model)
     m2_name = 'fullLin_' + contrast
 
     # Compute VIF
@@ -697,11 +734,12 @@ def apply_normalization(csa, data_predictor, coeff):
     coeff.drop('const', inplace=True)
     predictors = list(coeff.index)
     pred_csa = csa.to_numpy()
+    csa = csa.to_numpy()
     for predictor in predictors:
         pred_csa = pred_csa + coeff[predictor]*(data_predictor[predictor].mean() - data_predictor[predictor])
     COV_pred = np.std(pred_csa) / np.mean(pred_csa)
     logger.info('\n COV of normalized CSA: {}'.format(COV_pred))
-
+    logger.info('\n Mean CSA: {} and STD: {}'.format(np.mean(pred_csa), np.std(pred_csa)))
     return COV_pred
 
 
@@ -821,7 +859,8 @@ def main():
 
     # Stepwise linear regression and complete linear regression for PMJ-based CSA
     x = df.drop(columns=['CSA_c2c3', 'CSA_pmj'])  # Initialize x to data of predictors
-    y = df['CSA_pmj']
+    y = df['CSA_c2c3']
+    #y = df['CSA_pmj']
 
     # Generate scatter plots for all predictors and CSA
     path_scatter_plots = os.path.join(path_metrics, 'scatter_plots')
@@ -854,14 +893,14 @@ def main():
         os.mkdir(path_model_age)
     lin_model = generate_linear_model(df['age'], y)
     save_model(lin_model, 'linear_fit', path_model_age )  # Linear model
-    analyse_age(df['age'], y, path_model_age, lin_model)  # Quadratic model
+    analyse_age(df['age'], y, path_model_age, lin_model, csa_type="CSA_c2c3")  # Quadratic model
 
     # Analyse CSA - sex
     logger.info("\nCSA and sex:")
     path_model_sex = os.path.join(path_model, 'sex')
     if not os.path.exists(path_model_sex):
         os.mkdir(path_model_sex)
-    compare_sex(df, path_model_sex)  # T-Test and violin plots
+    compare_sex(df, path_model_sex, csa_type='CSA_c2c3')  # T-Test and violin plots
 
     # P_values for forward and backward stepwise
     p_in = 0.05
