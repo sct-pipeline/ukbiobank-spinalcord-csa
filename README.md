@@ -1,5 +1,10 @@
 # Cord CSA on UK biobank brain MRI database
-This repository contains the analysis pipeline to normalize spinal cord cross-sectional area (CSA). 
+This repository contains the analysis pipeline to normalize spinal cord cross-sectional area (CSA).
+
+👉 Please cite this work if you use it or if you are inspired by it:
+~~~
+Bédard S, Cohen-Adad J. Automatic measure and normalization of spinal cord cross-sectional area using the pontomedullary junction. Frontiers in Neuroimaging [Internet]. 2022;1. Available from: https://www.frontiersin.org/articles/10.3389/fnimg.2022.1031253
+~~~
 
 Spinal cord CSA was computed on T1w MRI scans for 804 participants from the UK Biobank database. In addition to computing cross-sectional at the C2-C3 vertebral disc, it was also measured at 64 mm caudal from the pontomedullary junction (PMJ). The effect of various biological, demographic and anatomical factors was explored by computing Pearson’s correlation coefficients. A stepwise linear regression found significant predictors; the coefficients of the best fit model were used to normalize CSA.
 
